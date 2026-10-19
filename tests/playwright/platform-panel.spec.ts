@@ -238,20 +238,22 @@ test.describe('Platform Billing', () => {
     // Default tab is Pending
     await expect(page.getByTestId('billing-tab-pending')).toHaveAttribute('data-active', 'true')
 
+    // The web-first assertions below wait for the tab switch. Not 'networkidle':
+    // the All tab's rows link to tenant pages whose prefetches stay open, so
+    // the network never goes idle there.
+
     // Navigate to Confirmed tab
     await page.getByTestId('billing-tab-confirmed').click()
-    await page.waitForLoadState('networkidle')
     await expect(page.getByTestId('billing-tab-confirmed')).toHaveAttribute('data-active', 'true')
 
     // Navigate to All tab
     await page.getByTestId('billing-tab-all').click()
-    await page.waitForLoadState('networkidle')
     await expect(page.getByTestId('billing-tab-all')).toHaveAttribute('data-active', 'true')
   })
 
   test('All tab shows all requests', async ({ page }) => {
     await page.getByTestId('billing-tab-all').click()
-    await page.waitForLoadState('networkidle')
+    await expect(page.getByTestId('billing-tab-all')).toHaveAttribute('data-active', 'true')
     // Table loads (even if empty, the table element exists)
     await expect(page.getByTestId('billing-requests-table')).toBeVisible()
   })
