@@ -8,8 +8,11 @@
  * stays put, and before this fix the button gave no feedback at all — so the
  * visitor clicked it again and again.
  *
- * The OAuth hop is stubbed with a 204: the browser abandons the navigation and
- * stays on the page, which is exactly the "redirect that never lands" shape.
+ * The OAuth hop is aborted (net::ERR_ABORTED): the browser abandons the
+ * navigation and stays on the page, which is exactly the "redirect that never
+ * lands" shape. Not a 204: Chromium drops that navigation too, but Playwright
+ * never sees it end, and its pre-assertion navigation check then stalls every
+ * later expect on "waiting for navigation to finish".
  */
 import { test, expect } from './utils/test'
 import { BASE, LOCALE } from './utils/constants'
@@ -22,7 +25,7 @@ test.describe('create-school Google button', () => {
     let oauthHops = 0
     await page.route(/accounts\.google\.com|\/auth\/v1\/authorize/, (route) => {
       oauthHops++
-      return route.fulfill({ status: 204, body: '' })
+      return route.abort('aborted')
     })
 
     await page.goto(`${BASE}/${LOCALE}/create-school`)
