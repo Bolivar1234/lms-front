@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { loginAsStudent } from '../utils/auth'
 import { BASE, LOCALE } from '../utils/constants'
 
@@ -23,7 +23,8 @@ test('capture #586 shots', async ({ page }) => {
   for (const shot of SHOTS) {
     await page.setViewportSize({ width: shot.width, height: 900 })
     await page.goto(`${BASE}${shot.path}`)
-    await page.waitForLoadState('networkidle').catch(() => {})
+    // The header avatar renders with the dashboard shell (link prefetches keep the network busy).
+    await expect(page.getByTestId('user-nav-trigger')).toBeVisible()
     await page.waitForTimeout(1200)
 
     // Scroll fully right so the shot shows the overflow rather than hiding it.
