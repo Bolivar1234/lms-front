@@ -675,25 +675,25 @@ export function registerLessonTools(server: LmsServer) {
             name: "Callout",
             description: "A colored box for notes, warnings, or info.",
             snippet:
-              '<Callout type="info">Mensaje informativo para estudiantes.</Callout>',
+              '<Callout type="info">An informational note for students.</Callout>',
           },
           {
             name: "Spoiler",
             description: "Collapsible content used for solutions or extra info.",
             snippet:
-              '<Spoiler label="Mostrar solución">Aquí va la solución ocultada.</Spoiler>',
+              '<Spoiler label="Show solution">The hidden solution goes here.</Spoiler>',
           },
           {
             name: "Quiz",
             description: "Multiple choice question. Use JSON.parse for options.",
             snippet:
-              '<Quiz question="¿Cuál es la capital de Francia?" options={JSON.parse(\'["Londres","París","Berlín"]\')} correctIndex={1} explanation="París es la capital." />',
+              '<Quiz question="What is the capital of France?" options={JSON.parse(\'["London","Paris","Berlin"]\')} correctIndex={1} explanation="Paris is the capital." />',
           },
           {
             name: "Steps",
             description: "A numbered list of steps.",
             snippet:
-              '<Steps><Step title="Paso 1">Contenido...</Step></Steps>',
+              '<Steps><Step title="Step 1">Content...</Step></Steps>',
           },
           {
             name: "Vocabulary",
@@ -704,7 +704,7 @@ export function registerLessonTools(server: LmsServer) {
           {
             name: "Definition",
             description: "Term definition.",
-            snippet: '<Definition term="API">Interfaz de programación.</Definition>',
+            snippet: '<Definition term="API">Application Programming Interface.</Definition>',
           },
           {
             name: "Video",
@@ -748,7 +748,7 @@ export function registerLessonTools(server: LmsServer) {
             description:
               "Data table with headers and rows. Uses JSON.parse for data.",
             snippet:
-              '<Table headers={JSON.parse(\'["Concepto","Descripción","Ejemplo"]\')} rows={JSON.parse(\'[["Variable","Almacena un valor","let x = 5"],["Función","Bloque reutilizable","function sum(){}"]]\')} striped={true} />',
+              '<Table headers={JSON.parse(\'["Concept","Description","Example"]\')} rows={JSON.parse(\'[["Variable","Stores a value","let x = 5"],["Function","Reusable block","function sum(){}"]]\')} striped={true} />',
           },
           {
             name: "FlashcardSet",

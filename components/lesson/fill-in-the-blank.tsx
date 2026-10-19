@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconX, IconRefresh } from '@tabler/icons-react'
 
@@ -11,6 +12,7 @@ interface FillInTheBlankProps {
 }
 
 export function FillInTheBlank({ segments, explanation, className }: FillInTheBlankProps) {
+  const t = useTranslations('lessonContent.interactive')
   const blankIndices = useMemo(
     () => segments.map((s, i) => (s.type === 'blank' ? i : -1)).filter((i) => i !== -1),
     [segments]
@@ -80,7 +82,7 @@ export function FillInTheBlank({ segments, explanation, className }: FillInTheBl
             disabled={blankIndices.some((idx) => !(answers[idx] || '').trim())}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Comprobar
+            {t('check')}
           </button>
         ) : (
           <>
@@ -96,12 +98,12 @@ export function FillInTheBlank({ segments, explanation, className }: FillInTheBl
               {allCorrect ? (
                 <>
                   <IconCheck className="size-4" />
-                  ¡Correcto!
+                  {t('correct')}
                 </>
               ) : (
                 <>
                   <IconX className="size-4" />
-                  Incorrecto
+                  {t('incorrect')}
                 </>
               )}
             </div>
@@ -111,7 +113,7 @@ export function FillInTheBlank({ segments, explanation, className }: FillInTheBl
               className="flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
             >
               <IconRefresh className="size-4" />
-              Reintentar
+              {t('retry')}
             </button>
           </>
         )}

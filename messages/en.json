@@ -9825,6 +9825,39 @@
       "tip": "Tip",
       "success": "Correct",
       "danger": "Important"
+    },
+    "interactive": {
+      "check": "Check",
+      "correct": "Correct!",
+      "incorrect": "Incorrect",
+      "retry": "Try again",
+      "answerSubmitted": "Answer submitted",
+      "answerCorrect": "Correct answer",
+      "answerIncorrect": "Incorrect answer",
+      "terms": "Terms",
+      "matches": "Matches"
+    },
+    "spoiler": {
+      "answer": "Show answer",
+      "solution": "Show solution",
+      "hint": "Show hint"
+    },
+    "compare": {
+      "incorrect": "Incorrect",
+      "correct": "Correct",
+      "before": "Before",
+      "after": "After"
+    },
+    "flashcards": {
+      "showingFront": "Showing front. Click to flip.",
+      "showingBack": "Showing back. Click to flip.",
+      "previous": "Previous card",
+      "next": "Next card",
+      "flipHint": "Click the card to flip it"
+    },
+    "vocabulary": {
+      "pause": "Pause audio",
+      "play": "Play pronunciation"
     }
   }
 }

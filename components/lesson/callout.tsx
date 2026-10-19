@@ -73,7 +73,7 @@ export function Callout({ type = 'info', title, children, className }: CalloutPr
   )
 }
 
-// Alias para uso más sencillo en MDX
+// Aliases for MDX
 export const Info = (props: Omit<CalloutProps, 'type'>) => <Callout type="info" {...props} />
 export const Warning = (props: Omit<CalloutProps, 'type'>) => <Callout type="warning" {...props} />
 export const Tip = (props: Omit<CalloutProps, 'type'>) => <Callout type="tip" {...props} />

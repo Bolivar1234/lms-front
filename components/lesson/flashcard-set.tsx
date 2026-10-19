@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 
@@ -10,6 +11,7 @@ interface FlashcardSetProps {
 }
 
 export function FlashcardSet({ cards, className }: FlashcardSetProps) {
+  const t = useTranslations('lessonContent.flashcards')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -38,7 +40,7 @@ export function FlashcardSet({ cards, className }: FlashcardSetProps) {
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped((f) => !f) } }}
         role="button"
         tabIndex={0}
-        aria-label={flipped ? 'Mostrando reverso. Clic para voltear.' : 'Mostrando frente. Clic para voltear.'}
+        aria-label={flipped ? t('showingBack') : t('showingFront')}
         className="relative mx-auto h-48 w-full max-w-md cursor-pointer select-none"
         style={prefersReducedMotion ? undefined : { perspective: '1000px' }}
       >
@@ -84,7 +86,7 @@ export function FlashcardSet({ cards, className }: FlashcardSetProps) {
           onClick={() => goTo(currentIndex - 1)}
           disabled={currentIndex === 0}
           className="rounded-md border p-2 text-muted-foreground hover:bg-muted disabled:opacity-30"
-          aria-label="Tarjeta anterior"
+          aria-label={t('previous')}
         >
           <IconChevronLeft className="h-4 w-4" />
         </button>
@@ -96,14 +98,14 @@ export function FlashcardSet({ cards, className }: FlashcardSetProps) {
           onClick={() => goTo(currentIndex + 1)}
           disabled={currentIndex === cards.length - 1}
           className="rounded-md border p-2 text-muted-foreground hover:bg-muted disabled:opacity-30"
-          aria-label="Siguiente tarjeta"
+          aria-label={t('next')}
         >
           <IconChevronRight className="h-4 w-4" />
         </button>
       </div>
 
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        Clic en la tarjeta para voltear
+        {t('flipHint')}
       </p>
     </div>
   )

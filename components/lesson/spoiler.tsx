@@ -1,23 +1,29 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconChevronDown, IconEye, IconEyeOff } from '@tabler/icons-react'
 
 interface SpoilerProps {
   title?: string
+  /** Alias of `title`; the block editor and the MDX docs write `label`. */
+  label?: string
   children: React.ReactNode
   className?: string
   defaultOpen?: boolean
 }
 
 export function Spoiler({
-  title = 'Ver respuesta',
+  title,
+  label,
   children,
   className,
   defaultOpen = false,
 }: SpoilerProps) {
+  const t = useTranslations('lessonContent.spoiler')
   const [isOpen, setIsOpen] = useState(defaultOpen)
+  const displayTitle = title || label || t('answer')
 
   return (
     <div
@@ -38,7 +44,7 @@ export function Spoiler({
           ) : (
             <IconEye className="size-4" aria-hidden="true" />
           )}
-          {title}
+          {displayTitle}
         </span>
         <IconChevronDown
           className={cn(
@@ -65,13 +71,18 @@ export function Spoiler({
   )
 }
 
-// Alias para uso en MDX
-export const Solution = (props: Omit<SpoilerProps, 'title'>) => (
-  <Spoiler title="Ver solución" {...props} />
-)
-export const Hint = (props: Omit<SpoilerProps, 'title'>) => (
-  <Spoiler title="Ver pista" {...props} />
-)
-export const Answer = (props: Omit<SpoilerProps, 'title'>) => (
-  <Spoiler title="Ver respuesta" {...props} />
-)
+// Aliases for MDX
+type SpoilerAliasProps = Omit<SpoilerProps, 'title' | 'label'>
+
+export function Solution(props: SpoilerAliasProps) {
+  const t = useTranslations('lessonContent.spoiler')
+  return <Spoiler title={t('solution')} {...props} />
+}
+export function Hint(props: SpoilerAliasProps) {
+  const t = useTranslations('lessonContent.spoiler')
+  return <Spoiler title={t('hint')} {...props} />
+}
+export function Answer(props: SpoilerAliasProps) {
+  const t = useTranslations('lessonContent.spoiler')
+  return <Spoiler title={t('answer')} {...props} />
+}

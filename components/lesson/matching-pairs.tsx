@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconX, IconRefresh } from '@tabler/icons-react'
 
@@ -35,6 +36,7 @@ function isIdenticalOrder(shuffled: number[], length: number): boolean {
 }
 
 export function MatchingPairs({ pairs, explanation, className }: MatchingPairsProps) {
+  const t = useTranslations('lessonContent.interactive')
   const shuffledMatchIndices = useMemo(() => {
     if (pairs.length <= 1) return pairs.map((_, i) => i)
     const indices = pairs.map((_, i) => i)
@@ -136,7 +138,7 @@ export function MatchingPairs({ pairs, explanation, className }: MatchingPairsPr
       <div className="grid grid-cols-2 gap-4">
         {/* Terms column */}
         <div className="space-y-2">
-          <span className="text-xs font-medium text-muted-foreground">Términos</span>
+          <span className="text-xs font-medium text-muted-foreground">{t('terms')}</span>
           {pairs.map((pair, termIdx) => {
             const color = getColorForConnection(termIdx)
             const isSelected = selectedTerm === termIdx
@@ -164,7 +166,7 @@ export function MatchingPairs({ pairs, explanation, className }: MatchingPairsPr
 
         {/* Matches column (shuffled) */}
         <div className="space-y-2">
-          <span className="text-xs font-medium text-muted-foreground">Parejas</span>
+          <span className="text-xs font-medium text-muted-foreground">{t('matches')}</span>
           {shuffledMatchIndices.map((originalIdx) => {
             const color = getMatchColor(originalIdx)
             const isSelected = selectedMatch === originalIdx
@@ -197,7 +199,7 @@ export function MatchingPairs({ pairs, explanation, className }: MatchingPairsPr
             disabled={!allConnected}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Comprobar
+            {t('check')}
           </button>
         ) : (
           <>
@@ -213,12 +215,12 @@ export function MatchingPairs({ pairs, explanation, className }: MatchingPairsPr
               {allCorrect ? (
                 <>
                   <IconCheck className="size-4" />
-                  ¡Correcto!
+                  {t('correct')}
                 </>
               ) : (
                 <>
                   <IconX className="size-4" />
-                  Incorrecto
+                  {t('incorrect')}
                 </>
               )}
             </div>
@@ -228,7 +230,7 @@ export function MatchingPairs({ pairs, explanation, className }: MatchingPairsPr
               className="flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
             >
               <IconRefresh className="size-4" />
-              Reintentar
+              {t('retry')}
             </button>
           </>
         )}
