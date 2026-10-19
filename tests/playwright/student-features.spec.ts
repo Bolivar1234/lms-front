@@ -29,7 +29,7 @@ test.describe('Student Features', () => {
       const statsCards = page.locator('[class*="grid"] [class*="p-6"]')
       const emptyState = page.locator('text=/No enrollments|Browse Courses/i')
       // isVisible() does not wait: wait for either branch to render first
-      await expect(statsCards.first().or(emptyState.first())).toBeVisible({ timeout: 10_000 })
+      await expect(statsCards.or(emptyState).first()).toBeVisible({ timeout: 10_000 })
 
       const hasStats = await statsCards.first().isVisible({ timeout: 10_000 }).catch(() => false)
       const hasEmpty = await emptyState.first().isVisible({ timeout: 5_000 }).catch(() => false)
