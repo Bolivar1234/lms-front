@@ -309,20 +309,21 @@ test.describe('Exercise page tenant isolation', () => {
     await expect(page.locator('body')).toContainText(/\[E2E\] Essay Exercise|essay/i)
   })
 
-  test('Alice loads exercise 5002 on code-academy tenant', async ({ page }) => {
+  test('Alice loads exercise 2001 on code-academy tenant', async ({ page }) => {
     test.setTimeout(30_000)
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/5002`)
+    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/2001`)
 
-    // Page should render the exercise — look for exercise content or title
-    // Exercise 5002 is "Python Variables Quiz" — verify it loaded (not a login/error page)
-    await expect(page.locator('body')).toContainText(/Python Variables|exercise|quiz/i)
+    // Exercise 2001 is the seeded "FizzBuzz Challenge" on code-academy. Match its
+    // title, not a generic word: the URL and the 404 page both say "exercise".
+    await expect(page.getByText('FizzBuzz Challenge').first()).toBeVisible()
+    await expect(page.getByText('Page not found')).toHaveCount(0)
   })
 
   test('default student blocked from code-academy exercise', async ({ page }) => {
     await loginAsStudent(page)
     // Navigate to code-academy domain — should redirect (non-member)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/5002`)
+    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/2001`)
     await page.waitForURL(/join-school|auth\/login/)
 
     const url = page.url()

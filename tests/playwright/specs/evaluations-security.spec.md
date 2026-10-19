@@ -18,7 +18,7 @@
 | Teacher/Owner | `owner@e2etest.com` / `password123` |
 | Seeded course (default) | course_id 1001 |
 | Seeded lesson (default) | lesson_id 1002 |
-| Code Academy exercise | exercise 5002 on course 2001 |
+| Code Academy exercise | exercise 2001 ("FizzBuzz Challenge") on course 2001 |
 | Code Academy course | course_id 2001 |
 
 ### Seeded Data (beforeAll)
@@ -59,7 +59,7 @@ Precondition: lesson_completions for student/lesson 1002 cleaned before suite.
 | # | Test | Assertions | Selectors |
 |---|------|------------|-----------|
 | 7 | student loads exercise on default tenant | Navigate to seeded exercise on course 1001; body contains "[E2E] Essay Exercise" or "essay" | Body text matches `/\[E2E\] Essay Exercise\|essay/i` |
-| 8 | Alice loads exercise 5002 on code-academy tenant | Navigate to exercise 5002 on course 2001; body contains "Python Variables" or "exercise" or "quiz" | Body text matches `/Python Variables\|exercise\|quiz/i` |
+| 8 | Alice loads exercise 2001 on code-academy tenant | Navigate to exercise 2001 on course 2001 | "FizzBuzz Challenge" visible; no "Page not found" |
 | 9 | default student blocked from code-academy exercise | Default student navigates to TENANT_BASE exercise; redirected | URL matches `/join-school\|auth/login/` |
 
 ### DB-Level: exercise_completions (P1, serial)
