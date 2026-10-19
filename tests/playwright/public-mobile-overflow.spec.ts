@@ -27,7 +27,8 @@ test.describe('Public pages at phone width', () => {
   for (const url of PAGES) {
     test(`no horizontal scroll: ${url.replace(/^https?:\/\/[^/]+/, '')} (${new URL(url).hostname})`, async ({ page }) => {
       await page.goto(url, { waitUntil: 'domcontentloaded' })
-      await expect(page.locator('main, h1').first()).toBeVisible()
+      // Wait for content before measuring; the login page has a form but no main or h1.
+      await expect(page.locator('main, h1, form').first()).toBeVisible()
       await expect
         .poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth))
         .toBeLessThanOrEqual(1)
