@@ -117,7 +117,8 @@ test.describe('Invalid Certificate Verification', () => {
 
     // Navigate to verification page with invalid code — public page, no login needed
     await page.goto(`${BASE}/${LOCALE}/verify/INVALID-CODE-12345`)
-    await page.waitForLoadState('networkidle')
+    // Both the verified and not-found views render an h1
+    await expect(page.locator('h1').first()).toBeVisible()
 
     // Should show the "not found" view with the shield-x icon
     const body = await page.locator('body').textContent()
@@ -129,7 +130,8 @@ test.describe('Invalid Certificate Verification', () => {
     test.setTimeout(30_000)
 
     await page.goto(`${BASE}/${LOCALE}/verify/INVALID-CODE-12345`)
-    await page.waitForLoadState('networkidle')
+    // Both the verified and not-found views render an h1
+    await expect(page.locator('h1').first()).toBeVisible()
 
     // Should have a link back to home
     const homeLink = page.locator('a[href="/"]')
@@ -146,7 +148,8 @@ test.describe('Valid Certificate Verification', () => {
     test.setTimeout(30_000)
 
     await page.goto(`${BASE}/${LOCALE}/verify/${existingVerificationCode}`)
-    await page.waitForLoadState('networkidle')
+    // Both the verified and not-found views render an h1
+    await expect(page.locator('h1').first()).toBeVisible()
 
     // Should show "Verified Credential" heading or badge (not "Not Found")
     const verifiedText = page.getByText(/Verified Credential/i)
@@ -164,7 +167,6 @@ test.describe('Valid Certificate Verification', () => {
     test.setTimeout(30_000)
 
     await page.goto(`${BASE}/${LOCALE}/verify/${existingVerificationCode}`)
-    await page.waitForLoadState('networkidle')
 
     // The page renders the student name as h1 heading
     const heading = page.locator('h1').first()
@@ -179,7 +181,8 @@ test.describe('Valid Certificate Verification', () => {
     test.setTimeout(30_000)
 
     await page.goto(`${BASE}/${LOCALE}/verify/${existingVerificationCode}`)
-    await page.waitForLoadState('networkidle')
+    // Both the verified and not-found views render an h1
+    await expect(page.locator('h1').first()).toBeVisible()
 
     // The verification code is displayed on the page in monospace
     const body = await page.locator('body').textContent()

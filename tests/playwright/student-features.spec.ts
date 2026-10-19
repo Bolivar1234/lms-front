@@ -24,11 +24,12 @@ test.describe('Student Features', () => {
 
       // Page should show either the stats grid (when enrollments exist)
       // or the empty state card (when no enrollments)
-      await page.waitForLoadState('networkidle')
 
       // Check for stats cards (grid with md:grid-cols-4) or empty state
       const statsCards = page.locator('[class*="grid"] [class*="p-6"]')
       const emptyState = page.locator('text=/No enrollments|Browse Courses/i')
+      // isVisible() does not wait: wait for either branch to render first
+      await expect(statsCards.first().or(emptyState.first())).toBeVisible({ timeout: 10_000 })
 
       const hasStats = await statsCards.first().isVisible({ timeout: 10_000 }).catch(() => false)
       const hasEmpty = await emptyState.first().isVisible({ timeout: 5_000 }).catch(() => false)

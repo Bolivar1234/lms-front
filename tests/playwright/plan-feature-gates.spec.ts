@@ -95,7 +95,7 @@ test.describe('Plan feature gates (#662)', () => {
   test('public pricing table no longer sells API access', async ({ page }) => {
     await page.goto(`${BASE}/${LOCALE}/platform-pricing`)
     // Wait on a feature row that must render before asserting one is absent: a
-    // zero count passes vacuously on an empty page. Not 'networkidle' — the
+    // zero count passes vacuously on an empty page. Not network idle — the
     // page's link prefetches stay open, so the network never goes idle.
     await expect(page.getByText('Remove "Powered by" branding', { exact: true }).first()).toBeVisible()
     // Feature-row labels only: the Enterprise plan description still mentions
