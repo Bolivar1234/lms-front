@@ -36,28 +36,23 @@ test.describe('Gamification', () => {
       await page.goto(`${BASE}/en/dashboard/student/store`)
       await expect(page.getByTestId('store-page')).toBeVisible({ timeout: 15_000 })
 
-      // Wait for client-side hydration and data loading
-      await page.waitForLoadState('networkidle')
-
       // Store should show one of: items grid, empty message, or locked upgrade prompt
       const storeItems = page.locator('[class*="grid"] button')
       const emptyState = page.locator('text=/no items|empty|coming soon/i')
       const lockedState = page.locator('text=/locked|upgrade/i')
 
-      const hasItems = await storeItems.first().isVisible().catch(() => false)
-      const isEmpty = await emptyState.first().isVisible().catch(() => false)
-      const isLocked = await lockedState.first().isVisible().catch(() => false)
-
-      expect(hasItems || isEmpty || isLocked).toBeTruthy()
+      // Waits for the client data load (skeleton first)
+      await expect(storeItems.or(emptyState).or(lockedState).filter({ visible: true }).first()).toBeVisible()
     })
 
     test('store shows balance when available', async ({ page }) => {
       await page.goto(`${BASE}/en/dashboard/student/store`)
       await expect(page.getByTestId('store-page')).toBeVisible({ timeout: 15_000 })
-      await page.waitForLoadState('networkidle')
 
       // If store is unlocked, a balance/coin indicator should be visible
       const lockedState = page.locator('text=/locked|upgrade/i')
+      // The store loads client-side: wait for the locked prompt or the balance before branching.
+      await expect(lockedState.or(page.getByText('Your Balance')).filter({ visible: true }).first()).toBeVisible()
       const isLocked = await lockedState.first().isVisible().catch(() => false)
 
       if (!isLocked) {
@@ -72,7 +67,7 @@ test.describe('Gamification', () => {
     test.beforeEach(async ({ page }) => {
       await loginAsStudent(page)
       // Login resolves on the first `/dashboard` commit, which still redirects
-      // to `/dashboard/student`; `networkidle` alone catches the skeleton.
+      // to `/dashboard/student`; wait for the dashboard itself, not its skeleton.
       await expect(page.getByTestId('student-dashboard')).toBeVisible({ timeout: 30_000 })
     })
 
@@ -98,20 +93,14 @@ test.describe('Gamification', () => {
     })
 
     test('leaderboard renders on student dashboard', async ({ page }) => {
-      await page.waitForLoadState('networkidle')
-
       // MiniLeaderboard shows a title or locked state
       const leaderboardTitle = page.locator('text=/leaderboard|rankings/i')
       const lockedLeaderboard = page.locator('text=/locked|upgrade/i')
 
-      const titleVisible = await leaderboardTitle.first().isVisible().catch(() => false)
-      const lockedVisible = await lockedLeaderboard.first().isVisible().catch(() => false)
-
-      expect(titleVisible || lockedVisible).toBeTruthy()
+      await expect(leaderboardTitle.or(lockedLeaderboard).filter({ visible: true }).first()).toBeVisible()
     })
 
     test('leaderboard shows entries or empty state when unlocked', async ({ page }) => {
-      await page.waitForLoadState('networkidle')
       // Wait for client-side hydration and data fetching
       await page.waitForTimeout(3000)
 
@@ -131,16 +120,12 @@ test.describe('Gamification', () => {
 
       await page.goto(`${BASE}/en/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
-      await page.waitForLoadState('networkidle')
 
       // XPProgressCircle renders an SVG with circles or a loading placeholder
       const svgCircle = page.locator('svg circle')
       const loadingPlaceholder = page.locator('[class*="animate-pulse"]')
 
-      const circleVisible = await svgCircle.first().isVisible().catch(() => false)
-      const loadingVisible = await loadingPlaceholder.first().isVisible().catch(() => false)
-
-      expect(circleVisible || loadingVisible).toBeTruthy()
+      await expect(svgCircle.or(loadingPlaceholder).filter({ visible: true }).first()).toBeVisible()
     })
 
     test('profile page shows gamification stats (coins and streak)', async ({ page }) => {
@@ -148,7 +133,6 @@ test.describe('Gamification', () => {
 
       await page.goto(`${BASE}/en/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
-      await page.waitForLoadState('networkidle')
 
       // ProfileGamificationStats shows coins and streak labels
       // Scoped to the page: the header card's own labels are hidden below `sm`.
@@ -156,14 +140,10 @@ test.describe('Gamification', () => {
       const coinsLabel = profile.locator('text=/coins/i')
       const streakLabel = profile.locator('text=/streak/i')
 
-      const coinsVisible = await coinsLabel.first().isVisible().catch(() => false)
-      const streakVisible = await streakLabel.first().isVisible().catch(() => false)
-
       // At least one gamification stat should render (or loading state)
       const loadingState = page.locator('[class*="animate-pulse"]')
-      const isLoading = await loadingState.first().isVisible().catch(() => false)
 
-      expect(coinsVisible || streakVisible || isLoading).toBeTruthy()
+      await expect(coinsLabel.or(streakLabel).or(loadingState).filter({ visible: true }).first()).toBeVisible()
     })
 
     test('profile page shows streak calendar', async ({ page }) => {
@@ -171,21 +151,16 @@ test.describe('Gamification', () => {
 
       await page.goto(`${BASE}/en/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
-      await page.waitForLoadState('networkidle')
 
       // StreakCalendar renders 7 day columns with abbreviated day labels
       // Day abbreviations are single characters: M, T, W, T, F, S, S
       const streakSection = page.locator('text=/active streak|streak/i')
-      const dayLabels = page.locator('text=/^[MTWFS]$/').first()
-
-      const streakVisible = await streakSection.first().isVisible().catch(() => false)
-      const daysVisible = await dayLabels.isVisible().catch(() => false)
+      const dayLabels = page.locator('text=/^[MTWFS]$/')
 
       // Either the streak calendar or a loading placeholder should be present
       const loadingState = page.locator('[class*="animate-pulse"]')
-      const isLoading = await loadingState.first().isVisible().catch(() => false)
 
-      expect(streakVisible || daysVisible || isLoading).toBeTruthy()
+      await expect(streakSection.or(dayLabels).or(loadingState).filter({ visible: true }).first()).toBeVisible()
     })
 
     test('profile page shows achievement section or gamification elements', async ({ page }) => {
@@ -193,7 +168,6 @@ test.describe('Gamification', () => {
 
       await page.goto(`${BASE}/en/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
-      await page.waitForLoadState('networkidle')
 
       // The profile page should render — gamification elements may or may not be visible
       // depending on plan/feature flags. Verify the page itself loaded correctly.

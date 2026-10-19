@@ -63,11 +63,15 @@ test.describe('Student dashboard renders without a React hook-order crash (#679)
       await page.goto(`${BASE}${route.path}`)
 
       // The crash happens during a client render, which is after the server
-      // HTML lands — so waiting for the network to settle is what gives the
-      // client the chance to fail. The gamification widgets on both routes
-      // fetch on mount, which is exactly the state transition under suspicion.
-      await page.waitForLoadState('networkidle')
+      // HTML lands — so waiting for the gamification fetch to finish is what
+      // gives the client the chance to fail. The gamification widgets on both
+      // routes fetch on mount, which is exactly the state transition under
+      // suspicion; the header card (mounted on every student route, hidden
+      // below `lg`) only renders this slot once its summary has loaded.
       await expect(page.locator('main, [data-slot="sidebar-inset"]').first()).toBeVisible({
+        timeout: 30_000,
+      })
+      await expect(page.locator('[data-slot="gamification-header-card"]').first()).toBeAttached({
         timeout: 30_000,
       })
 
