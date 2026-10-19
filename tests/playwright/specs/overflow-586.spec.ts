@@ -57,7 +57,8 @@ test.describe('#586 dashboard shell horizontal overflow', () => {
       for (const width of WIDTHS) {
         await page.setViewportSize({ width, height: 900 })
         await page.goto(`${BASE}${target.path}`)
-        await page.waitForLoadState('networkidle').catch(() => {})
+        // The header avatar renders with the dashboard shell (link prefetches keep the network busy).
+        await expect(page.getByTestId('user-nav-trigger')).toBeVisible()
         await page.waitForTimeout(600)
         const m = await measure(page)
         rows.push({
@@ -95,7 +96,7 @@ test.describe('#586 dashboard shell horizontal overflow', () => {
       for (const width of WIDTHS) {
         await page.setViewportSize({ width, height: 900 })
         await page.goto(`${BASE}${target.path}`)
-        await page.waitForLoadState('networkidle').catch(() => {})
+        await expect(page.getByTestId('user-nav-trigger')).toBeVisible()
         await page.waitForTimeout(600)
         const m = await measure(page)
         rows.push({
@@ -133,7 +134,7 @@ test.describe('#586 dashboard shell horizontal overflow', () => {
     for (const width of [700, 768, 850, 1024, 1280]) {
       await page.setViewportSize({ width, height: 900 })
       await page.goto(`${BASE}/${LOCALE}/dashboard/student`)
-      await page.waitForLoadState('networkidle').catch(() => {})
+      await expect(page.getByTestId('user-nav-trigger')).toBeVisible()
       await page.waitForTimeout(800)
 
       const headerCard = page.locator('header [data-slot="gamification-header-card"]')
