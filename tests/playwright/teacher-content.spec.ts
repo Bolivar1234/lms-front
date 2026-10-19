@@ -378,9 +378,6 @@ test.describe('Teacher Content — Exercise Builder', () => {
     test.setTimeout(60_000)
     await page.goto(`${COURSE_URL}/exercises/new`)
 
-    // Wait for dynamic import to resolve
-    await page.waitForLoadState('networkidle')
-
     // Breadcrumb shows course title
     await expect(page.getByText('Introduction to Testing')).toBeVisible({ timeout: 15_000 })
 
@@ -421,7 +418,6 @@ test.describe('Teacher Content — Exercise Builder', () => {
   test('exercise builder step navigation works', async ({ page }) => {
     test.setTimeout(60_000)
     await page.goto(`${COURSE_URL}/exercises/new`)
-    await page.waitForLoadState('networkidle')
 
     // Wait for component load
     const descInput = page.getByRole('textbox', { name: /description/i })
@@ -451,9 +447,6 @@ test.describe('Teacher Content — Exam Builder', () => {
   test('new exam form renders with all fields and question buttons', async ({ page }) => {
     test.setTimeout(60_000)
     await page.goto(`${COURSE_URL}/exams/new`)
-
-    // Wait for dynamic import
-    await page.waitForLoadState('networkidle')
 
     // Breadcrumb shows course + "New Exam"
     await expect(page.getByText('Introduction to Testing')).toBeVisible({ timeout: 15_000 })
@@ -491,7 +484,6 @@ test.describe('Teacher Content — Exam Builder', () => {
   test('exam builder add question buttons increment count', async ({ page }) => {
     test.setTimeout(60_000)
     await page.goto(`${COURSE_URL}/exams/new`)
-    await page.waitForLoadState('networkidle')
 
     // Wait for component
     await expect(page.getByRole('textbox', { name: /exam title/i })).toBeVisible({ timeout: 15_000 })
@@ -517,7 +509,6 @@ test.describe('Teacher Content — Certificate Template', () => {
   test('certificate settings page loads with form sections', async ({ page }) => {
     test.setTimeout(60_000)
     await page.goto(`${COURSE_URL}/certificates/settings`)
-    await page.waitForLoadState('networkidle')
 
     // Breadcrumb
     await expect(page.getByText('Introduction to Testing')).toBeVisible({ timeout: 15_000 })
