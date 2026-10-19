@@ -9,7 +9,6 @@ import { BASE } from './utils/constants'
 test.describe('Internationalization', () => {
   test('default route includes /en locale', async ({ page }) => {
     await page.goto(`${BASE}/`)
-    await page.waitForLoadState('networkidle')
     await expect(page).toHaveURL(/\/en/)
   })
 

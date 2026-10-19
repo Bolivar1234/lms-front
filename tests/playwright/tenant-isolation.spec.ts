@@ -34,7 +34,7 @@ test.describe('Tenant Isolation', () => {
     // student@e2etest.com is NOT a member of code-academy
     await loginAsStudent(page)
     await page.goto(`${TENANT_BASE}/en/dashboard/student`, { timeout: 30_000 })
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL(/\/join-school|\/auth\/login/)
     const url = page.url()
     expect(url).toMatch(/\/join-school|\/auth\/login/)
   })

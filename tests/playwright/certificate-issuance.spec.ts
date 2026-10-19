@@ -12,7 +12,6 @@ test.describe('Certificate Issuance E2E', () => {
 
     // Step 1: Login
     await page.goto(`${BASE_URL}/en/auth/login`)
-    await page.waitForLoadState('networkidle')
     await page.fill('input[type="email"]', STUDENT_EMAIL)
     await page.fill('input[type="password"]', STUDENT_PASSWORD)
     await page.click('button[type="submit"]')
@@ -21,7 +20,7 @@ test.describe('Certificate Issuance E2E', () => {
 
     // Step 2: Navigate to the last lesson
     await page.goto(`${BASE_URL}/en/dashboard/student/courses/${COURSE_ID}/lessons/${LAST_LESSON_ID}`)
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('[data-testid="lesson-complete-toggle"]')).toBeVisible()
     console.log('📖 Navigated to last lesson:', page.url())
 
     // Verify we're on the lesson page
@@ -61,7 +60,7 @@ test.describe('Certificate Issuance E2E', () => {
     // Step 4: Verify certificate exists
     // Navigate to certificates page
     await page.goto(`${BASE_URL}/en/dashboard/student/certificates`)
-    await page.waitForLoadState('networkidle')
+    await expect(page.getByTestId('certificates-page')).toBeVisible()
     console.log('📜 Certificates page loaded')
 
     await page.screenshot({ path: '/tmp/certificates-page.png' })
@@ -76,7 +75,8 @@ test.describe('Certificate Issuance E2E', () => {
 
     // Step 5: Also check exam result page shows certificate banner
     await page.goto(`${BASE_URL}/en/dashboard/student/courses/${COURSE_ID}/exams/2001/result`)
-    await page.waitForLoadState('networkidle')
+    // May redirect to the exam or 404; the checks below only log, so nothing specific to wait on
+    await page.waitForLoadState('domcontentloaded')
     console.log('📋 Exam result page loaded')
 
     await page.screenshot({ path: '/tmp/exam-result-with-cert.png' })
@@ -96,7 +96,8 @@ test.describe('Certificate Issuance E2E', () => {
       console.log('🔗 Verification link found:', verifyHref)
 
       await verifyLink.first().click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForURL(/\/verify\//)
+      await expect(page.locator('h1').first()).toBeVisible()
       console.log('📜 Verification page loaded:', page.url())
 
       await page.screenshot({ path: '/tmp/certificate-verify.png' })

@@ -93,7 +93,7 @@ test.describe('Admin Pages', () => {
     const userLink = page.locator('a[href*="/admin/users/"]').first()
     if (await userLink.isVisible({ timeout: 10_000 })) {
       await userLink.click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForURL(/\/admin\/users\//)
       expect(page.url()).toMatch(/\/admin\/users\//)
     }
   })
