@@ -17,7 +17,7 @@ export default async function AboutPage() {
     const t = await getTranslations('about');
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white selection:bg-blue-500/30 overflow-hidden">
+        <div className="relative min-h-screen bg-[#0A0A0A] text-white selection:bg-blue-500/30 overflow-hidden">
             {/* Subtle Background Glows */}
             <div className="absolute top-0 right-0 w-[800px] h-[600px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
