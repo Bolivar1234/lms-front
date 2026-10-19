@@ -9817,5 +9817,14 @@
       "limit_reached": "Límite de endpoints alcanzado. Elimina uno primero.",
       "internal": "Algo salió mal. Inténtalo de nuevo."
     }
+  },
+  "lessonContent": {
+    "callout": {
+      "info": "Información",
+      "warning": "Advertencia",
+      "tip": "Consejo",
+      "success": "Correcto",
+      "danger": "Importante"
+    }
   }
 }

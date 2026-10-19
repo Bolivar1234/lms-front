@@ -9817,5 +9817,14 @@
       "limit_reached": "Endpoint limit reached. Delete one first.",
       "internal": "Something went wrong. Try again."
     }
+  },
+  "lessonContent": {
+    "callout": {
+      "info": "Info",
+      "warning": "Warning",
+      "tip": "Tip",
+      "success": "Correct",
+      "danger": "Important"
+    }
   }
 }

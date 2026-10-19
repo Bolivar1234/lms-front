@@ -1,6 +1,7 @@
 'use client'
 
 import { MDXClient, type SerializeResult } from 'next-mdx-remote-client'
+import remarkGfm from 'remark-gfm'
 import { useState, useEffect } from 'react'
 import { lessonMdxComponents } from '@/components/lesson/mdx-components'
 import { inlineCodeBlockBodies } from '@/lib/lesson/mdx-source'
@@ -34,6 +35,7 @@ export function MDXPreview({ content }: MDXPreviewProps) {
                     source: inlineCodeBlockBodies(content),
                     options: {
                         mdxOptions: {
+                            remarkPlugins: [remarkGfm],
                             development: process.env.NODE_ENV === 'development',
                         },
                     },

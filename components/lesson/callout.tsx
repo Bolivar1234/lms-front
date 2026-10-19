@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   IconInfoCircle,
@@ -20,39 +21,35 @@ interface CalloutProps {
 
 const calloutConfig: Record<
   CalloutType,
-  { icon: React.ElementType; className: string; defaultTitle: string }
+  { icon: React.ElementType; className: string }
 > = {
   info: {
     icon: IconInfoCircle,
     className: 'border-primary/25 bg-brand-tint text-brand-text',
-    defaultTitle: 'Información',
   },
   warning: {
     icon: IconAlertTriangle,
     className: 'border-warning/30 bg-warning/10 text-warning',
-    defaultTitle: 'Advertencia',
   },
   tip: {
     icon: IconBulb,
     className: 'border-success/30 bg-success/10 text-success',
-    defaultTitle: 'Consejo',
   },
   success: {
     icon: IconCircleCheck,
     className: 'border-success/30 bg-success/10 text-success',
-    defaultTitle: 'Correcto',
   },
   danger: {
     icon: IconAlertCircle,
     className: 'border-destructive/30 bg-destructive/10 text-destructive',
-    defaultTitle: 'Importante',
   },
 }
 
 export function Callout({ type = 'info', title, children, className }: CalloutProps) {
+  const t = useTranslations('lessonContent.callout')
   const config = calloutConfig[type]
   const Icon = config.icon
-  const displayTitle = title ?? config.defaultTitle
+  const displayTitle = title ?? t(type)
 
   return (
     <div
