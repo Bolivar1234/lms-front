@@ -1,5 +1,6 @@
 import { test, expect, type Page } from './utils/test'
 import { TENANT_BASE as BASE_URL } from './utils/constants'
+import { login } from './utils/auth'
 
 const STUDENT_EMAIL = 'alice@student.com'
 const STUDENT_PASSWORD = 'password123'
@@ -10,18 +11,14 @@ test.describe('AI Exam Grading E2E', () => {
   test('student takes exam and gets AI-graded results', async ({ page }) => {
     test.setTimeout(120000) // 2 minutes for AI grading
     // Step 1: Login as student
-    await page.goto(`${BASE_URL}/en/auth/login`)
-    await page.waitForLoadState('networkidle')
-
-    await page.fill('input[type="email"]', STUDENT_EMAIL)
-    await page.fill('input[type="password"]', STUDENT_PASSWORD)
-    await page.click('button[type="submit"]')
-    await page.waitForURL(/dashboard/, { timeout: 15000 })
+    // Waits for hydration before typing and re-presses Login until /dashboard/
+    await login(page, STUDENT_EMAIL, STUDENT_PASSWORD, BASE_URL)
     console.log('✅ Logged in as student')
 
     // Step 2: Navigate to exam
     await page.goto(`${BASE_URL}/en/dashboard/student/courses/${COURSE_ID}/exams/${EXAM_ID}`)
-    await page.waitForLoadState('networkidle')
+    // Exam taker, "No Questions Found" and the result page all render an h2
+    await expect(page.locator('h2').first()).toBeVisible({ timeout: 15000 })
     console.log('📋 Navigated to exam page:', page.url())
 
     // Check we're on the exam taker (not redirected to result)
@@ -117,8 +114,7 @@ test.describe('AI Exam Grading E2E', () => {
 })
 
 async function checkResultPage(page: Page) {
-  await page.waitForLoadState('networkidle')
-  await page.waitForTimeout(3000) // Give time for data to load
+  await expect(page.getByRole('heading', { name: /Detailed Question Review/i })).toBeVisible({ timeout: 15000 })
 
   const resultContent = await page.textContent('body')
   console.log('\n📊 Result page content (first 500 chars):')
