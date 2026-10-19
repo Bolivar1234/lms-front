@@ -130,7 +130,7 @@ function fullBlock(type: BlockType): Block {
     summary: 'Summary',
     striped: true,
     checkpointId: 1,
-  } as Block
+  } as unknown as Block
 }
 
 /** Component name -> source file, from the lesson barrel and the MDX map. */
