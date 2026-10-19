@@ -288,7 +288,7 @@ test.describe('Cross-tenant isolation', () => {
 
     // Try to access code-academy tenant
     await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student`)
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL(/join-school|auth\/login/)
 
     // proxy.ts redirects non-members — either to /join-school or /auth/login
     const url = page.url()
@@ -304,30 +304,26 @@ test.describe('Exercise page tenant isolation', () => {
     test.setTimeout(30_000)
     await loginAsStudent(page)
     await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/1001/exercises/${seededExerciseId}`)
-    await page.waitForLoadState('networkidle')
 
     // Page should render without 404 — exercise title or instructions visible
-    const body = await page.locator('body').textContent()
-    expect(body).toMatch(/\[E2E\] Essay Exercise|essay/i)
+    await expect(page.locator('body')).toContainText(/\[E2E\] Essay Exercise|essay/i)
   })
 
   test('Alice loads exercise 5002 on code-academy tenant', async ({ page }) => {
     test.setTimeout(30_000)
     await loginAsTenantStudent(page)
     await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/5002`)
-    await page.waitForLoadState('networkidle')
 
     // Page should render the exercise — look for exercise content or title
-    const body = await page.locator('body').textContent()
     // Exercise 5002 is "Python Variables Quiz" — verify it loaded (not a login/error page)
-    expect(body).toMatch(/Python Variables|exercise|quiz/i)
+    await expect(page.locator('body')).toContainText(/Python Variables|exercise|quiz/i)
   })
 
   test('default student blocked from code-academy exercise', async ({ page }) => {
     await loginAsStudent(page)
     // Navigate to code-academy domain — should redirect (non-member)
     await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/5002`)
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL(/join-school|auth\/login/)
 
     const url = page.url()
     expect(url).toMatch(/join-school|auth\/login/)
@@ -576,7 +572,8 @@ test.describe.serial('Teacher exam creation', () => {
 
     await loginAsTeacher(page)
     await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/1001/exams/new`)
-    await page.waitForLoadState('networkidle')
+    // isVisible() below doesn't wait; wait for the exam builder's title input first
+    await expect(page.locator('#title')).toBeVisible({ timeout: 15_000 })
 
     // Fill exam title
     const titleInput = page.locator('input[name="title"], input[placeholder*="title" i]').first()
