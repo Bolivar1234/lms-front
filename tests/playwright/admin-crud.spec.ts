@@ -126,7 +126,7 @@ test.describe('Admin CRUD Operations', () => {
         .first()
       if (await editLink.isVisible({ timeout: 5_000 }).catch(() => false)) {
         await editLink.click()
-        await page.waitForLoadState('networkidle')
+        await page.waitForURL(/\/products\/\d+\/edit/)
 
         // URL should contain /products/.../edit
         expect(page.url()).toMatch(/\/products\/\d+\/edit/)
@@ -325,7 +325,7 @@ test.describe('Admin CRUD Operations', () => {
       const viewLink = page.locator('a[href*="/admin/users/"]').first()
       if (await viewLink.isVisible({ timeout: 5_000 }).catch(() => false)) {
         await viewLink.click()
-        await page.waitForLoadState('networkidle')
+        await page.waitForURL(/\/admin\/users\/[a-f0-9-]+/)
 
         // URL should contain /admin/users/<uuid>
         expect(page.url()).toMatch(/\/admin\/users\/[a-f0-9-]+/)

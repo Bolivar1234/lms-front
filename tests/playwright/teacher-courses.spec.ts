@@ -69,7 +69,7 @@ test.describe('Teacher Course Management', () => {
       const editLink = page.locator('a[href*="/teacher/courses/1001"]').first()
       await expect(editLink).toBeVisible({ timeout: 10_000 })
       await editLink.click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForURL(/\/teacher\/courses\/\d+/)
       expect(page.url()).toMatch(/\/teacher\/courses\/\d+/)
     })
 

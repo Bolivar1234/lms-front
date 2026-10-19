@@ -30,7 +30,6 @@ test.describe('Feature Gating', () => {
     page,
   }) => {
     await page.goto(`${BASE}/en/platform-pricing`)
-    await page.waitForLoadState('networkidle')
     // This page may redirect or show pricing — just verify it loads
     await expect(page.locator('body')).toBeVisible()
   })

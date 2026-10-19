@@ -143,13 +143,14 @@ async function smokeCheckPage(page: Page, persona: Persona, def: PageDef) {
       timeout: 30_000,
     })
     httpStatus = resp ? resp.status() : null
-    await page.waitForLoadState('networkidle', { timeout: 12_000 }).catch(() => {
-      notes.push('networkidle not reached within 12s')
+    // Wait for the main content performKeyAction searches (link prefetches keep the network busy).
+    await page.locator('main, [role="main"]').first().waitFor({ timeout: 12_000 }).catch(() => {
+      notes.push('main content not rendered within 12s')
     })
     await page.waitForTimeout(600)
 
     action = await performKeyAction(page).catch((e) => `action error: ${String(e).slice(0, 80)}`)
-    await page.waitForLoadState('networkidle', { timeout: 8_000 }).catch(() => {})
+    await page.waitForLoadState('domcontentloaded', { timeout: 8_000 }).catch(() => {})
   } catch (e) {
     notes.push(`navigation error: ${String(e).slice(0, 120)}`)
   }
