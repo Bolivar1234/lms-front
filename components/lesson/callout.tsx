@@ -13,7 +13,12 @@ import {
 type CalloutType = 'info' | 'warning' | 'tip' | 'success' | 'danger'
 
 interface CalloutProps {
-  type?: CalloutType
+  /**
+   * `error` is what the block editor writes for its red variant; it renders as
+   * `danger`. Any other unknown value falls back to `info` rather than crashing
+   * the whole lesson.
+   */
+  type?: CalloutType | 'error' | (string & {})
   title?: string
   children: React.ReactNode
   className?: string
@@ -45,11 +50,17 @@ const calloutConfig: Record<
   },
 }
 
+export function resolveCalloutType(type: string): CalloutType {
+  if (type === 'error') return 'danger'
+  return Object.hasOwn(calloutConfig, type) ? (type as CalloutType) : 'info'
+}
+
 export function Callout({ type = 'info', title, children, className }: CalloutProps) {
   const t = useTranslations('lessonContent.callout')
-  const config = calloutConfig[type]
+  const resolvedType = resolveCalloutType(type)
+  const config = calloutConfig[resolvedType]
   const Icon = config.icon
-  const displayTitle = title ?? t(type)
+  const displayTitle = title ?? t(resolvedType)
 
   return (
     <div
