@@ -48,8 +48,8 @@ export function ImpersonateDialog({ open, onClose, tenantId, tenantName }: Props
       const { url } = await impersonateUser(userId, tenantId)
       // Open in current tab — the magic link signs the admin in as the target user
       window.location.assign(url)
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e))
       setImpersonating(null)
     }
   }

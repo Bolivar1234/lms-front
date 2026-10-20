@@ -134,8 +134,8 @@ export default async function CoursesPage({
 
     // Enrich courses with product info
     const enrichedCourses = courses?.map(course => {
-        const cat = course.category as any;
-        const auth = course.author as any;
+        const cat = course.category;
+        const auth = course.author;
         return {
             course_id: course.course_id,
             title: course.title,

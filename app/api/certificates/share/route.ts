@@ -9,8 +9,13 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentTenantId } from '@/lib/supabase/tenant';
 import { track } from '@/lib/analytics/server';
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events';
+import type { Tables } from '@/lib/database.types';
 
 export const dynamic = 'force-dynamic';
+
+type ShareCertificate = Pick<Tables<'certificates'>, 'certificate_id' | 'user_id' | 'share_count'> & {
+    course: Pick<Tables<'courses'>, 'tenant_id'> | null;
+};
 
 export async function POST(request: NextRequest) {
     try {
@@ -49,7 +54,8 @@ export async function POST(request: NextRequest) {
             `)
             .eq('certificate_id', certificateId)
             .eq('user_id', user.id)
-            .single();
+            .single()
+            .overrideTypes<ShareCertificate, { merge: false }>();
 
         if (certError || !certificate) {
             return NextResponse.json(
@@ -59,7 +65,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Validate tenant
-        const courseTenantId = (certificate as any).course?.tenant_id
+        const courseTenantId = certificate.course?.tenant_id
         if (courseTenantId !== tenantId) {
             return NextResponse.json(
                 { error: 'Certificate not found or access denied' },
@@ -90,7 +96,7 @@ export async function POST(request: NextRequest) {
         // Increment share count
         await supabase
             .from('certificates')
-            .update({ share_count: certificate.share_count + 1 })
+            .update({ share_count: (certificate.share_count ?? 0) + 1 })
             .eq('certificate_id', certificateId);
 
         // Sharing is the organic acquisition loop — a credential posted to

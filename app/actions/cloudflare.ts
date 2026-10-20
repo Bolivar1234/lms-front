@@ -58,7 +58,7 @@ export async function createCloudflareSubdomain(slug: string) {
       console.error("Cloudflare API Error:", JSON.stringify(errorData, null, 2));
       
       // If the record already exists (error 81057), that's fine, we can ignore it
-      const alreadyExists = errorData.errors?.some((e: any) => e.code === 81057);
+      const alreadyExists = errorData.errors?.some((e: { code: number }) => e.code === 81057);
       if (alreadyExists) {
         return { success: true, reason: "Already exists" };
       }

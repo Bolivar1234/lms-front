@@ -15,6 +15,11 @@ import {
   IconEdit
 } from '@tabler/icons-react'
 import { AdminBreadcrumb } from '@/components/admin/admin-breadcrumb'
+import type { Tables } from '@/lib/database.types'
+
+type PlanCourse = Pick<Tables<'plan_courses'>, 'course_id'> & {
+  course: Pick<Tables<'courses'>, 'course_id' | 'title'> | null
+}
 
 export default async function AdminPlansPage() {
   const t = await getTranslations('dashboard.admin.plans')
@@ -195,7 +200,7 @@ export default async function AdminPlansPage() {
                           {t('card.includedCourses')}
                         </p>
                         <ul className="space-y-1">
-                          {plan.plan_courses.slice(0, 3).map((pc: any) => (
+                          {plan.plan_courses.slice(0, 3).map((pc: PlanCourse) => (
                             <li key={pc.course_id} className="text-xs text-muted-foreground truncate">
                               • {pc.course?.title}
                             </li>

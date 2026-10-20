@@ -51,8 +51,8 @@ export function TenantActionsMenu({ tenantId, tenantName, currentPlan, isActive 
       await suspendTenant(tenantId, isActive)
       toast.success(isActive ? 'Tenant suspended' : 'Tenant reactivated')
       router.refresh()
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
@@ -65,8 +65,8 @@ export function TenantActionsMenu({ tenantId, tenantName, currentPlan, isActive 
       toast.success('Plan updated')
       setShowPlanModal(false)
       router.refresh()
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }

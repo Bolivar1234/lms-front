@@ -38,9 +38,9 @@ export default async function NotificationsPage() {
 
   // Filter notifications by status
   const allNotifications = notifications || []
-  const sentNotifications = allNotifications.filter((n: any) => n.status === 'sent')
-  const scheduledNotifications = allNotifications.filter((n: any) => n.status === 'scheduled')
-  const draftNotifications = allNotifications.filter((n: any) => n.status === 'draft')
+  const sentNotifications = allNotifications.filter((n) => n.status === 'sent')
+  const scheduledNotifications = allNotifications.filter((n) => n.status === 'scheduled')
+  const draftNotifications = allNotifications.filter((n) => n.status === 'draft')
 
   return (
     <div className="space-y-6 p-8" data-testid="notifications-page">
