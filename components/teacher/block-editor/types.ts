@@ -225,9 +225,9 @@ export function createBlock(type: BlockType): Block {
     case 'quiz':
       return { id, type: 'quiz', question: '', options: ['', ''], correctIndex: 0 }
     case 'spoiler':
-      return { id, type: 'spoiler', label: 'Mostrar respuesta', content: '' }
+      return { id, type: 'spoiler', label: '', content: '' }
     case 'steps':
-      return { id, type: 'steps', steps: [{ title: 'Paso 1', content: '' }] }
+      return { id, type: 'steps', steps: [{ title: '', content: '' }] }
     case 'vocabulary':
       return { id, type: 'vocabulary', word: '', translation: '' }
     case 'definition':

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconArrowsExchange } from '@tabler/icons-react'
 
@@ -85,11 +86,12 @@ interface CodeCompareProps {
 }
 
 export function CodeCompare({ incorrect, correct, language = 'javascript', className }: CodeCompareProps) {
+  const t = useTranslations('lessonContent.compare')
   return (
     <Compare
       className={className}
       left={{
-        title: 'Incorrecto',
+        title: t('incorrect'),
         highlight: 'negative',
         content: (
           <pre className="overflow-x-auto rounded bg-black/5 p-2 text-xs dark:bg-white/5">
@@ -98,7 +100,7 @@ export function CodeCompare({ incorrect, correct, language = 'javascript', class
         ),
       }}
       right={{
-        title: 'Correcto',
+        title: t('correct'),
         highlight: 'positive',
         content: (
           <pre className="overflow-x-auto rounded bg-black/5 p-2 text-xs dark:bg-white/5">
@@ -110,7 +112,7 @@ export function CodeCompare({ incorrect, correct, language = 'javascript', class
   )
 }
 
-// Versión para comparar "Antes" vs "Después"
+// Before/after comparison
 interface BeforeAfterProps {
   before: React.ReactNode
   after: React.ReactNode
@@ -118,16 +120,17 @@ interface BeforeAfterProps {
 }
 
 export function BeforeAfter({ before, after, className }: BeforeAfterProps) {
+  const t = useTranslations('lessonContent.compare')
   return (
     <Compare
       className={className}
       left={{
-        title: 'Antes',
+        title: t('before'),
         highlight: 'neutral',
         content: before,
       }}
       right={{
-        title: 'Después',
+        title: t('after'),
         highlight: 'positive',
         content: after,
       }}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconX, IconRefresh } from '@tabler/icons-react'
 
@@ -24,6 +25,7 @@ function isIdenticalOrder(arr: string[], original: string[]): boolean {
 }
 
 export function Ordering({ items, explanation, className }: OrderingProps) {
+  const t = useTranslations('lessonContent.interactive')
   const initialOrder = useMemo(() => {
     if (items.length <= 1) return [...items]
     let shuffled = shuffleArray(items)
@@ -125,7 +127,7 @@ export function Ordering({ items, explanation, className }: OrderingProps) {
             onClick={handleCheck}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Comprobar
+            {t('check')}
           </button>
         ) : (
           <>
@@ -141,12 +143,12 @@ export function Ordering({ items, explanation, className }: OrderingProps) {
               {allCorrect ? (
                 <>
                   <IconCheck className="size-4" />
-                  ¡Correcto!
+                  {t('correct')}
                 </>
               ) : (
                 <>
                   <IconX className="size-4" />
-                  Incorrecto
+                  {t('incorrect')}
                 </>
               )}
             </div>
@@ -156,7 +158,7 @@ export function Ordering({ items, explanation, className }: OrderingProps) {
               className="flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
             >
               <IconRefresh className="size-4" />
-              Reintentar
+              {t('retry')}
             </button>
           </>
         )}

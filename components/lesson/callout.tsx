@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   IconInfoCircle,
@@ -12,7 +13,12 @@ import {
 type CalloutType = 'info' | 'warning' | 'tip' | 'success' | 'danger'
 
 interface CalloutProps {
-  type?: CalloutType
+  /**
+   * `error` is what the block editor writes for its red variant; it renders as
+   * `danger`. Any other unknown value falls back to `info` rather than crashing
+   * the whole lesson.
+   */
+  type?: CalloutType | 'error' | (string & {})
   title?: string
   children: React.ReactNode
   className?: string
@@ -20,39 +26,41 @@ interface CalloutProps {
 
 const calloutConfig: Record<
   CalloutType,
-  { icon: React.ElementType; className: string; defaultTitle: string }
+  { icon: React.ElementType; className: string }
 > = {
   info: {
     icon: IconInfoCircle,
     className: 'border-primary/25 bg-brand-tint text-brand-text',
-    defaultTitle: 'Información',
   },
   warning: {
     icon: IconAlertTriangle,
     className: 'border-warning/30 bg-warning/10 text-warning',
-    defaultTitle: 'Advertencia',
   },
   tip: {
     icon: IconBulb,
     className: 'border-success/30 bg-success/10 text-success',
-    defaultTitle: 'Consejo',
   },
   success: {
     icon: IconCircleCheck,
     className: 'border-success/30 bg-success/10 text-success',
-    defaultTitle: 'Correcto',
   },
   danger: {
     icon: IconAlertCircle,
     className: 'border-destructive/30 bg-destructive/10 text-destructive',
-    defaultTitle: 'Importante',
   },
 }
 
+export function resolveCalloutType(type: string): CalloutType {
+  if (type === 'error') return 'danger'
+  return Object.hasOwn(calloutConfig, type) ? (type as CalloutType) : 'info'
+}
+
 export function Callout({ type = 'info', title, children, className }: CalloutProps) {
-  const config = calloutConfig[type]
+  const t = useTranslations('lessonContent.callout')
+  const resolvedType = resolveCalloutType(type)
+  const config = calloutConfig[resolvedType]
   const Icon = config.icon
-  const displayTitle = title ?? config.defaultTitle
+  const displayTitle = title ?? t(resolvedType)
 
   return (
     <div
@@ -76,7 +84,7 @@ export function Callout({ type = 'info', title, children, className }: CalloutPr
   )
 }
 
-// Alias para uso más sencillo en MDX
+// Aliases for MDX
 export const Info = (props: Omit<CalloutProps, 'type'>) => <Callout type="info" {...props} />
 export const Warning = (props: Omit<CalloutProps, 'type'>) => <Callout type="warning" {...props} />
 export const Tip = (props: Omit<CalloutProps, 'type'>) => <Callout type="tip" {...props} />

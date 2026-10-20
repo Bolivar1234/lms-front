@@ -1,14 +1,17 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconVolume, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react'
 
 interface VocabularyProps {
   word: string
   translation?: string
-  pronunciation?: string // IPA o texto fonético
-  audio?: string // URL del audio
+  pronunciation?: string // IPA or phonetic text
+  audio?: string // audio URL
+  /** Alias of `audio`; the block editor and the MDX docs write `audioUrl`. */
+  audioUrl?: string
   example?: string
   exampleTranslation?: string
   image?: string
@@ -19,12 +22,15 @@ export function Vocabulary({
   word,
   translation,
   pronunciation,
-  audio,
+  audio: audioProp,
+  audioUrl,
   example,
   exampleTranslation,
   image,
   className,
 }: VocabularyProps) {
+  const t = useTranslations('lessonContent.vocabulary')
+  const audio = audioProp || audioUrl
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
@@ -86,7 +92,7 @@ export function Vocabulary({
                 type="button"
                 onClick={handlePlayAudio}
                 className="flex size-8 items-center justify-center rounded-full bg-brand-tint text-brand-text hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label={isPlaying ? 'Pausar audio' : 'Reproducir pronunciación'}
+                aria-label={isPlaying ? t('pause') : t('play')}
               >
                 {isPlaying ? (
                   <IconPlayerPause className="size-4" />
@@ -125,7 +131,7 @@ export function Vocabulary({
   )
 }
 
-// Componente para mostrar una lista de vocabulario
+// A list of vocabulary items
 interface VocabularyListProps {
   items: VocabularyProps[]
   className?: string

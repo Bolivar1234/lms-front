@@ -17,7 +17,7 @@ export function StepsBlockEditor({ block, onChange }: StepsBlockEditorProps) {
   const t = useTranslations('dashboard.teacher.lessonEditor.blockEditor')
   const addStep = () => {
     onChange({
-      steps: [...block.steps, { title: `Paso ${block.steps.length + 1}`, content: '' }],
+      steps: [...block.steps, { title: '', content: '' }],
     })
   }
 

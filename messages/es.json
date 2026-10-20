@@ -9817,5 +9817,47 @@
       "limit_reached": "Límite de endpoints alcanzado. Elimina uno primero.",
       "internal": "Algo salió mal. Inténtalo de nuevo."
     }
+  },
+  "lessonContent": {
+    "callout": {
+      "info": "Información",
+      "warning": "Advertencia",
+      "tip": "Consejo",
+      "success": "Correcto",
+      "danger": "Importante"
+    },
+    "interactive": {
+      "check": "Comprobar",
+      "correct": "¡Correcto!",
+      "incorrect": "Incorrecto",
+      "retry": "Reintentar",
+      "answerSubmitted": "Respuesta enviada",
+      "answerCorrect": "Respuesta correcta",
+      "answerIncorrect": "Respuesta incorrecta",
+      "terms": "Términos",
+      "matches": "Parejas"
+    },
+    "spoiler": {
+      "answer": "Ver respuesta",
+      "solution": "Ver solución",
+      "hint": "Ver pista"
+    },
+    "compare": {
+      "incorrect": "Incorrecto",
+      "correct": "Correcto",
+      "before": "Antes",
+      "after": "Después"
+    },
+    "flashcards": {
+      "showingFront": "Mostrando frente. Clic para voltear.",
+      "showingBack": "Mostrando reverso. Clic para voltear.",
+      "previous": "Tarjeta anterior",
+      "next": "Siguiente tarjeta",
+      "flipHint": "Clic en la tarjeta para voltear"
+    },
+    "vocabulary": {
+      "pause": "Pausar audio",
+      "play": "Reproducir pronunciación"
+    }
   }
 }

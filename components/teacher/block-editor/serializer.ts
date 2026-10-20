@@ -273,7 +273,7 @@ export function mdxToBlocks(mdx: string): Block[] {
     
     // Spoiler component
     if (line.includes('<Spoiler')) {
-      const labelMatch = line.match(/label="([^"]+)"/)
+      const labelMatch = line.match(/(?:label|title)="([^"]+)"/)
       const contentLines: string[] = []
       i++
       while (i < lines.length && !lines[i].includes('</Spoiler>')) {
@@ -283,7 +283,7 @@ export function mdxToBlocks(mdx: string): Block[] {
       blocks.push({
         id: nanoid(),
         type: 'spoiler',
-        label: labelMatch?.[1] || 'Mostrar',
+        label: labelMatch?.[1] || '',
         content: contentLines.join('\n'),
       })
       i++

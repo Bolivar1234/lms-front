@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconX, IconRefresh } from '@tabler/icons-react'
 
@@ -16,7 +17,7 @@ interface QuizProps {
   correct?: number | number[]
   correctIndex?: number
   explanation?: string
-  multiple?: boolean // permitir múltiples respuestas
+  multiple?: boolean // allow multiple answers
   className?: string
 }
 
@@ -29,6 +30,7 @@ export function Quiz({
   multiple = false,
   className,
 }: QuizProps) {
+  const t = useTranslations('lessonContent.interactive')
   const [selected, setSelected] = useState<number[]>([])
   const [submitted, setSubmitted] = useState(false)
   const [announce, setAnnounce] = useState('')
@@ -49,17 +51,17 @@ export function Quiz({
   useEffect(() => {
     if (submitted) {
       if (correctAnswers.length === 0) {
-        setAnnounce('Respuesta enviada')
+        setAnnounce(t('answerSubmitted'))
       } else {
         const isCorrect =
           selected.length === correctAnswers.length &&
           selected.every((s) => correctAnswers.includes(s))
-        setAnnounce(isCorrect ? 'Respuesta correcta' : 'Respuesta incorrecta')
+        setAnnounce(isCorrect ? t('answerCorrect') : t('answerIncorrect'))
       }
     } else {
       setAnnounce('')
     }
-  }, [submitted, selected, correctAnswers])
+  }, [submitted, selected, correctAnswers, t])
 
   const handleSelect = (index: number) => {
     if (submitted) return
@@ -158,7 +160,7 @@ export function Quiz({
             disabled={selected.length === 0 && correctAnswers.length > 0}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Comprobar
+            {t('check')}
           </button>
         ) : (
           <>
@@ -175,18 +177,18 @@ export function Quiz({
               {isCorrect ? (
                 <>
                   <IconCheck className="size-4" />
-                  ¡Correcto!
+                  {t('correct')}
                 </>
               ) : (
                 <>
                   <IconX className="size-4" />
-                  Incorrecto
+                  {t('incorrect')}
                 </>
               )}
             </div>
             <button type="button" onClick={handleReset} className="flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted">
               <IconRefresh className="size-4" />
-              Reintentar
+              {t('retry')}
             </button>
           </>
         )}
