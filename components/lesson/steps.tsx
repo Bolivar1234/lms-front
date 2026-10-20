@@ -7,7 +7,7 @@ interface StepsProps {
 
 export function Steps({ children, className }: StepsProps) {
   return (
-    <div className={cn('my-6 ml-4 border-l-2 border-muted pl-6 space-y-6', className)}>
+    <div className={cn('my-6 ml-4 border-l-2 border-muted pl-6 space-y-6 [counter-reset:step]', className)}>
       {children}
     </div>
   )
@@ -19,27 +19,13 @@ interface StepProps {
   className?: string
 }
 
-let stepCounter = 0
-
+// Numbering is a CSS counter reset by <Steps>, so it is per-list and identical
+// on the server and the client (a module-level counter kept counting across
+// requests on the server).
 export function Step({ title, children, className }: StepProps) {
-  // Incrementar contador para numerar pasos
-  stepCounter++
-  const currentStep = stepCounter
-
-  // Reset counter cuando el componente se desmonta (para re-renders)
-  if (typeof window !== 'undefined') {
-    // En cliente, resetear después de un pequeño delay
-    setTimeout(() => {
-      stepCounter = 0
-    }, 0)
-  }
-
   return (
     <div className={cn('relative', className)}>
-      {/* Número del paso */}
-      <div className="absolute -left-[calc(1.5rem+1px)] flex size-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-primary bg-background text-sm font-bold text-brand-text">
-        {currentStep}
-      </div>
+      <div className="absolute -left-[calc(1.5rem+1px)] flex size-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-primary bg-background text-sm font-bold text-brand-text [counter-increment:step] before:content-[counter(step)]" />
 
       <div className="pt-0.5">
         {title && (
