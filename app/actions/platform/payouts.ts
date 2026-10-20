@@ -1,6 +1,5 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { isSuperAdmin } from '@/lib/supabase/get-user-role'
 import { revalidatePath } from 'next/cache'
@@ -10,7 +9,6 @@ import { computeOwedBalances, DEFAULT_SCHOOL_PERCENTAGE, isPayoutMismatch, type 
 import { fetchAllRows } from '@/lib/supabase/fetch-all-rows'
 
 async function verifySuperAdmin() {
-  const supabase = await createClient()
   const userId = await getCurrentUserId()
   if (!userId) throw new Error('Not authenticated')
   if (!(await isSuperAdmin())) throw new Error('Super admin only')

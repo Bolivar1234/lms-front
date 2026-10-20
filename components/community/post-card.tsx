@@ -21,7 +21,6 @@ import {
   IconLock,
   IconFlag,
   IconBan,
-  IconPhoto,
   IconLink,
   IconPencil,
   IconAdjustments,

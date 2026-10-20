@@ -35,11 +35,8 @@ import * as path from "path";
 import * as http from "http";
 
 import {
-  generateKeyPairSigner,
   createKeyPairSignerFromBytes,
   createKeyPairFromBytes,
-  getBase58Encoder,
-  getBase58Decoder,
   getTransactionDecoder,
   partiallySignTransaction,
   createTransactionMessage,
@@ -62,7 +59,6 @@ import {
   getTransferSubscriptionInstruction,
   getCancelSubscriptionInstruction,
   getInitSubscriptionAuthorityInstruction,
-  fetchMaybeSubscriptionDelegationFromSeeds,
   decodePlan,
   type PlanDataArgs,
   type SubscribeDataArgs,
@@ -128,11 +124,6 @@ function assertTxReverts(result: unknown, label: string): boolean {
 }
 
 // ─── Keypair conversion helpers ───────────────────────────────────────────────
-
-/** Converts a v1 Keypair → LiteSVM-compatible address (kit v2 Address). */
-function v1PubkeyToAddr(kp: web3.Keypair): Address {
-  return addr(kp.publicKey.toBase58()) as Address;
-}
 
 /**
  * Creates a kit v2 KeyPairSigner from a v1 Keypair (64-byte secret key).

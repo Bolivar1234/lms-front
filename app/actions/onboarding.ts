@@ -1,7 +1,6 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createClient } from '@/lib/supabase/server'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 import { track, upsertSchoolGroup } from '@/lib/analytics/server'
@@ -29,7 +28,6 @@ export async function createSchoolForUser(data: CreateSchoolData) {
   await track(ANALYTICS_EVENTS.SCHOOL_SIGNUP_STARTED, { source: 'create_school' })
 
   try {
-    const supabase = await createClient()
     const userId = await getCurrentUserId()
     if (!userId) {
       return { success: false as const, error: 'Not authenticated. Please sign in first.' }
@@ -111,7 +109,6 @@ export async function createSchoolForUser(data: CreateSchoolData) {
 
 export async function completeOnboarding(data: OnboardingData) {
   try {
-    const supabase = await createClient()
     const userId = await getCurrentUserId()
     if (!userId) {
       return { success: false, error: 'Not authenticated' }

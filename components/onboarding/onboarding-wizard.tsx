@@ -350,7 +350,7 @@ export default function OnboardingWizard({
               <Button
                 onClick={() => {
                   setIsConnectingStripe(true)
-                  window.location.href = '/api/stripe/connect'
+                  window.location.href = new URL('/api/stripe/connect', window.location.origin).href
                 }}
                 className="w-full h-12"
                 disabled={isConnectingStripe}

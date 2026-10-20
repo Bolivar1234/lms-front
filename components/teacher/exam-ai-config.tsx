@@ -62,7 +62,7 @@ export function ExamAIConfig({ examId, initialConfig }: ExamAIConfigProps) {
       } else {
         toast.error(result.error || 'Failed to save configuration')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsSaving(false)

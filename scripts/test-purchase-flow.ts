@@ -141,7 +141,7 @@ async function testPurchaseFlow() {
       // First, we need a transaction to exist for enroll_user to work
       console.log('   📝 Note: enroll_user requires a transaction record first')
       
-      const { data: transaction, error: txError } = await supabase
+      const { data: transaction } = await supabase
         .from('transactions')
         .select('*')
         .eq('user_id', testStudent.id)

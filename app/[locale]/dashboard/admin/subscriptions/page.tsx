@@ -117,7 +117,7 @@ export default async function SubscriptionsPage({
     query = query.eq('subscription_status', statusFilter)
   }
 
-  const { data: subscriptions, error } = await query.overrideTypes<SubscriptionRow[], { merge: false }>()
+  const { data: subscriptions } = await query.overrideTypes<SubscriptionRow[], { merge: false }>()
 
   // Filter by search on client side (by name or ID)
   const filteredSubscriptions = subscriptions?.filter((sub) => {
@@ -282,7 +282,6 @@ export default async function SubscriptionsPage({
                   const plan = subscription.plans
                   const isActive = subscription.subscription_status === 'active'
                   const isCancelled = subscription.subscription_status === 'canceled'
-                  const isExpired = subscription.subscription_status === 'expired'
 
                   return (
                     <div

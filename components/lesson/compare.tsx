@@ -85,7 +85,7 @@ interface CodeCompareProps {
   className?: string
 }
 
-export function CodeCompare({ incorrect, correct, language = 'javascript', className }: CodeCompareProps) {
+export function CodeCompare({ incorrect, correct, className }: CodeCompareProps) {
   const t = useTranslations('lessonContent.compare')
   return (
     <Compare

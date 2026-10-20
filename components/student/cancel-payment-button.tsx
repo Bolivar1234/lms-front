@@ -13,7 +13,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { cancelPaymentRequest } from '@/app/actions/payment-requests'
 import { IconLoader2, IconX } from '@tabler/icons-react'

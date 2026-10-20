@@ -46,8 +46,6 @@ export default async function TeacherCommunityPage({ searchParams }: PageProps) 
     )
   }
 
-  const adminClient = createAdminClient()
-
   const query = await searchParams
   // `?questions=` (#875): questions, unanswered or answered ones.
   const questionFilter = parseQuestionFilter(query.questions)

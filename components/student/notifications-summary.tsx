@@ -1,14 +1,12 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     IconBell,
     IconMessageCircle,
     IconAlertCircle,
-    IconInfoCircle,
-    IconChevronRight
+    IconInfoCircle
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";

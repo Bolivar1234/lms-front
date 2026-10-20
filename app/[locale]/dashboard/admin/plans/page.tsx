@@ -9,7 +9,6 @@ import Link from 'next/link'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { formatCurrency } from '@/lib/currency'
 import {
-  IconArrowLeft,
   IconPlus,
   IconCalendar,
   IconEdit

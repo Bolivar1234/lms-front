@@ -254,7 +254,7 @@ export function CreateSchoolFlow({ user, plan, interval, initialCountry = null }
       const platformDomain = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN
       if (platformDomain && platformDomain !== 'localhost') {
         const protocol = window.location.protocol
-        window.location.href = `${protocol}//${slug.trim()}.${platformDomain}${destination}`
+        window.location.href = new URL(destination, `${protocol}//${slug.trim()}.${platformDomain}`).href
       } else {
         router.push(destination)
       }

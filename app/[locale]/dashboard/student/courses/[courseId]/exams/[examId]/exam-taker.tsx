@@ -8,12 +8,11 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  IconArrowLeft,
   IconClock,
   IconLoader2,
   IconChevronLeft,
@@ -49,7 +48,7 @@ export function ExamTaker({
   examId,
   courseId,
   title,
-  description,
+  description: _description,
   duration,
   questions,
 }: ExamTakerProps) {
@@ -76,7 +75,6 @@ export function ExamTaker({
   })
 
   const currentQuestion = questions[currentQuestionIndex]
-  const isFirstQuestion = currentQuestionIndex === 0
   const isLastQuestion = currentQuestionIndex === questions.length - 1
   const answeredCount = Object.keys(answers).length
   const progressPercent = (answeredCount / questions.length) * 100

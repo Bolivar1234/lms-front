@@ -11,7 +11,6 @@ import {
   IconSend,
   IconClock,
   IconFile,
-  IconPlus,
   IconTemplate,
 } from '@tabler/icons-react'
 import NotificationsList from '@/components/admin/notifications-list'

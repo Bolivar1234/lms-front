@@ -65,7 +65,7 @@ export function TemplatesList({ templates, onEdit, onUse }: TemplatesListProps) 
       } else {
         toast.error(result.error || t('templates.form.toasts.error'))
       }
-    } catch (error) {
+    } catch {
       toast.error(t('templates.form.toasts.error'))
     } finally {
       setIsDeleting(false)

@@ -36,7 +36,7 @@ interface PollCardProps {
   userId: string
 }
 
-export function PollCard({ post, userId }: PollCardProps) {
+export function PollCard({ post }: PollCardProps) {
   const t = useTranslations('community')
   const [votedOption, setVotedOption] = useState<string | null>(post.user_voted_option ?? null)
   const [options, setOptions] = useState(post.poll_options ?? [])

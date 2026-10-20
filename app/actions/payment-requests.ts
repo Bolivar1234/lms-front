@@ -823,7 +823,7 @@ export async function updatePaymentRequest(
       if (currentRequest && currentRequest.status === 'payment_received') {
         // Use the proper enrollment flow
         return await completeAndEnroll(requestId)
-          .then((result) => ({ success: true }))
+          .then(() => ({ success: true }))
           .catch((err) => ({ success: false, error: err instanceof Error ? err.message : 'Failed to complete and enroll' }))
       }
 
@@ -847,7 +847,7 @@ export async function updatePaymentRequest(
           .eq('tenant_id', tenantId)
 
         return await completeAndEnroll(requestId)
-          .then((result) => ({ success: true }))
+          .then(() => ({ success: true }))
           .catch((err) => ({ success: false, error: err instanceof Error ? err.message : 'Failed to complete and enroll' }))
       }
     }
