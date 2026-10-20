@@ -33,9 +33,16 @@ export function ImpersonateDialog({ open, onClose, tenantId, tenantName }: Props
   const [loadingUsers, setLoadingUsers] = useState(false)
   const [impersonating, setImpersonating] = useState<string | null>(null)
 
+  // Show the spinner as soon as the dialog opens (or the tenant changes while open)
+  const loadKey = open ? tenantId : null
+  const [prevLoadKey, setPrevLoadKey] = useState<string | null>(null)
+  if (loadKey !== prevLoadKey) {
+    setPrevLoadKey(loadKey)
+    if (loadKey !== null) setLoadingUsers(true)
+  }
+
   useEffect(() => {
     if (!open) return
-    setLoadingUsers(true)
     getTenantUsersForImpersonation(tenantId)
       .then(setUsers)
       .catch((e) => toast.error(e.message))

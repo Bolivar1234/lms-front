@@ -21,6 +21,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import {
   type BundledLanguage,
@@ -128,6 +129,16 @@ const tokensCache = new Map<string, TokenizedCode>();
 // Subscribers for async token updates
 const subscribers = new Map<string, Set<(result: TokenizedCode) => void>>();
 
+// Listeners notified whenever any entry lands in the token cache
+const tokensCacheListeners = new Set<() => void>();
+
+const subscribeToTokensCache = (listener: () => void) => {
+  tokensCacheListeners.add(listener);
+  return () => {
+    tokensCacheListeners.delete(listener);
+  };
+};
+
 const getTokensCacheKey = (code: string, language: BundledLanguage) => {
   const start = code.slice(0, 100);
   const end = code.length > 100 ? code.slice(-100) : "";
@@ -211,6 +222,9 @@ export function highlightCode(
 
       // Cache the result
       tokensCache.set(tokensCacheKey, tokenized);
+      for (const listener of tokensCacheListeners) {
+        listener();
+      }
 
       // Notify all subscribers
       const subs = subscribers.get(tokensCacheKey);
@@ -244,7 +258,7 @@ const LINE_NUMBER_CLASSES = cn(
 );
 
 const CodeBlockBody = memo(
-  ({
+  function CodeBlockBody({
     tokenized,
     showLineNumbers,
     className,
@@ -252,7 +266,7 @@ const CodeBlockBody = memo(
     tokenized: TokenizedCode;
     showLineNumbers: boolean;
     className?: string;
-  }) => {
+  }) {
     const preStyle = useMemo(
       () => ({
         backgroundColor: tokenized.bg,
@@ -376,18 +390,20 @@ export const CodeBlockContent = ({
   // Memoized raw tokens for immediate display
   const rawTokens = useMemo(() => createRawTokens(code), [code]);
 
-  // Try to get cached result synchronously, otherwise use raw tokens
-  const [tokenized, setTokenized] = useState<TokenizedCode>(
-    () => highlightCode(code, language) ?? rawTokens
+  // Read the highlighted result from the token cache; raw tokens until ready
+  const tokensCacheKey = getTokensCacheKey(code, language);
+  const getSnapshot = () => tokensCache.get(tokensCacheKey);
+  const highlighted = useSyncExternalStore(
+    subscribeToTokensCache,
+    getSnapshot,
+    getSnapshot
   );
+  const tokenized = highlighted ?? rawTokens;
 
   useEffect(() => {
-    // Reset to raw tokens when code changes (shows current code, not stale tokens)
-    setTokenized(highlightCode(code, language) ?? rawTokens);
-
-    // Subscribe to async highlighting result
-    highlightCode(code, language, setTokenized);
-  }, [code, language, rawTokens]);
+    // Start highlighting in background; the cache notifies when it lands
+    highlightCode(code, language);
+  }, [code, language]);
 
   return (
     <div className="relative overflow-auto">

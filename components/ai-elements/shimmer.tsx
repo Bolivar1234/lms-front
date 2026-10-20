@@ -1,12 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import { useAnimate } from "motion/react";
 import {
   type CSSProperties,
   type ElementType,
-  type JSX,
   memo,
+  useEffect,
   useMemo,
 } from "react";
 
@@ -25,9 +25,22 @@ const ShimmerComponent = ({
   duration = 2,
   spread = 2,
 }: TextShimmerProps) => {
-  const MotionComponent = motion.create(
-    Component as keyof JSX.IntrinsicElements
-  );
+  // Animate the plain element via a scope ref: motion.create(Component) in
+  // render would mint a new component type (and remount) on every render.
+  const [scope, animate] = useAnimate<HTMLElement>();
+
+  useEffect(() => {
+    const controls = animate(
+      scope.current,
+      { backgroundPosition: ["100% center", "0% center"] },
+      {
+        repeat: Number.POSITIVE_INFINITY,
+        duration,
+        ease: "linear",
+      }
+    );
+    return () => controls.stop();
+  }, [animate, scope, duration]);
 
   const dynamicSpread = useMemo(
     () => (children?.length ?? 0) * spread,
@@ -35,29 +48,24 @@ const ShimmerComponent = ({
   );
 
   return (
-    <MotionComponent
-      animate={{ backgroundPosition: "0% center" }}
+    <Component
       className={cn(
         "relative inline-block bg-[length:250%_100%,auto] bg-clip-text text-transparent",
         "[--bg:linear-gradient(90deg,#0000_calc(50%-var(--spread)),var(--color-background),#0000_calc(50%+var(--spread)))] [background-repeat:no-repeat,padding-box]",
         className
       )}
-      initial={{ backgroundPosition: "100% center" }}
+      ref={scope}
       style={
         {
           "--spread": `${dynamicSpread}px`,
+          backgroundPosition: "100% center",
           backgroundImage:
             "var(--bg), linear-gradient(var(--color-muted-foreground), var(--color-muted-foreground))",
         } as CSSProperties
       }
-      transition={{
-        repeat: Number.POSITIVE_INFINITY,
-        duration,
-        ease: "linear",
-      }}
     >
       {children}
-    </MotionComponent>
+    </Component>
   );
 };
 

@@ -27,11 +27,14 @@ interface CardLesson {
   lesson_completions?: { user_id: string }[]
 }
 
+/**
+ * The columns `getExamSubmissions` selects. That query already scopes rows to
+ * the current student and tenant, so the card does no per-student filtering.
+ */
 interface CardExamSubmission {
   submission_id: number
-  student_id: string
-  submitted_at: string
-  exam_scores?: { score?: number | null }[] | null
+  score: number | null
+  submission_date: string
 }
 
 interface CardExam {
@@ -52,6 +55,26 @@ interface CardEnrollment {
     lessons?: CardLesson[]
     exams?: CardExam[]
   } | null
+}
+
+/** Map the card's exams (with this student's submissions) to progress input. */
+export function toExamInfos(exams: CardExam[]): ExamInfo[] {
+  return exams.map((exam) => {
+    const attempts: ExamAttempt[] = (exam.exam_submissions || []).map((submission) => ({
+      submissionId: submission.submission_id,
+      score: submission.score ?? 0,
+      submittedAt: new Date(submission.submission_date),
+    }))
+
+    return {
+      examId: exam.exam_id,
+      title: exam.title,
+      sequence: exam.sequence ?? 0,
+      passingScore: 70,
+      allowRetake: true,
+      attempts,
+    }
+  })
 }
 
 interface EnrolledCourseCardProps {
@@ -76,24 +99,7 @@ export function EnrolledCourseCard({ enrollment, userId, access }: EnrolledCours
   }).length
 
   // Calculate exam progress
-  const exams = course.exams || []
-  const examsWithAttempts: ExamInfo[] = exams.map((exam) => {
-    const submissions = exam.exam_submissions?.filter((s) => s.student_id === userId) || []
-    const attempts: ExamAttempt[] = submissions.map((submission) => ({
-      submissionId: submission.submission_id,
-      score: submission.exam_scores?.[0]?.score || 0,
-      submittedAt: new Date(submission.submitted_at),
-    }))
-
-    return {
-      examId: exam.exam_id,
-      title: exam.title,
-      sequence: exam.sequence ?? 0,
-      passingScore: 70,
-      allowRetake: true,
-      attempts,
-    }
-  })
+  const examsWithAttempts = toExamInfos(course.exams || [])
 
   const progress = calculateCourseProgress(totalLessons, completedLessons, examsWithAttempts)
 

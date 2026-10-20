@@ -151,10 +151,11 @@ export const CommitTimestamp = ({
   children,
   ...props
 }: CommitTimestampProps) => {
+  const [now] = useState(Date.now);
   const formatted = new Intl.RelativeTimeFormat("en", {
     numeric: "auto",
   }).format(
-    Math.round((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+    Math.round((date.getTime() - now) / (1000 * 60 * 60 * 24)),
     "day"
   );
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useEffectEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -30,8 +30,7 @@ export function PromptTemplateSelector({ category, onSelect }: PromptTemplateSel
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const loadTemplates = async () => {
-    setLoading(true)
+  const fetchTemplates = async () => {
     const params = new URLSearchParams({ category })
     if (search) params.append('search', search)
 
@@ -44,9 +43,27 @@ export function PromptTemplateSelector({ category, onSelect }: PromptTemplateSel
     }
   }
 
+  const loadTemplates = () => {
+    setLoading(true)
+    return fetchTemplates()
+  }
+
+  // Show the spinner as soon as the dialog opens (or the category changes while open)
+  const loadKey = open ? category : null
+  const [prevLoadKey, setPrevLoadKey] = useState<string | null>(null)
+  if (loadKey !== prevLoadKey) {
+    setPrevLoadKey(loadKey)
+    if (loadKey !== null) setLoading(true)
+  }
+
+  // Reads the latest search without refetching on every keystroke
+  const onOpenLoad = useEffectEvent(() => {
+    fetchTemplates()
+  })
+
   useEffect(() => {
     if (open) {
-      loadTemplates()
+      onOpenLoad()
     }
   }, [open, category])
 
