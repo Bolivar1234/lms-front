@@ -24,7 +24,11 @@ import { toast } from "sonner"
 interface SocialShareModalProps {
     isOpen: boolean
     onOpenChange: (open: boolean) => void
-    certificate: any
+    certificate: {
+        certificate_id: string
+        verification_code: string
+        courses?: { title?: string | null } | null
+    }
 }
 
 export function SocialShareModal({ isOpen, onOpenChange, certificate }: SocialShareModalProps) {
