@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
       .eq("user_id", targetUserId)
       .eq("tenant_id", tenantId);
 
-    const earnedIds = new Set((earnedAchievements || []).map((a: any) => a.achievement_id));
+    const earnedIds = new Set((earnedAchievements || []).map((a: { achievement_id: string }) => a.achievement_id));
 
     // Get all applicable achievements (global + tenant-specific)
     const { data: allAchievements } = await admin
