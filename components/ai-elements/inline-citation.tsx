@@ -19,8 +19,8 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useState,
+  useSyncExternalStore,
 } from "react";
 
 export type InlineCitationProps = ComponentProps<"span">;
@@ -50,8 +50,7 @@ export const InlineCitationText = ({
 export type InlineCitationCardProps = ComponentProps<typeof HoverCard>;
 
 export const InlineCitationCard = (props: InlineCitationCardProps) => (
-  // @ts-ignore
-  <HoverCard closeDelay={0} openDelay={0} {...props} />
+  <HoverCard {...props} />
 );
 
 export type InlineCitationCardTriggerProps = ComponentProps<typeof Badge> & {
@@ -148,21 +147,29 @@ export const InlineCitationCarouselIndex = ({
   ...props
 }: InlineCitationCarouselIndexProps) => {
   const api = useCarouselApi();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
 
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      if (!api) {
+        return () => {};
+      }
+      api.on("select", onChange);
+      return () => {
+        api.off("select", onChange);
+      };
+    },
+    [api]
+  );
+  const current = useSyncExternalStore(
+    subscribe,
+    () => (api ? api.selectedScrollSnap() + 1 : 0),
+    () => 0
+  );
+  const count = useSyncExternalStore(
+    subscribe,
+    () => (api ? api.scrollSnapList().length : 0),
+    () => 0
+  );
 
   return (
     <div
