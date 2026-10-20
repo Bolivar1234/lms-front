@@ -31,24 +31,21 @@ test.describe('Community Spaces', () => {
 
     test('student community shows feed structure or upgrade nudge', async ({ page }) => {
       await page.goto(`${BASE}/en/dashboard/student/community`)
-      await page.waitForLoadState('networkidle')
 
       // Either the community feed renders (with tour anchors) or an upgrade nudge is shown
       const communityHeader = page.locator('[data-tour="community-header"]')
-      const upgradeNudge = page.locator('text=/upgrade/i')
+      const upgradeNudge = page.getByTestId('upgrade-nudge')
 
       // One of these must be visible
-      const headerVisible = await communityHeader.isVisible().catch(() => false)
-      const nudgeVisible = await upgradeNudge.first().isVisible().catch(() => false)
-
-      expect(headerVisible || nudgeVisible).toBeTruthy()
+      await expect(communityHeader.or(upgradeNudge)).toBeVisible({ timeout: 15_000 })
     })
 
     test('student community shows composer and filters when available', async ({ page }) => {
       await page.goto(`${BASE}/en/dashboard/student/community`)
-      await page.waitForLoadState('networkidle')
 
       const communityHeader = page.locator('[data-tour="community-header"]')
+      // The page renders one or the other; wait for it before branching.
+      await expect(communityHeader.or(page.getByTestId('upgrade-nudge'))).toBeVisible({ timeout: 15_000 })
       const headerVisible = await communityHeader.isVisible().catch(() => false)
 
       if (headerVisible) {
@@ -67,9 +64,10 @@ test.describe('Community Spaces', () => {
 
     test('student community shows feed or empty state', async ({ page }) => {
       await page.goto(`${BASE}/en/dashboard/student/community`)
-      await page.waitForLoadState('networkidle')
 
       const communityHeader = page.locator('[data-tour="community-header"]')
+      // The page renders one or the other; wait for it before branching.
+      await expect(communityHeader.or(page.getByTestId('upgrade-nudge'))).toBeVisible({ timeout: 15_000 })
       const headerVisible = await communityHeader.isVisible().catch(() => false)
 
       if (headerVisible) {
@@ -77,10 +75,7 @@ test.describe('Community Spaces', () => {
         const feedArea = page.locator('[data-tour="community-feed"]')
         const emptyState = page.locator('text=/no posts|be the first|empty/i')
 
-        const feedVisible = await feedArea.isVisible().catch(() => false)
-        const emptyVisible = await emptyState.first().isVisible().catch(() => false)
-
-        expect(feedVisible || emptyVisible).toBeTruthy()
+        await expect(feedArea.or(emptyState).filter({ visible: true }).first()).toBeVisible()
       }
     })
   })
@@ -99,15 +94,11 @@ test.describe('Community Spaces', () => {
 
     test('teacher community shows feed structure or upgrade nudge', async ({ page }) => {
       await page.goto(`${BASE}/en/dashboard/teacher/community`)
-      await page.waitForLoadState('networkidle')
 
       const communityHeader = page.locator('[data-tour="community-header"]')
-      const upgradeNudge = page.locator('text=/upgrade/i')
+      const upgradeNudge = page.getByTestId('upgrade-nudge')
 
-      const headerVisible = await communityHeader.isVisible().catch(() => false)
-      const nudgeVisible = await upgradeNudge.first().isVisible().catch(() => false)
-
-      expect(headerVisible || nudgeVisible).toBeTruthy()
+      await expect(communityHeader.or(upgradeNudge)).toBeVisible({ timeout: 15_000 })
     })
   })
 
@@ -125,9 +116,10 @@ test.describe('Community Spaces', () => {
 
     test('admin community shows moderation button when community is available', async ({ page }) => {
       await page.goto(`${TENANT_BASE}/en/dashboard/admin/community`)
-      await page.waitForLoadState('networkidle')
 
       const communityHeader = page.locator('[data-tour="community-header"]')
+      // The page renders one or the other; wait for it before branching.
+      await expect(communityHeader.or(page.getByTestId('upgrade-nudge'))).toBeVisible({ timeout: 15_000 })
       const headerVisible = await communityHeader.isVisible().catch(() => false)
 
       if (headerVisible) {

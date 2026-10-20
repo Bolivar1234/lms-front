@@ -62,19 +62,14 @@ test.describe('Course Settings Page', () => {
     await loginAsTeacher(page)
     await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
 
-    await page.waitForLoadState('networkidle')
-
-    // Course title should appear in the breadcrumb area
-    const body = await page.locator('body').textContent()
-    expect(body).toMatch(/Introduction to Testing/i)
+    // Course title should appear in the breadcrumb area (web-first: waits for render)
+    await expect(page.locator('body')).toContainText(/Introduction to Testing/i)
   })
 
   test('course settings has danger zone section', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsTeacher(page)
     await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
-
-    await page.waitForLoadState('networkidle')
 
     // Danger zone border section should exist
     const dangerZone = page.locator('.border-destructive\\/30')
@@ -114,9 +109,6 @@ test.describe.serial('Course Status Toggle', () => {
     await page.goto(`${BASE}/${LOCALE}/dashboard/student/browse`)
     await expect(page.getByTestId('browse-courses-page')).toBeVisible({ timeout: 15_000 })
 
-    // Wait for page to fully load
-    await page.waitForLoadState('networkidle')
-
     // The draft course should not be visible in browse
     const body = await page.locator('body').textContent()
     // Course 1001 "Introduction to Testing" should not appear when drafted
@@ -141,8 +133,6 @@ test.describe.serial('Course Status Toggle', () => {
     await loginAsStudent(page)
     await page.goto(`${BASE}/${LOCALE}/dashboard/student/browse`)
     await expect(page.getByTestId('browse-courses-page')).toBeVisible({ timeout: 15_000 })
-
-    await page.waitForLoadState('networkidle')
 
     // Course should be visible now
     const body = await page.locator('body').textContent()
@@ -172,8 +162,6 @@ test.describe('Teacher Course Form - Status', () => {
     await loginAsTeacher(page)
     await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
 
-    await page.waitForLoadState('networkidle')
-
     // The status select should be visible
     const statusSelect = page.locator('#status')
     await expect(statusSelect).toBeVisible({ timeout: 10_000 })
@@ -183,8 +171,6 @@ test.describe('Teacher Course Form - Status', () => {
     test.setTimeout(60_000)
     await loginAsTeacher(page)
     await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
-
-    await page.waitForLoadState('networkidle')
 
     // Look for the update/save button
     const submitButton = page.locator('button[type="submit"]')

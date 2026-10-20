@@ -390,7 +390,7 @@ export function PlatformPricingDisplay({ plans }: { plans: PlanData[] }) {
       </section>
 
       {/* === BOTTOM CTA === */}
-      <section className="relative border-t border-zinc-800/60">
+      <section className="relative overflow-hidden border-t border-zinc-800/60">
         {/* Subtle glow */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-violet-600/5 blur-[150px] rounded-full pointer-events-none" />
 

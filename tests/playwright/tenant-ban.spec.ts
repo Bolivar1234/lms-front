@@ -216,6 +216,9 @@ test.describe.serial('Tenant ban (#892)', () => {
   })
 
   test('admin lifts the ban; the member lands on removed and rejoins', async ({ page, browser }) => {
+    // Two logins plus up to 120s of its own waits: the default 30s budget ran
+    // out on slow CI attempts before the rejoin finished.
+    test.setTimeout(120_000)
     const admin = getServiceRoleClient()
     await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password, BASE)
     await page.goto(`${BASE}/${LOCALE}/dashboard/admin/users/${memberId}`, { waitUntil: 'domcontentloaded' })

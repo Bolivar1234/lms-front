@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { loginAsStudent } from '../utils/auth'
 import { BASE, LOCALE } from '../utils/constants'
 import fs from 'node:fs'
@@ -26,7 +26,8 @@ test('capture #586 gif frames', async ({ page }) => {
   await loginAsStudent(page)
   await page.setViewportSize({ width: 1024, height: 820 })
   await page.goto(`${BASE}/${LOCALE}/dashboard/student`)
-  await page.waitForLoadState('networkidle').catch(() => {})
+  // The header avatar renders with the dashboard shell (link prefetches keep the network busy).
+  await expect(page.getByTestId('user-nav-trigger')).toBeVisible()
   await page.waitForTimeout(2000)
 
   let i = 0

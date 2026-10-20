@@ -143,7 +143,8 @@ test.describe('Platform Tenants', () => {
 
     await page.getByTestId('tenants-search').filter({ visible: true }).fill('Code Academy')
     await page.getByTestId('tenants-filter-submit').click()
-    await page.waitForLoadState('networkidle')
+    // Filter chips render from the filtered server props, in the same payload as the rows
+    await expect(page.getByTestId('tenants-active-filters')).toBeVisible()
 
     const filteredCount = await page.getByTestId('tenant-row').count()
     expect(filteredCount).toBeLessThanOrEqual(initialCount)
@@ -155,7 +156,7 @@ test.describe('Platform Tenants', () => {
   test('plan filter shows only tenants with selected plan', async ({ page }) => {
     await page.getByTestId('tenants-plan-filter').selectOption('starter')
     await page.getByTestId('tenants-filter-submit').click()
-    await page.waitForLoadState('networkidle')
+    await expect(page.getByTestId('tenants-active-filters')).toBeVisible()
 
     // Every visible row should have "starter" badge
     const rows = page.getByTestId('tenant-row')
@@ -170,12 +171,12 @@ test.describe('Platform Tenants', () => {
   test('clear filter restores all tenants', async ({ page }) => {
     await page.getByTestId('tenants-search').filter({ visible: true }).fill('zzz-no-match')
     await page.getByTestId('tenants-filter-submit').click()
-    await page.waitForLoadState('networkidle')
+    await expect(page.getByTestId('tenants-active-filters')).toBeVisible()
     const emptyCount = await page.getByTestId('tenant-row').count()
     expect(emptyCount).toBe(0)
 
     // Clear via the page's own "clear filters" link and wait for the
-    // navigation — `networkidle` after a submit resolves before the new
+    // navigation — a network-idle wait after a submit resolves before the new
     // server-rendered rows arrive, which is what made the count stay at 0.
     await page.getByTestId('tenants-clear-filters').click()
     await page.waitForURL((url) => !url.searchParams.has('q'))
@@ -238,20 +239,22 @@ test.describe('Platform Billing', () => {
     // Default tab is Pending
     await expect(page.getByTestId('billing-tab-pending')).toHaveAttribute('data-active', 'true')
 
+    // The web-first assertions below wait for the tab switch. Not network idle:
+    // the All tab's rows link to tenant pages whose prefetches stay open, so
+    // the network never goes idle there.
+
     // Navigate to Confirmed tab
     await page.getByTestId('billing-tab-confirmed').click()
-    await page.waitForLoadState('networkidle')
     await expect(page.getByTestId('billing-tab-confirmed')).toHaveAttribute('data-active', 'true')
 
     // Navigate to All tab
     await page.getByTestId('billing-tab-all').click()
-    await page.waitForLoadState('networkidle')
     await expect(page.getByTestId('billing-tab-all')).toHaveAttribute('data-active', 'true')
   })
 
   test('All tab shows all requests', async ({ page }) => {
     await page.getByTestId('billing-tab-all').click()
-    await page.waitForLoadState('networkidle')
+    await expect(page.getByTestId('billing-tab-all')).toHaveAttribute('data-active', 'true')
     // Table loads (even if empty, the table element exists)
     await expect(page.getByTestId('billing-requests-table')).toBeVisible()
   })

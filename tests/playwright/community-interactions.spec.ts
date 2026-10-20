@@ -86,17 +86,13 @@ test.describe('Community Feature Gating', () => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
     await page.goto(`${BASE}/${LOCALE}/dashboard/student/community`)
-    await page.waitForLoadState('networkidle')
 
     // Check if upgrade nudge or community header is shown
-    const upgradeText = page.locator('text=/upgrade/i')
+    const upgradeNudge = page.getByTestId('upgrade-nudge')
     const communityHeader = page.locator('[data-tour="community-header"]')
 
-    const nudgeVisible = await upgradeText.first().isVisible().catch(() => false)
-    const headerVisible = await communityHeader.isVisible().catch(() => false)
-
-    // One of these must be true — community is either gated or available
-    expect(nudgeVisible || headerVisible).toBeTruthy()
+    // One of these must be visible — community is either gated or available
+    await expect(upgradeNudge.or(communityHeader)).toBeVisible({ timeout: 15_000 })
   })
 })
 
@@ -117,9 +113,10 @@ test.describe('Community on Code Academy', () => {
     test.setTimeout(60_000)
     await loginAsAdmin(page)
     await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/community`)
-    await page.waitForLoadState('networkidle')
 
     const communityHeader = page.locator('[data-tour="community-header"]')
+    // The page renders one or the other; wait for it before branching.
+    await expect(communityHeader.or(page.getByTestId('upgrade-nudge'))).toBeVisible({ timeout: 15_000 })
     const headerVisible = await communityHeader.isVisible().catch(() => false)
 
     if (headerVisible) {
@@ -137,9 +134,10 @@ test.describe('Community on Code Academy', () => {
     test.setTimeout(60_000)
     await loginAsAdmin(page)
     await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/community`)
-    await page.waitForLoadState('networkidle')
 
     const communityHeader = page.locator('[data-tour="community-header"]')
+    // The page renders one or the other; wait for it before branching.
+    await expect(communityHeader.or(page.getByTestId('upgrade-nudge'))).toBeVisible({ timeout: 15_000 })
     const headerVisible = await communityHeader.isVisible().catch(() => false)
 
     if (headerVisible) {
@@ -152,9 +150,10 @@ test.describe('Community on Code Academy', () => {
     test.setTimeout(60_000)
     await loginAsAdmin(page)
     await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/community`)
-    await page.waitForLoadState('networkidle')
 
     const communityHeader = page.locator('[data-tour="community-header"]')
+    // The page renders one or the other; wait for it before branching.
+    await expect(communityHeader.or(page.getByTestId('upgrade-nudge'))).toBeVisible({ timeout: 15_000 })
     const headerVisible = await communityHeader.isVisible().catch(() => false)
 
     if (headerVisible) {
