@@ -1,6 +1,20 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 
+interface GamificationProfileRow {
+  user_id: string;
+  total_xp: number;
+  level: number;
+  current_streak: number;
+}
+
+interface UserProfileRow {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  username: string | null;
+}
+
 function getTenantIdFromJwt(authHeader: string): string | null {
   try {
     const token = authHeader.replace("Bearer ", "");
@@ -80,17 +94,17 @@ Deno.serve(async (req) => {
         .range(offset, offset + limit - 1);
 
       if (profiles && profiles.length > 0) {
-        const userIds = profiles.map((p: any) => p.user_id);
+        const userIds = profiles.map((p: GamificationProfileRow) => p.user_id);
         const { data: profilesData } = await admin
           .from("profiles")
           .select("id, full_name, avatar_url, username")
           .in("id", userIds);
 
         const profileMap = new Map(
-          (profilesData || []).map((p: any) => [p.id, p])
+          (profilesData || []).map((p: UserProfileRow) => [p.id, p])
         );
 
-        leaderboardData = profiles.map((p: any, i: number) => {
+        leaderboardData = profiles.map((p: GamificationProfileRow, i: number) => {
           const userProfile = profileMap.get(p.user_id);
           return {
             rank: offset + i + 1,
@@ -134,8 +148,10 @@ Deno.serve(async (req) => {
           admin.from("gamification_profiles").select("user_id, level, current_streak").eq("tenant_id", tenantId).in("user_id", userIds),
         ]);
 
-        const profileMap = new Map((profilesData || []).map((p: any) => [p.id, p]));
-        const gamMap = new Map((gamProfiles || []).map((p: any) => [p.user_id, p]));
+        const profileMap = new Map((profilesData || []).map((p: UserProfileRow) => [p.id, p]));
+        const gamMap = new Map(
+          (gamProfiles || []).map((p: Omit<GamificationProfileRow, "total_xp">) => [p.user_id, p])
+        );
 
         leaderboardData = sorted.map(([uid, xp], i) => {
           const userProfile = profileMap.get(uid);

@@ -1,6 +1,32 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 
+interface GamificationLevel {
+  level: number;
+  min_xp: number;
+  title: string;
+  icon: string | null;
+}
+
+interface UserAchievementWithAchievement {
+  earned_at: string | null;
+  achievement: {
+    slug: string;
+    title: string;
+    description: string | null;
+    tier: string;
+    category: string;
+    icon: string | null;
+  } | null;
+}
+
+interface XpTransaction {
+  action_type: string;
+  xp_amount: number;
+  reference_type: string | null;
+  created_at: string | null;
+}
+
 function getTenantIdFromJwt(authHeader: string): string | null {
   try {
     const token = authHeader.replace("Bearer ", "");
@@ -87,11 +113,11 @@ Deno.serve(async (req) => {
       last_activity_date: null,
     };
 
-    const levels = levelsResult.data || [];
+    const levels: GamificationLevel[] = levelsResult.data || [];
 
     // Find current and next level
-    const currentLevel = levels.find((l: any) => l.level === profile.level) || levels[0];
-    const nextLevel = levels.find((l: any) => l.level === profile.level + 1);
+    const currentLevel = levels.find((l) => l.level === profile.level) || levels[0];
+    const nextLevel = levels.find((l) => l.level === profile.level + 1);
 
     // Calculate XP progress to next level
     const xpForCurrentLevel = currentLevel?.min_xp || 0;
@@ -163,7 +189,7 @@ Deno.serve(async (req) => {
         achievements: {
           earned: earnedCount || 0,
           total: totalAchievements || 0,
-          recent: (achievementsResult.data || []).map((ua: any) => ({
+          recent: (achievementsResult.data || []).map((ua: UserAchievementWithAchievement) => ({
             slug: ua.achievement?.slug,
             title: ua.achievement?.title,
             description: ua.achievement?.description,
@@ -174,7 +200,7 @@ Deno.serve(async (req) => {
           })),
           newly_earned: newlyEarnedAchievements,
         },
-        recent_xp: (recentXpResult.data || []).map((tx: any) => ({
+        recent_xp: (recentXpResult.data || []).map((tx: XpTransaction) => ({
           action_type: tx.action_type,
           xp_amount: tx.xp_amount,
           reference_type: tx.reference_type,

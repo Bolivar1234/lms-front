@@ -16,6 +16,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { IconSparkles, IconInfoCircle, IconDeviceFloppy } from '@tabler/icons-react'
 import { updateExamAIConfig, getAIConfigOptions } from '@/app/actions/exam-grading'
+import type { AIPersona, DetailLevel, FeedbackTone } from '@/lib/exams/grade'
 import { toast } from 'sonner'
 
 interface ExamAIConfigProps {
@@ -51,9 +52,9 @@ export function ExamAIConfig({ examId, initialConfig }: ExamAIConfigProps) {
         examId,
         aiGradingEnabled: aiEnabled,
         aiGradingPrompt: customPrompt || undefined,
-        aiPersona: persona as any,
-        aiFeedbackTone: tone as any,
-        aiFeedbackDetailLevel: detailLevel as any,
+        aiPersona: persona as AIPersona,
+        aiFeedbackTone: tone as FeedbackTone,
+        aiFeedbackDetailLevel: detailLevel as DetailLevel,
       })
 
       if (result.success) {
@@ -103,7 +104,7 @@ export function ExamAIConfig({ examId, initialConfig }: ExamAIConfigProps) {
                   <SelectValue placeholder="Select AI persona" />
                 </SelectTrigger>
                 <SelectContent>
-                  {configOptions.personas.map((option: any) => (
+                  {configOptions.personas.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       <div className="flex flex-col">
                         <span className="font-medium">{option.label}</span>
@@ -114,7 +115,7 @@ export function ExamAIConfig({ examId, initialConfig }: ExamAIConfigProps) {
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                {configOptions.personas.find((p: any) => p.value === persona)?.description}
+                {configOptions.personas.find((p) => p.value === persona)?.description}
               </p>
             </div>
 
@@ -126,7 +127,7 @@ export function ExamAIConfig({ examId, initialConfig }: ExamAIConfigProps) {
                   <SelectValue placeholder="Select feedback tone" />
                 </SelectTrigger>
                 <SelectContent>
-                  {configOptions.tones.map((option: any) => (
+                  {configOptions.tones.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -134,7 +135,7 @@ export function ExamAIConfig({ examId, initialConfig }: ExamAIConfigProps) {
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                {configOptions.tones.find((t: any) => t.value === tone)?.description}
+                {configOptions.tones.find((t) => t.value === tone)?.description}
               </p>
             </div>
 
@@ -146,7 +147,7 @@ export function ExamAIConfig({ examId, initialConfig }: ExamAIConfigProps) {
                   <SelectValue placeholder="Select detail level" />
                 </SelectTrigger>
                 <SelectContent>
-                  {configOptions.detailLevels.map((option: any) => (
+                  {configOptions.detailLevels.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -154,7 +155,7 @@ export function ExamAIConfig({ examId, initialConfig }: ExamAIConfigProps) {
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                {configOptions.detailLevels.find((d: any) => d.value === detailLevel)?.description}
+                {configOptions.detailLevels.find((d) => d.value === detailLevel)?.description}
               </p>
             </div>
 

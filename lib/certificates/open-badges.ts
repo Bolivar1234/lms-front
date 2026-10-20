@@ -4,6 +4,8 @@
  */
 
 // crypto is dynamically imported to avoid build errors when @noble/curves is not installed
+import type { SignatureProof } from './crypto';
+import type { Json } from '@/lib/database.types';
 
 // =====================================================
 // Types
@@ -41,13 +43,14 @@ export interface CertificateTemplate {
     achievement_type: string;
     achievement_criteria_narrative?: string;
     tags?: string[];
-    alignment_targets?: any;
+    alignment_targets?: Json | null;
     min_lesson_completion_pct: number;
     min_exam_pass_score: number;
     requires_all_exams: boolean;
 }
 
-export interface OpenBadgeCredential {
+// A type alias (not an interface) so it stays assignable to Record<string, unknown>
+export type OpenBadgeCredential = {
     '@context': string[];
     id: string;
     type: string[];
@@ -56,7 +59,7 @@ export interface OpenBadgeCredential {
     expirationDate?: string;
     credentialSubject: CredentialSubject;
     evidence?: Evidence[];
-}
+};
 
 export interface Issuer {
     id: string;
@@ -81,7 +84,7 @@ export interface Achievement {
     criteria: Criteria;
     image?: string;
     tags?: string[];
-    alignment?: any[];
+    alignment?: Json | null;
 }
 
 export interface Criteria {
@@ -204,7 +207,7 @@ export async function signCredential(
     credential: OpenBadgeCredential,
     privateKeyHex: string,
     keyUrl: string
-): Promise<any> {
+): Promise<OpenBadgeCredential & { proof: SignatureProof }> {
     const { addProofToCredential } = await import('./crypto');
     return addProofToCredential(credential, privateKeyHex, keyUrl);
 }
@@ -212,7 +215,7 @@ export async function signCredential(
 /**
  * Validate credential structure against Open Badges 3.0 spec
  */
-export function validateCredentialStructure(credential: any): {
+export function validateCredentialStructure(credential: Partial<OpenBadgeCredential>): {
     valid: boolean;
     errors: string[];
 } {

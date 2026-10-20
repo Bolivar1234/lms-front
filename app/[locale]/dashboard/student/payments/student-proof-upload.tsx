@@ -40,8 +40,8 @@ export function StudentProofUpload({ requestId }: StudentProofUploadProps) {
       await uploadStudentPaymentProof(requestId, formData)
       toast.success(t('uploadSuccess'))
       router.refresh()
-    } catch (e: any) {
-      toast.error(e.message || t('uploadFailed'))
+    } catch (e) {
+      toast.error((e instanceof Error && e.message) || t('uploadFailed'))
     } finally {
       setUploading(false)
       if (inputRef.current) inputRef.current.value = ''

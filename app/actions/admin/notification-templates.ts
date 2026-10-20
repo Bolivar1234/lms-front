@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserRole, isSuperAdmin } from '@/lib/supabase/get-user-role'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
 import { revalidatePath } from 'next/cache'
+import type { Tables } from '@/lib/database.types'
 
 type TemplateCategory = 'system' | 'course' | 'payment' | 'enrollment' | 'exam' | 'custom'
 
@@ -16,7 +17,14 @@ interface TemplateData {
   variables?: string[]
 }
 
-interface ActionResponse<T = any> {
+// `category` is constrained by a CHECK and `variables` is always written as a
+// string array, so the row is narrowed to those shapes at the query boundary.
+type NotificationTemplate = Omit<Tables<'notification_templates'>, 'category' | 'variables'> & {
+  category: TemplateCategory
+  variables: string[]
+}
+
+interface ActionResponse<T = undefined> {
   success: boolean
   data?: T
   error?: string
@@ -27,7 +35,7 @@ interface ActionResponse<T = any> {
  */
 export async function getNotificationTemplates(
   category?: TemplateCategory
-): Promise<ActionResponse> {
+): Promise<ActionResponse<NotificationTemplate[]>> {
   try {
     const role = await getUserRole()
     if (role !== 'admin' && role !== 'teacher') {
@@ -50,7 +58,7 @@ export async function getNotificationTemplates(
 
     if (error) throw error
 
-    return { success: true, data }
+    return { success: true, data: data as NotificationTemplate[] }
   } catch (error) {
     console.error('Error fetching templates:', error)
     return { success: false, error: 'Failed to fetch templates' }
@@ -60,7 +68,7 @@ export async function getNotificationTemplates(
 /**
  * Get single template
  */
-export async function getNotificationTemplate(id: number): Promise<ActionResponse> {
+export async function getNotificationTemplate(id: number): Promise<ActionResponse<NotificationTemplate>> {
   try {
     const role = await getUserRole()
     if (role !== 'admin' && role !== 'teacher') {
@@ -77,7 +85,7 @@ export async function getNotificationTemplate(id: number): Promise<ActionRespons
 
     if (error) throw error
 
-    return { success: true, data }
+    return { success: true, data: data as NotificationTemplate }
   } catch (error) {
     console.error('Error fetching template:', error)
     return { success: false, error: 'Failed to fetch template' }
@@ -89,7 +97,7 @@ export async function getNotificationTemplate(id: number): Promise<ActionRespons
  */
 export async function createNotificationTemplate(
   data: TemplateData
-): Promise<ActionResponse> {
+): Promise<ActionResponse<NotificationTemplate>> {
   try {
     const role = await getUserRole()
     const tenantId = await getCurrentTenantId()
@@ -120,7 +128,7 @@ export async function createNotificationTemplate(
     if (error) throw error
 
     revalidatePath('/dashboard/admin/notifications/templates')
-    return { success: true, data: template }
+    return { success: true, data: template as NotificationTemplate }
   } catch (error) {
     console.error('Error creating template:', error)
     return { success: false, error: 'Failed to create template' }
@@ -133,7 +141,7 @@ export async function createNotificationTemplate(
 export async function updateNotificationTemplate(
   id: number,
   data: Partial<TemplateData>
-): Promise<ActionResponse> {
+): Promise<ActionResponse<NotificationTemplate>> {
   try {
     const role = await getUserRole()
     const tenantId = await getCurrentTenantId()
@@ -169,7 +177,7 @@ export async function updateNotificationTemplate(
     if (error) throw error
 
     revalidatePath('/dashboard/admin/notifications/templates')
-    return { success: true, data: template }
+    return { success: true, data: template as NotificationTemplate }
   } catch (error) {
     console.error('Error updating template:', error)
     return { success: false, error: 'Failed to update template' }

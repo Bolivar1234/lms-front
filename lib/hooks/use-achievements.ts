@@ -44,7 +44,7 @@ export function useAchievements() {
             }));
 
             setAchievements(combined);
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);

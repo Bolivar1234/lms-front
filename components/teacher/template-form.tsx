@@ -20,10 +20,18 @@ import { IconPlus, IconTrash, IconDeviceFloppy, IconLoader2, IconSparkles, IconI
 import { toast } from 'sonner'
 import { VersionHistorySheet } from './version-history-sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { Json, Tables } from '@/lib/database.types'
 
 interface TemplateFormProps {
-  initialData?: any
+  initialData?: Tables<'prompt_templates'>
   id?: string
+}
+
+/** `prompt_templates.variables` is stored as `{ variables: string[] }`. */
+function templateVariables(value: Json | null | undefined): string[] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return []
+  const list = value.variables
+  return Array.isArray(list) ? list.filter((v): v is string => typeof v === 'string') : []
 }
 
 export function TemplateForm({ initialData, id }: TemplateFormProps) {
@@ -40,10 +48,10 @@ export function TemplateForm({ initialData, id }: TemplateFormProps) {
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
-    category: initialData?.category || 'exercise',
+    category: (initialData?.category || 'exercise') as string | null,
     task_description_template: initialData?.task_description_template || '',
     system_prompt_template: initialData?.system_prompt_template || '',
-    variables: initialData?.variables?.variables || [] as string[],
+    variables: templateVariables(initialData?.variables),
   })
 
   const [newVariable, setNewVariable] = useState('')
@@ -97,8 +105,8 @@ export function TemplateForm({ initialData, id }: TemplateFormProps) {
         const data = await res.json()
         throw new Error(data.error || t('saveError'))
       }
-    } catch (error: any) {
-      toast.error(error.message)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t('saveError'))
     } finally {
       setLoading(false)
     }

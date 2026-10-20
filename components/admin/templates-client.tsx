@@ -31,7 +31,7 @@ export function TemplatesClient({ templates }: TemplatesClientProps) {
   const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null)
 
   // Group templates by category
-  const templatesByCategory = templates?.reduce((acc: any, template: any) => {
+  const templatesByCategory = templates?.reduce((acc: Record<string, NotificationTemplate[]>, template: NotificationTemplate) => {
     if (!acc[template.category]) {
       acc[template.category] = []
     }
@@ -70,12 +70,12 @@ export function TemplatesClient({ templates }: TemplatesClientProps) {
               <CardHeader>
                 <CardTitle className="capitalize">{category} {t('templates.title')}</CardTitle>
                 <CardDescription>
-                  {(categoryTemplates as any[]).length} {t('list.metadata.created')}
+                  {categoryTemplates.length} {t('list.metadata.created')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <TemplatesList
-                  templates={categoryTemplates as any[]}
+                  templates={categoryTemplates}
                   onEdit={handleEdit}
                   onUse={handleUse}
                 />

@@ -14,6 +14,23 @@ export interface GamificationFeatures {
     custom_store: boolean;
 }
 
+export interface RecentAchievement {
+    slug: string | undefined;
+    title: string | undefined;
+    description: string | null | undefined;
+    tier: string | undefined;
+    category: string | undefined;
+    icon: string | null | undefined;
+    earned_at: string | null;
+}
+
+export interface RecentXpTransaction {
+    action_type: string;
+    xp_amount: number;
+    reference_type: string | null;
+    created_at: string | null;
+}
+
 export interface GamificationSummary {
     total_xp: number;
     level: number;
@@ -34,10 +51,10 @@ export interface GamificationSummary {
     achievements: {
         earned: number;
         total: number;
-        recent: any[];
+        recent: RecentAchievement[];
         newly_earned: string[];
     };
-    recent_xp: any[];
+    recent_xp: RecentXpTransaction[];
     features: GamificationFeatures;
 }
 
@@ -75,9 +92,9 @@ export function useGamificationSummary() {
 
             const data = await response.json();
             setSummary(data);
-        } catch (err: any) {
+        } catch (err) {
             // Network error or edge function not deployed — silently degrade
-            console.warn("Gamification fetch failed, using defaults:", err.message);
+            console.warn("Gamification fetch failed, using defaults:", err instanceof Error ? err.message : err);
             setSummary(null);
         } finally {
             setLoading(false);

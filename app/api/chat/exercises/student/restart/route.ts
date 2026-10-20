@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         }
 
         return new NextResponse('Restarted successfully', { status: 200 })
-    } catch (err: any) {
+    } catch (err) {
         console.error('Restart exercise chat failed:', err)
         return new NextResponse('Internal Server Error', { status: 500 })
     }

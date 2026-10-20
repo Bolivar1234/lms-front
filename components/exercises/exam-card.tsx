@@ -5,14 +5,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IconFileText, IconClock, IconChartBar, IconCheck, IconChevronRight, IconHourglass } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
+import type { StudentExam } from "@/components/student/exams-explorer";
+
+interface ExamCardSubmission {
+    score?: number | null;
+    exam_scores?: { score?: number | null }[] | null;
+    review_status?: string | null;
+}
 
 interface ExamCardProps {
-    exam: any;
+    exam: StudentExam;
     courseId: string;
 }
 
 export default function ExamCard({ exam, courseId }: ExamCardProps) {
-    const submission = exam.exam_submissions?.[0];
+    const submissions = exam.exam_submissions as ExamCardSubmission[] | null | undefined;
+    const submission = submissions?.[0];
+    const duration = typeof exam.duration === "number" ? exam.duration : null;
     const score = submission?.score ?? submission?.exam_scores?.[0]?.score;
     const hasScore = score !== undefined && score !== null;
     const hasSubmission = !!submission;
@@ -81,7 +90,7 @@ export default function ExamCard({ exam, courseId }: ExamCardProps) {
                                 <div className="flex items-center gap-3 sm:gap-4 pt-1.5 sm:pt-2 text-xs sm:text-sm text-muted-foreground">
                                     <div className="flex items-center gap-1">
                                         <IconClock size={14} />
-                                        {exam.duration} minutes
+                                        {duration} minutes
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <IconChartBar size={14} />
