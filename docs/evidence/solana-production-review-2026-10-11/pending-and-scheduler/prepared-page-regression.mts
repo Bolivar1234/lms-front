@@ -4,7 +4,8 @@ import {execFileSync} from 'node:child_process';
 import fs from 'node:fs/promises';
 const root='/Users/guillermomarin/Documents/GitHub/lms-front',base='http://lvh.me:3018';
 function sql(input:string){return execFileSync('docker',['exec','-i','supabase_db_lms-front','psql','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-At'],{input,encoding:'utf8'});}
-const result:any={source:'Real local production page + manually prepared isolated DB state + mocked retry API. No Devnet payment.',checks:[]};
+interface Check{name:string;passed:boolean;afterReload:boolean;oldErrorPresentInDb:boolean;recoveryOnly:boolean;screenshot:string}
+const result:{source:string;checks:Check[];passed?:boolean;error?:string;fixturesRemoved?:boolean}={source:'Real local production page + manually prepared isolated DB state + mocked retry API. No Devnet payment.',checks:[]};
 let created=false;const browser=await chromium.launch({args:['--host-resolver-rules=MAP *.lvh.me 127.0.0.1, MAP lvh.me 127.0.0.1']});
 try {
  sql(`BEGIN;
@@ -25,7 +26,7 @@ try {
   // Simulate legacy metadata or an out-of-order balance failure alongside pending.
   sql(`UPDATE public.subscriptions SET provider_metadata=provider_metadata||jsonb_build_object('renewal_error',jsonb_build_object('code','insufficient_funds')) WHERE subscription_id=219092;`);
   await page.unroute('**/api/payments/solana/retry-renewal');
-  const requests:any[]=[];await page.route('**/api/payments/solana/retry-renewal',r=>{requests.push(r.request().postDataJSON());return r.fulfill({status:503,json:{status:'unconfirmed'}});});
+  const requests:{recoveryOnly?:unknown}[]=[];await page.route('**/api/payments/solana/retry-renewal',r=>{requests.push(r.request().postDataJSON());return r.fulfill({status:503,json:{status:'unconfirmed'}});});
   await page.reload({waitUntil:'networkidle'});
   await page.getByText('Payment confirmation unresolved',{exact:true}).waitFor();
   if(await page.getByRole('button',{name:'Retry payment',exact:true}).count())throw new Error('Reload offered debit instead of recovery');

@@ -41,7 +41,7 @@ async function applyMigration() {
       END $$;
     `
     
-    const { error: error1 } = await supabase.rpc('exec_sql' as any, { sql: sql1 }) as any
+    const { error: error1 } = await supabase.rpc('exec_sql', { sql: sql1 })
     
     if (error1) {
       console.log('   ⚠️  Trying alternative approach...')

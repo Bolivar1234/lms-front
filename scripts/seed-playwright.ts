@@ -19,6 +19,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 type MaybeRow<T> = T | null | undefined
+type RowId = string | number
 
 const COURSE_TITLE = 'Playwright Test Course'
 const STUDENT_EMAIL = 'playwright.student@example.com'
@@ -59,10 +60,10 @@ async function main() {
       console.warn('Warning: error while reading courses table:', selectCourseErr.message)
     }
 
-    let courseId: any = existingCourse?.id
+    let courseId: RowId | undefined =existingCourse?.id
 
     if (!courseId) {
-      const insertPayload: any = {
+      const insertPayload: Record<string, unknown> ={
         title: COURSE_TITLE,
         status: 'published',
         // best-effort fields; if columns do not exist they will be ignored by Supabase
@@ -118,7 +119,7 @@ async function main() {
         continue
       }
 
-      const insertLesson: any = {
+      const insertLesson: Record<string, unknown> ={
         course_id: courseId,
         title: lesson.title,
         sequence: lesson.sequence,
@@ -151,7 +152,7 @@ async function main() {
       .limit(1)
       .maybeSingle()
 
-    let examId: any = existingExam?.id
+    let examId: RowId | undefined =existingExam?.id
 
     if (!examId) {
       const { data: newExam, error: createExamErr } = await supabase
@@ -183,7 +184,7 @@ async function main() {
       .limit(1)
       .maybeSingle()
 
-    let questionId: any = existingQuestion?.id
+    let questionId: RowId | undefined =existingQuestion?.id
 
     if (!questionId) {
       const { data: createdQuestion, error: createQErr } = await supabase
@@ -253,7 +254,7 @@ async function main() {
 
       if (!existingProduct?.id) {
         // best-effort: some installations use 'price' or 'unit_amount'
-        const productPayload: any = {
+        const productPayload: Record<string, unknown> ={
           name: 'Playwright Test Product',
           active: true,
           // price 0 indicates free — field name may differ depending on schema
@@ -277,8 +278,8 @@ async function main() {
       } else {
         console.log('Found existing product id:', existingProduct.id)
       }
-    } catch (err: any) {
-      console.warn('Skipped product creation; error:', err?.message ?? String(err))
+    } catch (err) {
+      console.warn('Skipped product creation; error:', err instanceof Error ? err.message : String(err))
     }
 
     // 5) Create or retrieve test student account
@@ -291,9 +292,7 @@ async function main() {
       // Note: depending on supabase-js version the API object shape may differ by minor version.
       // This call creates a user and confirms email.
       // If user already exists, we catch the error and try to find the user record.
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const { data: newUser, error: createUserErr } = await (supabase.auth as any).admin.createUser({
+      const { data: newUser, error: createUserErr } = await supabase.auth.admin.createUser({
         email: STUDENT_EMAIL,
         password: STUDENT_PASSWORD,
         email_confirm: true,
@@ -310,14 +309,13 @@ async function main() {
         }
       }
 
-      // supabase admin.createUser may return { id } or { user: { id } } depending on SDK/version
-      const possibleId = (newUser as any)?.id ?? (newUser as any)?.user?.id ?? (newUser as any)?.user_id
+      const possibleId = newUser.user?.id
       if (possibleId) {
         userId = possibleId
         console.log('Created user id:', userId)
       }
-    } catch (err: any) {
-      console.warn('admin.createUser threw an exception (continuing to attempt profile lookup):', err?.message ?? String(err))
+    } catch (err) {
+      console.warn('admin.createUser threw an exception (continuing to attempt profile lookup):', err instanceof Error ? err.message : String(err))
     }
 
     // If admin.createUser did not provide id, try to find profile or auth.users by email
@@ -335,8 +333,8 @@ async function main() {
           userId = profile.id
           console.log('Found user via profiles table id:', userId)
         }
-      } catch (err: any) {
-        console.warn('profiles lookup failed: ', err?.message ?? String(err))
+      } catch (err) {
+        console.warn('profiles lookup failed: ', err instanceof Error ? err.message : String(err))
       }
     }
 
@@ -344,7 +342,7 @@ async function main() {
     if (!userId) {
       try {
         const sql = `select id, email from auth.users where email = $1 limit 1;`
-        const { data: rows, error: sqlErr } = await supabase.rpc('sql', { _q: sql, _params: [STUDENT_EMAIL] } as any)
+        const { data: rows, error: sqlErr } = await supabase.rpc('sql', { _q: sql, _params: [STUDENT_EMAIL] })
         // NOTE: Many projects DO NOT expose a generic 'sql' RPC. If not available, skip.
         if (sqlErr) {
           // ignore
@@ -379,8 +377,8 @@ async function main() {
         } else {
           console.log('Profiles upserted / confirmed for user id:', userId)
         }
-      } catch (err: any) {
-        console.warn('profiles upsert failed:', err?.message ?? String(err))
+      } catch (err) {
+        console.warn('profiles upsert failed:', err instanceof Error ? err.message : String(err))
       }
     }
 
@@ -412,8 +410,8 @@ async function main() {
 
           console.log('Created enrollment id:', createdEnroll?.id)
         }
-      } catch (err: any) {
-        console.warn('Enrollment creation failed:', err?.message ?? String(err))
+      } catch (err) {
+        console.warn('Enrollment creation failed:', err instanceof Error ? err.message : String(err))
       }
     } else {
       console.warn('Skipping enrollment creation because user id was not determined.')
@@ -439,8 +437,8 @@ async function main() {
         if (delSubErr) console.warn('Warning deleting exam_submissions:', delSubErr.message)
 
         console.log('Progress rows removed (if any).')
-      } catch (err: any) {
-        console.warn('Cleanup operations failed:', err?.message ?? String(err))
+      } catch (err) {
+        console.warn('Cleanup operations failed:', err instanceof Error ? err.message : String(err))
       }
     } else {
       console.warn('Skipping progress cleanup because user id not found.')
@@ -459,8 +457,8 @@ async function main() {
     console.log(' - This script requires a SUPABASE_SERVICE_ROLE_KEY with service_role permissions.')
 
     process.exit(0)
-  } catch (err: any) {
-    console.error('UNCAUGHT ERROR:', err?.message ?? String(err))
+  } catch (err) {
+    console.error('UNCAUGHT ERROR:', err instanceof Error ? err.message : String(err))
     process.exit(2)
   }
 }

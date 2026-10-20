@@ -4,7 +4,9 @@ import fs from 'node:fs/promises';
 const root='/Users/guillermomarin/Documents/GitHub/lms-front';
 const base='http://lvh.me:3018';
 const browser=await chromium.launch({args:['--host-resolver-rules=MAP *.lvh.me 127.0.0.1, MAP lvh.me 127.0.0.1']});
-const results:any={checkedAt:new Date().toISOString(),source:'LIVE local production UI/API; existing canceled subscription10002; no payment submitted',screenshots:[],denials:[]};
+interface Screenshot{name:string;path:string;canceled:boolean;paidDeadlineVisible:boolean;noHorizontalOverflow:boolean}
+interface Denial{case:string;route:string;status:number}
+const results:{checkedAt:string;source:string;screenshots:Screenshot[];denials:Denial[];passed?:boolean;error?:string}={checkedAt:new Date().toISOString(),source:'LIVE local production UI/API; existing canceled subscription10002; no payment submitted',screenshots:[],denials:[]};
 try {
  const ctx=await browser.newContext(); const page=await ctx.newPage();
  await loginAsStudent(page,base);
