@@ -129,16 +129,18 @@ async function stripeDelete(request: APIRequestContext, path: string) {
  * `__privateStripeFrame` iframes whose titles vary by release, so the frame is
  * found by content: whichever one holds the card-number input.
  *
- * This assumes the card form renders directly rather than behind an accordion,
- * which holds while the test account has only card + Link enabled. Turn on more
- * payment methods and the PaymentElement switches to an accordion whose inputs
- * do not exist until Card is clicked — the inputs then never appear and this
- * polls for the full 90s against a healthy page.
+ * When the account has more payment methods enabled than card + Link, the
+ * PaymentElement renders an accordion (or tabs) whose card inputs do not exist
+ * until Card is chosen, so each poll also opens the Card option if one is shown.
  */
 async function paymentFrame(page: Page): Promise<Frame> {
   const find = async () => {
     for (const frame of page.frames()) {
       if ((await frame.locator('input[name="number"]').count().catch(() => 0)) > 0) return frame
+    }
+    for (const frame of page.frames()) {
+      const card = frame.locator('[data-value="card"], button[value="card"]').or(frame.getByRole('button', { name: /^card$/i }))
+      if ((await card.count().catch(() => 0)) > 0) await card.first().click({ timeout: 2_000 }).catch(() => undefined)
     }
     return null
   }
