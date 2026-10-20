@@ -42,10 +42,37 @@ export interface ExamFormData {
   questions: QuestionData[]
 }
 
+/** A stored question as the edit page loads it (exam_questions + options + grading secrets). */
+interface InitialQuestion {
+  question_id?: number
+  question_text?: string
+  question_type?: string
+  points_possible?: number | null
+  sequence?: number | null
+  ai_grading_criteria?: string | null
+  expected_keywords?: string[] | null
+  grading_rubric?: string | null
+  options?: {
+    option_id?: number
+    option_text?: string
+    is_correct?: boolean | null
+  }[] | null
+}
+
+export interface ExamBuilderInitialData {
+  exam_id?: number
+  title?: string
+  description?: string | null
+  duration?: number
+  sequence?: number | null
+  status?: string | null
+  questions?: InitialQuestion[]
+}
+
 export interface ExamBuilderProps {
   courseId: number
   courseTitle: string
-  initialData?: any
+  initialData?: ExamBuilderInitialData
 }
 
 export interface ExamBuilderContextValue {
@@ -98,19 +125,19 @@ export function ExamBuilderProvider({
     duration: initialData?.duration || 60,
     sequence: initialData?.sequence || 1,
     status: initialData?.status || 'draft',
-    questions: (initialData?.questions || [])
-      .map((q: any) => ({
+    questions: ((initialData?.questions || [])
+      .map((q) => ({
         ...q,
         id: q.question_id || `new-${Math.random()}`,
         expected_keywords: q.expected_keywords || [],
         ai_grading_criteria: q.ai_grading_criteria || '',
         points_possible: q.points_possible ?? 10,
-        options: (q.options || []).map((o: any) => ({
+        options: (q.options || []).map((o) => ({
           ...o,
           id: o.option_id || `new-opt-${Math.random()}`
         }))
-      }))
-      .sort((a: any, b: any) => a.sequence - b.sequence) as QuestionData[],
+      })) as QuestionData[])
+      .sort((a, b) => a.sequence - b.sequence),
   }))
 
 
