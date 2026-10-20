@@ -92,7 +92,7 @@ export function ExamBuilderProvider({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [formData, setFormData] = useState<ExamFormData>({
+  const [formData, setFormData] = useState<ExamFormData>(() => ({
     title: initialData?.title || '',
     description: initialData?.description || '',
     duration: initialData?.duration || 60,
@@ -111,7 +111,8 @@ export function ExamBuilderProvider({
         }))
       }))
       .sort((a: any, b: any) => a.sequence - b.sequence) as QuestionData[],
-  })
+  }))
+
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

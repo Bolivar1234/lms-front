@@ -66,6 +66,23 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // One-off Node scripts (seeding, schema checks) run as CommonJS under plain
+    // `node`, so `require` is how they load modules.
+    files: ["scripts/**/*.{js,cjs,ts}", "tests/demos/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+    },
+  },
+  {
+    // Playwright fixtures receive a callback named `use`, which the hooks
+    // plugin mistakes for React's `use()`.
+    files: ["tests/playwright/**/*.ts"],
+    rules: {
+      "react-hooks/rules-of-hooks": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
