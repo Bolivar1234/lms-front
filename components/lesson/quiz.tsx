@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconX, IconRefresh } from '@tabler/icons-react'
@@ -33,7 +33,6 @@ export function Quiz({
   const t = useTranslations('lessonContent.interactive')
   const [selected, setSelected] = useState<number[]>([])
   const [submitted, setSubmitted] = useState(false)
-  const [announce, setAnnounce] = useState('')
   const liveRef = useRef<HTMLDivElement | null>(null)
 
   // support both correct and correctIndex prop names
@@ -47,21 +46,6 @@ export function Quiz({
 
   // if multiple is not explicitly set but there are multiple correct answers, enable multiple
   const allowMultiple = multiple || correctAnswers.length > 1
-
-  useEffect(() => {
-    if (submitted) {
-      if (correctAnswers.length === 0) {
-        setAnnounce(t('answerSubmitted'))
-      } else {
-        const isCorrect =
-          selected.length === correctAnswers.length &&
-          selected.every((s) => correctAnswers.includes(s))
-        setAnnounce(isCorrect ? t('answerCorrect') : t('answerIncorrect'))
-      }
-    } else {
-      setAnnounce('')
-    }
-  }, [submitted, selected, correctAnswers, t])
 
   const handleSelect = (index: number) => {
     if (submitted) return
@@ -91,6 +75,15 @@ export function Quiz({
     correctAnswers.length > 0 &&
     selected.length === correctAnswers.length &&
     selected.every((s) => correctAnswers.includes(s))
+
+  // Screen-reader announcement, derived from the submitted state
+  const announce = !submitted
+    ? ''
+    : correctAnswers.length === 0
+    ? t('answerSubmitted')
+    : isCorrect
+    ? t('answerCorrect')
+    : t('answerIncorrect')
 
   return (
     <div

@@ -9,10 +9,12 @@
  * brand, so any supabase-js client satisfies it. Return types are declared explicitly
  * on each query fn, so call sites still get fully-typed `data`.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any -- structural type shared with lms-app's own supabase-js install; modelling the query-builder chain is out of scope */
 export interface DbClient {
   from(table: string): any
   rpc(fn: string, args?: Record<string, unknown>): any
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /** Shape of an awaited supabase query — `{ data, error }`. */
 export type DbResult<T> = PromiseLike<{
