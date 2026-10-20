@@ -1,6 +1,5 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
 import { getUserRole } from '@/lib/supabase/get-user-role'
@@ -50,7 +49,6 @@ export async function createInvitation({
     return { success: false, error: EMAIL_NOT_VERIFIED_ERROR }
   }
 
-  const supabase = await createClient()
   const userId = await getCurrentUserId()
   if (!userId) {
     return { success: false, error: 'Not authenticated' }

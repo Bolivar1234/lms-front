@@ -57,7 +57,7 @@ export default async function AdminDashboardPage({
     { data: firstCourseRows },
     { data: readyCourseRows },
     { count: publishedLessons },
-    { count: totalEnrollments },
+    { count: _totalEnrollments },
     { count: totalTransactions },
     { count: pendingPaymentRequests },
     { count: activeSubscriptions },

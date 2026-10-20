@@ -109,7 +109,7 @@ export const Header: ComponentConfig<HeaderProps> = {
     const handleSignOut = useCallback(async () => {
       const supabase = createClient()
       await supabase.auth.signOut()
-      window.location.href = '/auth/login'
+      window.location.href = new URL('/auth/login', window.location.origin).href
     }, [])
 
     const isAuthenticated = !loading && user !== null

@@ -97,7 +97,7 @@ function pageUrl(slug: string): string {
   return slug === 'home' ? '/' : `/p/${slug}`
 }
 
-export function LandingPagesClient({ pages: initialPages, plan, aiConfigured = false, tenantId, templates, brandingSettings, landingData }: Props) {
+export function LandingPagesClient({ pages: initialPages, plan, aiConfigured = false, templates, brandingSettings, landingData }: Props) {
   const router = useRouter()
   const t = useTranslations('landingPageBuilder')
   const locale = useLocale() === 'es' ? 'es' : 'en'

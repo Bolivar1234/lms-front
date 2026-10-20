@@ -141,14 +141,6 @@ function formatPrice(input: ProductCreationWizardInput, freeLabel: string) {
   return `${currency} ${amount.toFixed(2)}`
 }
 
-const providerFormLabelKeys: Record<ProductCreationPaymentProvider, string> = {
-  manual: 'methodManual',
-  stripe: 'methodStripe',
-  paypal: 'methodPaypal',
-  binance: 'methodBinance',
-  binance_personal: 'methodBinancePersonal',
-}
-
 /**
  * Every validation issue in lib/admin/product-creation/validation.ts carries a
  * raw English `message`; this maps its `field` to a translated string instead
@@ -195,7 +187,6 @@ export function ProductCreationWizard({
   const router = useRouter()
   const tProductForm = useTranslations('dashboard.admin.products.form')
   const tWizard = useTranslations('dashboard.admin.products.wizard')
-  const tCourseStatus = useTranslations('dashboard.admin.courses.table.statuses')
   const wizardSteps = useMemo(
     () =>
       wizardStepIds.map((id) => ({

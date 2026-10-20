@@ -106,7 +106,6 @@ export async function createNotificationTemplate(
       return { success: false, error: 'Unauthorized' }
     }
 
-    const supabase = await createClient()
     const userId = await getCurrentUserId()
     if (!userId) {
       return { success: false, error: 'Not authenticated' }

@@ -15,8 +15,7 @@ import {
     LayoutDashboard,
     ArrowRight,
     Check,
-    X,
-    Minus
+    X
 } from "lucide-react";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo";

@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { IconUpload, IconFile, IconPhoto, IconLoader2, IconX } from '@tabler/icons-react'
+import { IconUpload, IconFile,IconLoader2, IconX } from '@tabler/icons-react'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 

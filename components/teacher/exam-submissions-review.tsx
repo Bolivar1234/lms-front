@@ -30,7 +30,6 @@ import {
   IconExternalLink,
 } from '@tabler/icons-react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
 
 interface ReviewableSubmission {
   id: number

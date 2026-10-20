@@ -3,9 +3,7 @@ import { ACCOUNTS, BASE, LOCALE, PAUSE } from './utils/demo-constants'
 import {
   cinematicLogin,
   cinematicScroll,
-  cinematicClickText,
   navigateAndSettle,
-  spotlightHover,
   waitForTestId,
 } from './utils/demo-helpers'
 

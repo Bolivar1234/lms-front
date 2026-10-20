@@ -29,7 +29,24 @@ const eslintConfig = defineConfig([
     // Vendored skill tooling (untracked, bundled/minified — not app code):
     ".agents/**",
     ".claude/**",
+    ".github/skills/**",
+    ".opencode/**",
   ]),
+  {
+    rules: {
+      // `_`-prefixed names mark intentionally unused params/bindings.
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
+  },
   {
     files: ["**/*.{ts,tsx,js,jsx,mjs,mts,cts}"],
     // lib/speech/realtime-model.ts is the one client-side provider import: it

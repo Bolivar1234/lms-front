@@ -24,7 +24,6 @@ import {
   Keypair,
   SystemProgram,
   Transaction,
-  LAMPORTS_PER_SOL,
 } from '@solana/web3.js'
 import {
   getAssociatedTokenAddressSync,

@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useTenant } from './tenant-provider'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -70,7 +69,7 @@ export function TenantSwitcher({ tenants }: { tenants: TenantOption[] }) {
           ))}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => window.location.href = '/create-school'}>
+        <DropdownMenuItem onClick={() => window.location.assign(new URL('/create-school', window.location.origin).href)}>
           <Plus className="mr-2 h-4 w-4" />
           Create New School
         </DropdownMenuItem>

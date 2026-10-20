@@ -31,7 +31,7 @@ function shuffleArray<T>(arr: T[]): T[] {
   return shuffled
 }
 
-function isIdenticalOrder(shuffled: number[], length: number): boolean {
+function isIdenticalOrder(shuffled: number[], _length: number): boolean {
   return shuffled.every((val, idx) => val === idx)
 }
 

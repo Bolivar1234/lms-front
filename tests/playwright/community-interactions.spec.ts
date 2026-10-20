@@ -12,7 +12,7 @@
  */
 import { test, expect } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { loginAsStudent, loginAsAdmin, loginAsTenantStudent } from './utils/auth'
+import { loginAsStudent, loginAsAdmin } from './utils/auth'
 import { BASE, TENANT_BASE, LOCALE } from './utils/constants'
 import { openSidebar, openSidebarGroup } from './utils/sidebar'
 

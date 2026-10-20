@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { IconPlus, IconTrash, IconDeviceFloppy, IconLoader2, IconSparkles, IconInfoCircle } from '@tabler/icons-react'
+import { IconPlus, IconTrash, IconDeviceFloppy, IconLoader2, IconInfoCircle } from '@tabler/icons-react'
 import { toast } from 'sonner'
 import { VersionHistorySheet } from './version-history-sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'

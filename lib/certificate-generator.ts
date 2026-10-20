@@ -552,10 +552,6 @@ function generateGuillocheSVG(color: string): string {
     const angle = (i * 10) * Math.PI / 180
     const r1 = 200 + Math.sin(angle * 3) * 60
     const r2 = 160 + Math.cos(angle * 5) * 40
-    const x1 = cx + Math.cos(angle) * r1
-    const y1 = cy + Math.sin(angle) * r1
-    const x2 = cx + Math.cos(angle + 0.3) * r2
-    const y2 = cy + Math.sin(angle + 0.3) * r2
     paths += `<ellipse cx="${cx}" cy="${cy}" rx="${r1}" ry="${r2}" transform="rotate(${i * 10} ${cx} ${cy})" fill="none" stroke="${color}" stroke-width="0.5" opacity="0.6"/>`
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1056 816">${paths}</svg>`

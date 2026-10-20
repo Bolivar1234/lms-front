@@ -188,7 +188,7 @@ export async function createPost(
   formData: FormData
 ): Promise<ActionResult<{ id: string; xp: CommunityXpEarned }>> {
   try {
-    const { supabase, userId } = await getAuthenticatedUser()
+    const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
     const role = await getUserRole()
 
@@ -396,7 +396,7 @@ export async function updatePost(
  */
 export async function deletePost(postId: string): Promise<ActionResult> {
   try {
-    const { supabase, userId } = await getAuthenticatedUser()
+    const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
     const role = await getUserRole()
 
@@ -549,7 +549,7 @@ export async function createComment(
  */
 export async function deleteComment(commentId: string): Promise<ActionResult> {
   try {
-    const { supabase, userId } = await getAuthenticatedUser()
+    const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
     const role = await getUserRole()
 

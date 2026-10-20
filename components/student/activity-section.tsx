@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { IconClock, IconPlayerPlay, IconChevronRight } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 interface RecentLessonView {

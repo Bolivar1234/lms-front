@@ -1,17 +1,14 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     IconRocket,
     IconTrophy,
     IconFlame,
-    IconArrowRight,
-    IconSparkles
+    IconArrowRight
 } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import type { User } from "@supabase/supabase-js";
 

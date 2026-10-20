@@ -161,7 +161,7 @@ export default function AudioExercise({
     }
   }, [t])
 
-  const handleRecordingComplete = useCallback(async (blob: Blob, duration: number) => {
+  const handleRecordingComplete = useCallback(async (blob: Blob, _duration: number) => {
     setSubmitState('uploading')
     setErrorMsg(null)
     setAiError(null)

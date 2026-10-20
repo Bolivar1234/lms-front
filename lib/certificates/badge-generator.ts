@@ -192,7 +192,7 @@ export async function generateAndUploadBadge(
 
         // Upload to Supabase Storage
         const fileName = `${certificateId}.png`;
-        const { data: uploadData, error } = await supabaseClient.storage
+        const { error } = await supabaseClient.storage
             .from('certificates')
             .upload(`badges/${fileName}`, bakedBadge, {
                 contentType: 'image/png',

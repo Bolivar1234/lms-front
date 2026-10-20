@@ -7,7 +7,6 @@ import { toast } from 'sonner'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -23,7 +22,6 @@ import {
   IconUser,
   IconMessage,
   IconAlertTriangle,
-  IconCircleCheck,
   IconLoader2,
   IconHourglass,
   IconPencil,

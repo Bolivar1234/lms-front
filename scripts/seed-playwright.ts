@@ -18,7 +18,6 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-type MaybeRow<T> = T | null | undefined
 type RowId = string | number
 
 const COURSE_TITLE = 'Playwright Test Course'
@@ -351,7 +350,7 @@ async function main() {
           userId = rows[0].id
           console.log('Found user via RPC SQL id:', userId)
         }
-      } catch (err) {
+      } catch {
         // ignore - not all setups have generic SQL RPC
       }
     }
@@ -365,7 +364,7 @@ async function main() {
     // Ensure profile exists (upsert into profiles) — some setups auto-create it on auth.user insert, but we upsert to be safe.
     if (userId) {
       try {
-        const { data: prof, error: upsertProfErr } = await supabase
+        const { error: upsertProfErr } = await supabase
           .from('profiles')
           .upsert({ id: userId, email: STUDENT_EMAIL }, { onConflict: 'id' })
           .select()
