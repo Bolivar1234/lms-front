@@ -193,7 +193,9 @@ export function PromptInputProvider({
 
   // Keep a ref to attachments for cleanup on unmount (avoids stale closure)
   const attachmentsRef = useRef(attachmentFiles);
-  attachmentsRef.current = attachmentFiles;
+  useEffect(() => {
+    attachmentsRef.current = attachmentFiles;
+  }, [attachmentFiles]);
 
   // Cleanup blob URLs on unmount to prevent memory leaks
   useEffect(
@@ -381,7 +383,9 @@ export const PromptInput = ({
 
   // Keep a ref to files for cleanup on unmount (avoids stale closure)
   const filesRef = useRef(files);
-  filesRef.current = files;
+  useEffect(() => {
+    filesRef.current = files;
+  }, [files]);
 
   const openFileDialogLocal = useCallback(() => {
     inputRef.current?.click();
@@ -1036,13 +1040,14 @@ export const PromptInputSubmit = ({
     Icon = <XIcon className="size-4" />;
   }
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (
+    e: Parameters<NonNullable<PromptInputSubmitProps["onClick"]>>[0]
+  ) => {
     if (isGenerating && onStop) {
       e.preventDefault();
       onStop();
       return;
     }
-    // @ts-ignore
     onClick?.(e);
   };
 
@@ -1116,15 +1121,9 @@ export const PromptInputSelectValue = ({
 
 export type PromptInputHoverCardProps = ComponentProps<typeof HoverCard>;
 
-export const PromptInputHoverCard = ({
-  // @ts-ignore
-  openDelay = 0,
-  // @ts-ignore
-  closeDelay = 0,
-  ...props
-}: PromptInputHoverCardProps) => (
-  // @ts-ignore
-  <HoverCard closeDelay={closeDelay} openDelay={openDelay} {...props} />
+// Base UI sets open/close delays on the trigger (`delay`, `closeDelay`), not the root
+export const PromptInputHoverCard = (props: PromptInputHoverCardProps) => (
+  <HoverCard {...props} />
 );
 
 export type PromptInputHoverCardTriggerProps = ComponentProps<

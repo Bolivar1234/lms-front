@@ -126,6 +126,17 @@ const useTheme = (enabled: boolean) => {
   return theme;
 };
 
+// Rive state machine inputs are imperative handles: assigning `value` drives
+// the animation, so write through a setter instead of mutating the hook value.
+const setInputValue = (
+  input: ReturnType<typeof useStateMachineInput>,
+  value: boolean
+) => {
+  if (input) {
+    input.value = value;
+  }
+};
+
 interface PersonaWithModelProps {
   rive: ReturnType<typeof useRive>["rive"];
   source: (typeof sources)[keyof typeof sources];
@@ -133,7 +144,7 @@ interface PersonaWithModelProps {
 }
 
 const PersonaWithModel = memo(
-  ({ rive, source, children }: PersonaWithModelProps) => {
+  function PersonaWithModel({ rive, source, children }: PersonaWithModelProps) {
     const theme = useTheme(source.dynamicColor);
     const viewModel = useViewModel(rive, { useDefault: true });
     const viewModelInstance = useViewModelInstance(viewModel, {
@@ -162,12 +173,14 @@ interface PersonaWithoutModelProps {
   children: ReactNode;
 }
 
-const PersonaWithoutModel = memo(
-  ({ children }: PersonaWithoutModelProps) => children
-);
+const PersonaWithoutModel = memo(function PersonaWithoutModel({
+  children,
+}: PersonaWithoutModelProps) {
+  return children;
+});
 
 export const Persona: FC<PersonaProps> = memo(
-  ({
+  function Persona({
     variant = "obsidian",
     state = "idle",
     onLoad,
@@ -177,7 +190,7 @@ export const Persona: FC<PersonaProps> = memo(
     onPlay,
     onStop,
     className,
-  }) => {
+  }) {
     const source = sources[variant];
 
     if (!source) {
@@ -193,14 +206,16 @@ export const Persona: FC<PersonaProps> = memo(
       onPlay,
       onStop,
     });
-    callbacksRef.current = {
-      onLoad,
-      onLoadError,
-      onReady,
-      onPause,
-      onPlay,
-      onStop,
-    };
+    useEffect(() => {
+      callbacksRef.current = {
+        onLoad,
+        onLoadError,
+        onReady,
+        onPause,
+        onPlay,
+        onStop,
+      };
+    });
 
     const stableCallbacks = useMemo(
       () => ({
@@ -245,18 +260,10 @@ export const Persona: FC<PersonaProps> = memo(
     const asleepInput = useStateMachineInput(rive, stateMachine, "asleep");
 
     useEffect(() => {
-      if (listeningInput) {
-        listeningInput.value = state === "listening";
-      }
-      if (thinkingInput) {
-        thinkingInput.value = state === "thinking";
-      }
-      if (speakingInput) {
-        speakingInput.value = state === "speaking";
-      }
-      if (asleepInput) {
-        asleepInput.value = state === "asleep";
-      }
+      setInputValue(listeningInput, state === "listening");
+      setInputValue(thinkingInput, state === "thinking");
+      setInputValue(speakingInput, state === "speaking");
+      setInputValue(asleepInput, state === "asleep");
     }, [state, listeningInput, thinkingInput, speakingInput, asleepInput]);
 
     const Component = source.hasModel ? PersonaWithModel : PersonaWithoutModel;
