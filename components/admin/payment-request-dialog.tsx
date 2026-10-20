@@ -153,7 +153,7 @@ export function PaymentRequestDialog({
         router.refresh()
         onOpenChange(false)
       } else {
-        const errorMsg = ('error' in result ? (result as any).error : t('dialog.toasts.enrollError')) as string
+        const errorMsg = ('error' in result ? result.error : t('dialog.toasts.enrollError')) as string
         toast.error(errorMsg)
       }
     } catch (error) {

@@ -66,8 +66,8 @@ export function PlanEditor({ plan }: Props) {
       toast.success('Plan updated')
       setShowEdit(false)
       router.refresh()
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
@@ -79,8 +79,8 @@ export function PlanEditor({ plan }: Props) {
       await togglePlanActive(plan.plan_id, !plan.is_active)
       toast.success(plan.is_active ? 'Plan deactivated' : 'Plan activated')
       router.refresh()
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }

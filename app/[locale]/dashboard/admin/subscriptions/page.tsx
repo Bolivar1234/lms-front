@@ -20,6 +20,26 @@ import Link from 'next/link'
 import { SubscriptionActions } from '@/components/admin/subscription-actions'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
 import { AdminBreadcrumb } from '@/components/admin/admin-breadcrumb'
+import type { Tables } from '@/lib/database.types'
+
+type SubscriptionRow = Pick<
+  Tables<'subscriptions'>,
+  | 'subscription_id'
+  | 'user_id'
+  | 'plan_id'
+  | 'subscription_status'
+  | 'start_date'
+  | 'end_date'
+  | 'cancel_at'
+  | 'canceled_at'
+  | 'cancel_at_period_end'
+  | 'current_period_start'
+  | 'current_period_end'
+  | 'created'
+> & {
+  profiles: Pick<Tables<'profiles'>, 'full_name'> | null
+  plans: Pick<Tables<'plans'>, 'plan_name' | 'price' | 'currency' | 'duration_in_days'> | null
+}
 
 interface SearchParams {
   search?: string
@@ -97,12 +117,12 @@ export default async function SubscriptionsPage({
     query = query.eq('subscription_status', statusFilter)
   }
 
-  const { data: subscriptions, error } = await query
+  const { data: subscriptions, error } = await query.overrideTypes<SubscriptionRow[], { merge: false }>()
 
   // Filter by search on client side (by name or ID)
   const filteredSubscriptions = subscriptions?.filter((sub) => {
     if (!search) return true
-    const profile = sub.profiles as any
+    const profile = sub.profiles
     const searchLower = search.toLowerCase()
     return (
       profile?.full_name?.toLowerCase().includes(searchLower) ||
@@ -119,7 +139,7 @@ export default async function SubscriptionsPage({
     subscriptions?.filter((s) => s.subscription_status === 'expired').length || 0
 
   const totalRevenue = subscriptions?.reduce((sum, sub) => {
-    const plan = sub.plans as any
+    const plan = sub.plans
     if (sub.subscription_status === 'active' && plan?.price) {
       return sum + plan.price
     }
@@ -258,8 +278,8 @@ export default async function SubscriptionsPage({
             {filteredSubscriptions && filteredSubscriptions.length > 0 ? (
               <div className="space-y-3">
                 {filteredSubscriptions.map((subscription) => {
-                  const profile = subscription.profiles as any
-                  const plan = subscription.plans as any
+                  const profile = subscription.profiles
+                  const plan = subscription.plans
                   const isActive = subscription.subscription_status === 'active'
                   const isCancelled = subscription.subscription_status === 'canceled'
                   const isExpired = subscription.subscription_status === 'expired'

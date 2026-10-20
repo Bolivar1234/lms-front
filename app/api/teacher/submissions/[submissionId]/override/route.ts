@@ -3,6 +3,11 @@ import { getCurrentTenantId } from '@/lib/supabase/tenant'
 import { NextRequest } from 'next/server'
 import { track } from '@/lib/analytics/server'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
+import type { Tables } from '@/lib/database.types'
+
+type OverrideSubmission = Pick<Tables<'exam_submissions'>, 'submission_id' | 'exam_id' | 'score' | 'ai_model_used'> & {
+  exam: { course: Pick<Tables<'courses'>, 'tenant_id'> | null } | null
+}
 
 // POST /api/teacher/submissions/[submissionId]/override
 export async function POST(req: NextRequest, { params }: { params: Promise<{ submissionId: string }> }) {
@@ -24,8 +29,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sub
     .select('submission_id, exam_id, score, ai_model_used, exam:exams!inner(course:courses!inner(tenant_id))')
     .eq('submission_id', submissionId)
     .single()
+    .overrideTypes<OverrideSubmission, { merge: false }>()
 
-  const examCourse = (submission as any)?.exam?.course
+  const examCourse = submission?.exam?.course
   if (!submission || !examCourse || examCourse.tenant_id !== tenantId) {
     return Response.json({ error: 'Submission not found' }, { status: 404 })
   }
@@ -47,7 +53,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sub
 
   // Update individual question overrides if provided
   if (question_overrides && question_overrides.length > 0) {
-    const updates = question_overrides.map((q: any) =>
+    const updates = question_overrides.map((q: Pick<Tables<'exam_answers'>, 'question_id' | 'is_correct' | 'feedback'>) =>
       supabase
         .from('exam_answers')
         .update({

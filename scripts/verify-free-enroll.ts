@@ -6,13 +6,14 @@
  * Run: npx tsx --env-file=.env.local scripts/verify-free-enroll.ts
  */
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '../lib/database.types'
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const anon = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 if (!/127\.0\.0\.1|localhost/.test(url)) throw new Error('local-only')
 
 async function main() {
-  const supabase = createClient(url, anon, { auth: { autoRefreshToken: false, persistSession: false } })
+  const supabase = createClient<Database>(url, anon, { auth: { autoRefreshToken: false, persistSession: false } })
 
   // 1) Sign in as the student (RLS now scoped to their JWT tenant claim).
   const { data: auth, error: signInErr } = await supabase.auth.signInWithPassword({
@@ -35,12 +36,12 @@ async function main() {
   if (cErr) throw new Error('courses under RLS: ' + cErr.message)
   // free = no linked product priced > 0 — enrollFree's guard.
   const course = Number.isFinite(argId)
-    ? (courses ?? []).find((c: any) => c.course_id === argId)
-    : (courses ?? []).find((c: any) => !(c.product_courses ?? []).some((l: any) => Number(l.product?.price) > 0))
+    ? (courses ?? []).find((c) => c.course_id === argId)
+    : (courses ?? []).find((c) => !(c.product_courses ?? []).some((l) => Number(l.product?.price) > 0))
   if (!course) throw new Error('no free published course visible to the student — run scripts/seed-free-academy.ts first')
   const COURSE_ID = course.course_id
   console.log(`course visible under RLS: YES ("${course.title}" #${COURSE_ID})`)
-  const paid = ((course as any).product_courses ?? []).some((l: any) => Number(l.product?.price) > 0)
+  const paid = (course.product_courses ?? []).some((l) => Number(l.product?.price) > 0)
   console.log('free course (no paid product):', paid ? 'NO' : 'YES')
 
   // 4) Access BEFORE enrolling.

@@ -30,11 +30,57 @@ import {
 } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 
+/**
+ * The page passes the display shape; after a save the state is replaced by the
+ * raw `exam_submissions` row, which lacks the display fields — hence optional.
+ */
+interface ReviewSubmission {
+  submission_id: number
+  status?: string
+  submitted_at?: string | null
+  ai_score?: number | null
+  final_score?: number | null
+  teacher_feedback?: string | null
+}
+
+interface ReviewQuestion {
+  id: number
+  sequence: number
+  question_type: string
+  question_text: string
+  points_possible: number
+  answer_text?: string | null
+  ai_feedback?: string | null
+  ai_confidence?: number | null
+  ai_grading_criteria?: string | null
+  expected_keywords?: string[] | null
+  options?: {
+    id: number
+    option_text: string | null
+    is_correct: boolean | null
+  }[]
+}
+
+interface ReviewAnswer {
+  question_id: number
+  points_earned: number | null
+  is_correct: boolean | null
+  teacher_notes?: string | null
+  teacher_score_override: number | null
+}
+
+interface QuestionOverride {
+  points_earned?: number | null
+  is_correct?: boolean | null
+  teacher_notes?: string
+  is_overridden?: boolean
+}
+
 interface SubmissionReviewProps {
-  submission: any
-  questions?: any[]
-  answers?: any[]
-  onSave?: (overrides: any) => Promise<void>
+  submission: ReviewSubmission
+  questions?: ReviewQuestion[]
+  answers?: ReviewAnswer[]
+  onSave?(overrides: Record<number, QuestionOverride>): Promise<void>
 }
 
 export function SubmissionReview({
@@ -45,13 +91,13 @@ export function SubmissionReview({
 }: SubmissionReviewProps) {
   const t = useTranslations('dashboard.teacher.submissionReview')
   const supabase = createClient()
-  const [submission, setSubmission] = useState(initialSubmission)
+  const [submission, setSubmission] = useState<ReviewSubmission>(initialSubmission)
   const [loading, setLoading] = useState(false)
   const [teacherFeedback, setTeacherFeedback] = useState(
     submission.teacher_feedback || ''
   )
   const initialAnswers = answers || []
-  const [overrides, setOverrides] = useState<Record<number, any>>(
+  const [overrides, setOverrides] = useState<Record<number, QuestionOverride>>(
     initialAnswers.reduce((acc, ans) => {
       acc[ans.question_id] = {
         points_earned: ans.teacher_score_override !== null ? ans.teacher_score_override : ans.points_earned,
@@ -60,7 +106,7 @@ export function SubmissionReview({
         is_overridden: ans.teacher_score_override !== null,
       }
       return acc
-    }, {} as Record<number, any>)
+    }, {} as Record<number, QuestionOverride>)
   )
 
   const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null)
@@ -126,7 +172,7 @@ export function SubmissionReview({
     }
   }
 
-  const updateQuestionOverride = (questionId: number, updates: any) => {
+  const updateQuestionOverride = (questionId: number, updates: QuestionOverride) => {
     setOverrides({
       ...overrides,
       [questionId]: {
@@ -137,7 +183,7 @@ export function SubmissionReview({
     })
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status?: string) => {
     switch (status) {
       case 'pending':
         return <Badge variant="outline">{t('status.pending')}</Badge>
@@ -170,7 +216,7 @@ export function SubmissionReview({
             {getStatusBadge(submission.status)}
           </div>
           <p className="text-sm text-muted-foreground">
-            {t('header.submittedOn', { date: new Date(submission.submitted_at).toLocaleDateString() })}
+            {t('header.submittedOn', { date: new Date(submission.submitted_at ?? 0).toLocaleDateString() })}
           </p>
         </div>
         <div className="flex items-center gap-8">
@@ -246,7 +292,7 @@ export function SubmissionReview({
                 {/* Options mapping for non-free text */}
                 {!isFreeText && (
                   <div className="space-y-2">
-                    {q.options?.map((opt: any) => {
+                    {q.options?.map((opt) => {
                       // exam_answers.answer_text holds the option id for multiple
                       // choice and the literal "true"/"false" for true/false, so
                       // comparing the label alone never marked the pick (#674).
@@ -322,7 +368,7 @@ export function SubmissionReview({
                           type="number"
                           min="0"
                           max={q.points_possible}
-                          value={override?.points_earned}
+                          value={override?.points_earned ?? undefined}
                           onChange={(e) => updateQuestionOverride(q.id, { points_earned: parseInt(e.target.value) || 0 })}
                         />
                       </div>

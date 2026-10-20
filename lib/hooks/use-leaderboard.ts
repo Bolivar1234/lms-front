@@ -46,7 +46,7 @@ export function useLeaderboard() {
 
             const data = await response.json();
             setLeaderboard(data);
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);

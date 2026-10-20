@@ -14,8 +14,18 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
+interface NotificationSummaryItem {
+    notification_id: string | number;
+    notification_type: string;
+    message: string;
+    link?: string | null;
+    created_at: string;
+    read?: boolean | null;
+    shrot_message?: string | null;
+}
+
 interface NotificationsSummaryProps {
-    notifications: any[];
+    notifications: NotificationSummaryItem[];
 }
 
 export function NotificationsSummary({ notifications }: NotificationsSummaryProps) {

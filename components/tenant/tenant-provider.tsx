@@ -9,7 +9,7 @@ export interface TenantInfo {
   name: string
   logo_url: string | null
   plan: string
-  settings?: Record<string, any>
+  settings?: Record<string, unknown>
   /** The plan-resolved theme kit the school renders with; null = platform palette. */
   theme: StoredKitTheme | null
 }

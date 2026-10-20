@@ -21,8 +21,41 @@ import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 
+interface CardLesson {
+  title: string | null
+  sequence: number | null
+  lesson_completions?: { user_id: string }[]
+}
+
+interface CardExamSubmission {
+  submission_id: number
+  student_id: string
+  submitted_at: string
+  exam_scores?: { score?: number | null }[] | null
+}
+
+interface CardExam {
+  exam_id: number
+  title: string
+  sequence: number | null
+  exam_submissions?: CardExamSubmission[]
+}
+
+/** The slice of an enrollment (with its course joins) the card reads. */
+interface CardEnrollment {
+  enrollment_date?: string | null
+  course?: {
+    course_id?: number
+    title: string
+    thumbnail_url?: string | null
+    image_url?: string | null
+    lessons?: CardLesson[]
+    exams?: CardExam[]
+  } | null
+}
+
 interface EnrolledCourseCardProps {
-  enrollment: any
+  enrollment: CardEnrollment
   userId: string
   access: CourseAccess
 }
@@ -30,23 +63,23 @@ interface EnrolledCourseCardProps {
 export function EnrolledCourseCard({ enrollment, userId, access }: EnrolledCourseCardProps) {
   const t = useTranslations('components.enrolledCourse')
   const locale = useLocale()
-  const course = enrollment.course as any
+  const course = enrollment.course
 
   if (!course) return null
 
   // Calculate lesson progress
   const lessons = course.lessons || []
   const totalLessons = lessons.length
-  const completedLessons = lessons.filter((lesson: any) => {
+  const completedLessons = lessons.filter((lesson) => {
     const completions = lesson.lesson_completions || []
-    return completions.some((c: any) => c.user_id === userId)
+    return completions.some((c) => c.user_id === userId)
   }).length
 
   // Calculate exam progress
   const exams = course.exams || []
-  const examsWithAttempts: ExamInfo[] = exams.map((exam: any) => {
-    const submissions = exam.exam_submissions?.filter((s: any) => s.student_id === userId) || []
-    const attempts: ExamAttempt[] = submissions.map((submission: any) => ({
+  const examsWithAttempts: ExamInfo[] = exams.map((exam) => {
+    const submissions = exam.exam_submissions?.filter((s) => s.student_id === userId) || []
+    const attempts: ExamAttempt[] = submissions.map((submission) => ({
       submissionId: submission.submission_id,
       score: submission.exam_scores?.[0]?.score || 0,
       submittedAt: new Date(submission.submitted_at),
@@ -55,7 +88,7 @@ export function EnrolledCourseCard({ enrollment, userId, access }: EnrolledCours
     return {
       examId: exam.exam_id,
       title: exam.title,
-      sequence: exam.sequence,
+      sequence: exam.sequence ?? 0,
       passingScore: 70,
       allowRetake: true,
       attempts,
@@ -69,10 +102,10 @@ export function EnrolledCourseCard({ enrollment, userId, access }: EnrolledCours
 
   // Find next incomplete lesson
   const nextLesson = lessons
-    .sort((a: any, b: any) => a.sequence - b.sequence)
-    .find((lesson: any) => {
+    .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
+    .find((lesson) => {
       const completions = lesson.lesson_completions || []
-      return !completions.some((c: any) => c.user_id === userId)
+      return !completions.some((c) => c.user_id === userId)
     })
 
   // date-fns has no request locale of its own: without `es` a Spanish reader
@@ -87,6 +120,7 @@ export function EnrolledCourseCard({ enrollment, userId, access }: EnrolledCours
   const isCompleted = progress.status === 'completed'
   const isInProgress = progress.status === 'in_progress'
   const pct = progress.overallPercentage
+  const imageSrc = course.thumbnail_url || course.image_url
 
   return (
     <Link
@@ -101,9 +135,9 @@ export function EnrolledCourseCard({ enrollment, userId, access }: EnrolledCours
       )}>
         {/* Thumbnail */}
         <div className="relative w-full sm:w-48 md:w-56 shrink-0 aspect-[16/9] sm:aspect-auto overflow-hidden bg-muted">
-          {course.thumbnail_url || course.image_url ? (
+          {imageSrc ? (
             <Image
-              src={course.thumbnail_url || course.image_url}
+              src={imageSrc}
               alt={course.title}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -153,7 +187,7 @@ export function EnrolledCourseCard({ enrollment, userId, access }: EnrolledCours
                 </p>
               )}
             </div>
-            <Badge variant={accessBadge.variant as any} className="text-[11px] font-bold shrink-0 uppercase tracking-wider">
+            <Badge variant={accessBadge.variant} className="text-[11px] font-bold shrink-0 uppercase tracking-wider">
               {t(`accessBadge.${accessBadge.code}`)}
             </Badge>
           </div>

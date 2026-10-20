@@ -6,8 +6,28 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import type { Tables } from '@/lib/database.types';
 
 export const dynamic = 'force-dynamic';
+
+type VerifiedCertificate = Pick<
+    Tables<'certificates'>,
+    | 'certificate_id'
+    | 'user_id'
+    | 'course_id'
+    | 'verification_code'
+    | 'credential_json'
+    | 'issued_at'
+    | 'expires_at'
+    | 'revoked_at'
+    | 'revoke_reason'
+    | 'badge_image_url'
+    | 'completion_data'
+    | 'view_count'
+> & {
+    course: Pick<Tables<'courses'>, 'title' | 'description'> | null;
+    user: Pick<Tables<'profiles'>, 'full_name' | 'username'> | null;
+};
 
 // Rate limiting (simple in-memory implementation)
 const verificationAttempts = new Map<string, number[]>();
@@ -70,11 +90,13 @@ export async function GET(
         revoke_reason,
         badge_image_url,
         completion_data,
+        view_count,
         course:courses(title, description),
         user:profiles(full_name, username)
       `)
             .eq('verification_code', code)
-            .single();
+            .single()
+            .overrideTypes<VerifiedCertificate, { merge: false }>();
 
         if (error || !certificate) {
             // Log failed verification
@@ -147,7 +169,7 @@ export async function GET(
         // Increment view count
         await supabase
             .from('certificates')
-            .update({ view_count: (certificate as any).view_count + 1 })
+            .update({ view_count: (certificate.view_count ?? 0) + 1 })
             .eq('certificate_id', certificate.certificate_id);
 
         // Log successful verification
@@ -170,9 +192,9 @@ export async function GET(
                 verification_code: certificate.verification_code,
                 issued_at: certificate.issued_at,
                 expires_at: certificate.expires_at,
-                user_name: (certificate.user as any)?.full_name || (certificate.user as any)?.username,
-                course_name: (certificate.course as any)?.title,
-                course_description: (certificate.course as any)?.description,
+                user_name: certificate.user?.full_name || certificate.user?.username,
+                course_name: certificate.course?.title,
+                course_description: certificate.course?.description,
                 badge_image_url: certificate.badge_image_url,
                 credential: certificate.credential_json,
                 completion_data: certificate.completion_data,
@@ -193,7 +215,7 @@ export async function GET(
 
 // Helper function to log verification attempts
 async function logVerification(
-    supabase: any,
+    supabase: Awaited<ReturnType<typeof createClient>>,
     certificateId: string | null,
     verificationCode: string,
     status: string,

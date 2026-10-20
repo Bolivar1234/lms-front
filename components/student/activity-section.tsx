@@ -7,8 +7,19 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
+interface RecentLessonView {
+    view_id: string | number;
+    viewed_at: string;
+    lesson_id: number;
+    lesson_course_id: number;
+    lesson_title: string;
+    lesson_description: string | null;
+    lesson_image: string | null;
+    lesson_sequence: number;
+}
+
 interface ActivitySectionProps {
-    lessons: any[];
+    lessons: RecentLessonView[];
 }
 
 export function ActivitySection({ lessons }: ActivitySectionProps) {

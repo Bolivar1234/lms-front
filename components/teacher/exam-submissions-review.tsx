@@ -63,6 +63,15 @@ interface ExamSubmission {
   profiles?: { full_name?: string | null; email?: string | null } | null
 }
 
+interface ReviewableSubmission {
+  id: number
+  profiles?: { full_name: string | null; email?: string | null } | null
+  status: string
+  submitted_at: string | null
+  ai_score: number | null
+  final_score: number | null
+}
+
 interface ExamSubmissionsReviewProps {
   courseId: number
   examId: number

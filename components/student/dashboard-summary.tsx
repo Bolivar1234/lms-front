@@ -13,12 +13,13 @@ import {
 } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import type { User } from "@supabase/supabase-js";
 
 interface DashboardSummaryProps {
-    user: any;
+    user: Pick<User, 'user_metadata'> | null;
     overallProgress: number;
     completedLessons: number;
-    nextLesson?: any;
+    nextLesson?: { id: number; title: string | null } | null;
 }
 
 export function DashboardSummary({
