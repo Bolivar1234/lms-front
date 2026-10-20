@@ -11,9 +11,7 @@ import { BinancePersonalPendingTable } from '@/components/admin/binance-personal
 import { listPendingBinancePersonalTransactions } from '@/app/actions/admin/binance-personal'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
 import { AdminBreadcrumb } from '@/components/admin/admin-breadcrumb'
-import { IconArrowLeft } from '@tabler/icons-react'
 
 /** Statuses an admin still has to act on: new, or instructions sent and awaiting the money. */
 const OPEN_STATUSES = new Set(['pending', 'contacted'])

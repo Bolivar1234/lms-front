@@ -5,10 +5,7 @@ import { format } from 'date-fns'
 import { es, enUS } from 'date-fns/locale'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
 import {
-  IconArrowLeft,
   IconUser,
   IconMail,
   IconCalendar,
@@ -27,7 +24,6 @@ export default async function UserDetailPage({ params }: PageProps) {
   const { userId, locale } = await params
   const t = await getTranslations('dashboard.admin.users.details')
   const tu = await getTranslations('dashboard.admin.users.table')
-  const tBreadcrumbs = await getTranslations('dashboard.admin.breadcrumbs')
   const dateLocale = locale === 'es' ? es : enUS
   const supabase = createAdminClient()
 

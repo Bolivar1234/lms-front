@@ -26,7 +26,6 @@ const REACTIONS = [
 
 export function ReactionBar({
   postId,
-  userId,
   currentReactions,
   reactionCount,
   onReactionToggled,

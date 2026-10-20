@@ -4,7 +4,6 @@ import {
   cinematicLogin,
   cinematicScroll,
   navigateAndSettle,
-  spotlightHover,
   waitForTestId,
 } from './utils/demo-helpers'
 

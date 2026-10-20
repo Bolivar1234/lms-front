@@ -15,9 +15,7 @@ import { BASE, TENANT_BASE, LOCALE } from './utils/constants'
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 const DEFAULT_TENANT = '00000000-0000-0000-0000-000000000001'
-const CODE_ACADEMY_TENANT = '00000000-0000-0000-0000-000000000002'
 const STUDENT_ID = 'a1000000-0000-0000-0000-000000000001'
-const TEACHER_ID = 'a1000000-0000-0000-0000-000000000002'
 
 /* ------------------------------------------------------------------ */
 /*  Supabase admin client (service_role — bypasses RLS)                */

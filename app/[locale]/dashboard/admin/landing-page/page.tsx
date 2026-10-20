@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import { getCurrentTenantId } from '@/lib/supabase/tenant'
 import { getLandingPages } from '@/app/actions/admin/landing-pages'
 import { getAllSettingsByCategory } from '@/app/actions/admin/settings'
-import { AdminBreadcrumb } from '@/components/admin/admin-breadcrumb'
 import { LandingPagesClient } from '@/components/admin/landing-page/landing-pages-client'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { PUCK_TEMPLATES } from '@/lib/puck/templates'
@@ -35,8 +34,6 @@ export default async function LandingPageAdminPage({ searchParams }: PageProps) 
   const role = await getUserRole()
   if (role !== 'admin') redirect('/dashboard/admin')
 
-  const t = await getTranslations('landingPageBuilder')
-  const tBreadcrumbs = await getTranslations('dashboard.admin.breadcrumbs')
   const tenantId = await getCurrentTenantId()
 
   // Check plan

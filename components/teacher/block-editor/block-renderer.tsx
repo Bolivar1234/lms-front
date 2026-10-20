@@ -2,31 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 
-import type {
-  Block,
-  TextBlock,
-  HeadingBlock,
-  CalloutBlock,
-  CodeBlock as CodeBlockType,
-  QuizBlock,
-  SpoilerBlock,
-  StepsBlock,
-  VocabularyBlock,
-  DefinitionBlock,
-  ImageBlock,
-  VideoBlock,
-  AudioBlock,
-  EmbedBlock,
-  FileDownloadBlock,
-  GlossaryBlock,
-  ComparisonBlock,
-  TableBlock,
-  FlashcardSetBlock,
-  FillInTheBlankBlock,
-  MatchingPairsBlock,
-  OrderingBlock,
-  CheckpointBlock,
-} from './types'
+import type { Block } from './types'
 import { TextBlockEditor } from './editors/text-block'
 import { HeadingBlockEditor } from './editors/heading-block'
 import { CalloutBlockEditor } from './editors/callout-block'

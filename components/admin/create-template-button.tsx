@@ -131,7 +131,7 @@ export function CreateTemplateButton({ template, mode = "create" }: CreateTempla
       } else {
         toast.error(result.error || t('form.toasts.error'))
       }
-    } catch (error) {
+    } catch {
       toast.error(t('form.toasts.error'))
     } finally {
       setIsSubmitting(false)

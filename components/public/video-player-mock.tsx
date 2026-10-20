@@ -1,4 +1,4 @@
-import { Play, Maximize2, Volume2, Settings } from "lucide-react";
+import { Play, Maximize2, Settings } from "lucide-react";
 
 export function VideoPlayerMock() {
     return (

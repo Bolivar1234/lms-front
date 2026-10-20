@@ -47,7 +47,7 @@ async function discoverExamSubmissions() {
 
   // Try getting any existing row to see structure
   console.log('\nChecking for existing submissions...')
-  const { data, error: error3 } = await supabase
+  const { data } = await supabase
     .from('exam_submissions')
     .select('*')
     .limit(1)

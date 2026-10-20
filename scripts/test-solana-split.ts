@@ -15,7 +15,6 @@
 import {
   Connection,
   Keypair,
-  PublicKey,
   SystemProgram,
   SystemInstruction,
   Transaction,

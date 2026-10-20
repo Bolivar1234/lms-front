@@ -1,7 +1,6 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createClient } from '@/lib/supabase/server'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 import { track } from '@/lib/analytics/server'
@@ -17,7 +16,6 @@ interface OnboardingData {
 
 export async function completeOnboarding(data: OnboardingData) {
   try {
-    const supabase = await createClient()
     const userId = await getCurrentUserId()
     if (!userId) {
       return { success: false, error: 'Not authenticated' }

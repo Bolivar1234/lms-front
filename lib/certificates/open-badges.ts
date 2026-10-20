@@ -114,8 +114,6 @@ export function generateAchievementCredential(
     const {
         certificateId,
         userId,
-        userEmail,
-        userName,
         courseId,
         courseTitle,
         courseDescription,

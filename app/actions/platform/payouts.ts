@@ -11,7 +11,6 @@ import { computeOwedBalances, DEFAULT_SCHOOL_PERCENTAGE, isPayoutMismatch, type 
 import { fetchAllRows } from '@/lib/supabase/fetch-all-rows'
 
 async function verifySuperAdmin() {
-  const supabase = await createClient()
   const userId = await getCurrentUserId()
   if (!userId) throw new Error('Not authenticated')
   if (!(await isSuperAdmin())) throw new Error('Super admin only')

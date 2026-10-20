@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { LayoutGrid } from "lucide-react";
 import { useTranslations } from 'next-intl';
 
 export function FilterSidebar() {
     const t = useTranslations('coursesCatalog.filterSidebar');
-    const [priceRange, setPriceRange] = useState([0, 200]);
 
     const categories = [
         { id: "all", label: t('categoryList.all') },

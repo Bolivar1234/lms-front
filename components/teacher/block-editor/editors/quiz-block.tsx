@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl'
 
-import { useState } from 'react'
 import type { QuizBlock } from '../types'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'

@@ -163,7 +163,6 @@ export async function POST(req: NextRequest) {
      * ledger.
      */
     let amountMajor: number
-    let itemName: string
     let currency = 'usd'
     let planProviderPriceId: string | null = null
     let planPaymentProvider = 'stripe'
@@ -192,7 +191,6 @@ export async function POST(req: NextRequest) {
       currency = plan.currency || 'usd'
       amountMajor = Number(plan.price)
       amount = toCents(amountMajor, currency)
-      itemName = plan.plan_name
       planProviderPriceId = plan.provider_price_id
       planPaymentProvider = plan.payment_provider || 'stripe'
       platformPercentage = splitOrDefault(split).platformPercentage
@@ -231,7 +229,6 @@ export async function POST(req: NextRequest) {
       currency = product.currency || 'usd'
       amountMajor = charge.amount
       amount = toCents(amountMajor, currency)
-      itemName = product.name
       feeBearer = charge.feeBearer
       platformPercentage = charge.platformPercentage
     }

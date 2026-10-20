@@ -16,7 +16,6 @@ import {
   IconChartBar,
   IconCalendar,
   IconArrowRight,
-  IconCurrencyDollar,
   IconBolt
 } from '@tabler/icons-react'
 import * as motion from 'motion/react-client'
@@ -394,8 +393,8 @@ export default async function TeacherDashboard() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm leading-snug">
                         {t.rich('activity.enrolledIn', {
-                          userName: (chunks) => <span className="font-medium text-foreground">{activity.profiles?.full_name || t('activity.anonymous')}</span>,
-                          courseTitle: (chunks) => <span className="font-medium text-brand-text">{activity.courses?.title}</span>
+                          userName: () => <span className="font-medium text-foreground">{activity.profiles?.full_name || t('activity.anonymous')}</span>,
+                          courseTitle: () => <span className="font-medium text-brand-text">{activity.courses?.title}</span>
                         })}
                       </p>
                       <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">

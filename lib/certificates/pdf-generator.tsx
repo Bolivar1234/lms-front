@@ -11,7 +11,7 @@ import {
     Page,
     Text,
     View,
-    Image,
+    Image as PdfImage,
     StyleSheet,
     Font,
     pdf,
@@ -422,7 +422,7 @@ const CertificateDocument: React.FC<{ data: CertificatePDFData; qrCodeDataUrl?: 
                     {/* Organization seal / logo */}
                     <View style={styles.sealContainer}>
                         {data.issuerLogo || data.logoUrl ? (
-                            <Image src={data.issuerLogo || data.logoUrl || ''} style={styles.logoImage} />
+                            <PdfImage src={data.issuerLogo || data.logoUrl || ''} style={styles.logoImage} />
                         ) : (
                             <View style={styles.sealRing}>
                                 <Text style={styles.sealMonogram}>{issuerMonogram}</Text>
@@ -469,7 +469,7 @@ const CertificateDocument: React.FC<{ data: CertificatePDFData; qrCodeDataUrl?: 
                         {/* Signature column */}
                         <View style={styles.footerCol}>
                             {data.signatureImage && (
-                                <Image src={data.signatureImage} style={styles.signatureImage} />
+                                <PdfImage src={data.signatureImage} style={styles.signatureImage} />
                             )}
                             <Text style={styles.footerName}>{signerName}</Text>
                             <View style={styles.footerRule} />
@@ -479,7 +479,7 @@ const CertificateDocument: React.FC<{ data: CertificatePDFData; qrCodeDataUrl?: 
                         {/* QR code column (optional) */}
                         {showQr && qrCodeDataUrl && (
                             <View style={styles.qrCol}>
-                                <Image src={qrCodeDataUrl} style={styles.qrImage} />
+                                <PdfImage src={qrCodeDataUrl} style={styles.qrImage} />
                                 <Text style={styles.qrLabel}>Verify</Text>
                             </View>
                         )}
@@ -565,7 +565,7 @@ export async function generateAndUploadPDF(
 
         // Upload to Supabase Storage
         const fileName = `${certificateId}.pdf`;
-        const { data: uploadData, error } = await supabaseClient.storage
+        const { error } = await supabaseClient.storage
             .from('certificates')
             .upload(`pdfs/${fileName}`, pdfBuffer, {
                 contentType: 'application/pdf',

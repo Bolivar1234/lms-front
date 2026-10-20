@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import { IconX } from '@tabler/icons-react'
 import { ExamBuilderProvider, useExamBuilder } from './exam-builder-context'
 import type { ExamBuilderProps } from './exam-builder-context'

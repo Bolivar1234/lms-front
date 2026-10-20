@@ -148,10 +148,6 @@ function certSheet(): Sheet {
   }
 }
 
-function certSheetHead(): string {
-  return ''
-}
-
 function ogSheet(): Sheet {
   return {
     name: 'og',

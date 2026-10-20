@@ -62,7 +62,7 @@ export function PlatformSidebar({ pendingBillingCount = 0, atRiskCount = 0, ...p
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    window.location.href = "/auth/login"
+    window.location.href = new URL("/auth/login", window.location.origin).href
   }
 
   const groups: { labelKey: string; items: NavItem[] }[] = [

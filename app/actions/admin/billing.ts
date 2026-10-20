@@ -994,7 +994,7 @@ export async function reactivateSubscription() {
  * Upload payment proof for a platform payment request (school admin)
  */
 export async function uploadPaymentProof(requestId: string, formData: FormData) {
-  const { userId, tenantId } = await verifyAdminAccess()
+  const { tenantId } = await verifyAdminAccess()
   const adminClient = await createAdminClient()
 
   // Verify request belongs to tenant

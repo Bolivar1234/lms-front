@@ -48,7 +48,7 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [, setLoading] = useState(false)
   const router = useRouter()
 
   const handleDelete = async () => {

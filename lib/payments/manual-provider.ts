@@ -41,7 +41,7 @@ export class ManualPaymentProvider implements IPaymentProvider {
     requiresConnectedAccount: false, // bank transfer to the school's own account — no provider onboarding at all
   }
 
-  convertAmount(amount: number, fromUnit: 'base' | 'major'): number {
+  convertAmount(amount: number, _fromUnit: 'base' | 'major'): number {
     // Manual payments use major units (no conversion needed)
     return amount
   }
@@ -82,12 +82,12 @@ export class ManualPaymentProvider implements IPaymentProvider {
     }
   }
 
-  async archiveProduct(productId: string): Promise<void> {
+  async archiveProduct(_productId: string): Promise<void> {
     // Manual products are archived only in database
     // Nothing to do here
   }
 
-  async restoreProduct(productId: string): Promise<void> {
+  async restoreProduct(_productId: string): Promise<void> {
     // Manual products are restored only in database
     // Nothing to do here
   }
@@ -126,14 +126,14 @@ export class ManualPaymentProvider implements IPaymentProvider {
     }
   }
 
-  async archivePrice(priceId: string): Promise<void> {
+  async archivePrice(_priceId: string): Promise<void> {
     // Manual prices archived in database only
   }
 
   // Subscription operations are no-ops for manual/offline billing.
   // There is no external recurring engine: the admin confirms each payment and
   // the subscription row is managed entirely in our database.
-  async createSubscription(params: CreateSubscriptionParams): Promise<ProviderSubscription> {
+  async createSubscription(_params: CreateSubscriptionParams): Promise<ProviderSubscription> {
     return {
       id: `manual_sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       status: 'active',
@@ -147,7 +147,7 @@ export class ManualPaymentProvider implements IPaymentProvider {
     return { mode: 'none' }
   }
 
-  async reactivateSubscription(providerSubId: string): Promise<void> {
+  async reactivateSubscription(_providerSubId: string): Promise<void> {
     // Nothing to reactivate externally — the DB row carries the real state.
   }
 

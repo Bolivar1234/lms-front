@@ -106,7 +106,7 @@ export default function PromptTemplatesPage() {
       } else {
         throw new Error('Failed to delete')
       }
-    } catch (error) {
+    } catch {
       toast.error(t('deleteError'))
     } finally {
       setDeleteId(null)
@@ -131,7 +131,7 @@ export default function PromptTemplatesPage() {
         toast.success(t('duplicateSuccess'))
         fetchTemplates()
       }
-    } catch (error) {
+    } catch {
       toast.error(t('duplicateError'))
     }
   }

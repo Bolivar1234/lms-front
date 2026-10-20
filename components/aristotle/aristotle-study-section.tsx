@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { IconChevronDown } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 import { AristotleStudyTab } from './aristotle-study-tab'
 import { useTranslations } from 'next-intl'
 

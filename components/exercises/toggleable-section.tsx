@@ -2,7 +2,6 @@
 
 import { useState, ReactNode } from "react";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ToggleableSectionProps {

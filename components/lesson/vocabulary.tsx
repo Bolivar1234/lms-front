@@ -3,7 +3,7 @@
 import { SafeImage } from '@/components/shared/safe-image'
 import { useState, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { IconVolume, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react'
+import { IconVolume, IconPlayerPause } from '@tabler/icons-react'
 
 interface VocabularyProps {
   word: string

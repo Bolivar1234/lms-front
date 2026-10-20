@@ -2,7 +2,7 @@
 
 import { useGamificationSummary } from "@/lib/hooks/use-gamification-summary";
 import { cn } from "@/lib/utils";
-import { format, subDays, isSameDay, startOfWeek, addDays } from "date-fns";
+import { format, subDays, isSameDay } from "date-fns";
 import { IconFlame, IconCheck } from "@tabler/icons-react";
 import { useTranslations } from "next-intl";
 

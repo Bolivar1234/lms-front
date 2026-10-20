@@ -2,7 +2,6 @@
 
 import { useTranslations, useLocale } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -10,7 +9,6 @@ import {
   IconRefresh,
   IconCheck,
   IconAlertTriangle,
-  IconChevronRight,
   IconArrowRight,
   IconBook2,
   IconClock,

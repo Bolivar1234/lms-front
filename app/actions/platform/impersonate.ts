@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { isSuperAdmin } from '@/lib/supabase/get-user-role'
-import { cookies } from 'next/headers'
 
 /**
  * Impersonate a user within a tenant via Supabase magic link.
@@ -54,7 +53,7 @@ export async function getTenantUsersForImpersonation(tenantId: string) {
 
   const adminClient = createAdminClient()
 
-  const { data: members, error } = await adminClient
+  const { data: members } = await adminClient
     .from('tenant_users')
     .select('user_id, role')
     .eq('tenant_id', tenantId)
