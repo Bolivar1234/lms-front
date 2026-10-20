@@ -35,13 +35,10 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      # Lint is non-blocking: the repo has a large pre-existing lint baseline
-      # (~800 errors). Surfaced for visibility but does not fail the build. The
-      # pre-commit hook (lint-staged) keeps NEW/changed files clean going
-      # forward; clearing the legacy baseline is tracked separately.
-      - name: Lint (non-blocking)
+      # Lint is blocking: the error baseline is cleared to 0. Warnings (mostly
+      # unused vars) are reported but do not fail ESLint.
+      - name: Lint
         run: npm run lint
-        continue-on-error: true
       - name: Typecheck
         run: npm run typecheck
       - name: Unit tests
