@@ -118,7 +118,7 @@ export function SocialShareModal({ isOpen, onOpenChange, certificate }: SocialSh
                     </div>
                     <div className="space-y-1">
                         <p className="text-sm font-bold leading-none">Public Verification</p>
-                        <p className="text-xs text-muted-foreground">Anyone with this link can verify your certificate's authenticity.</p>
+                        <p className="text-xs text-muted-foreground">Anyone with this link can verify your certificate&apos;s authenticity.</p>
                     </div>
                 </div>
 

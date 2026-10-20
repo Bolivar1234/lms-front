@@ -30,22 +30,25 @@ export function PromptTemplateSelector({ category, onSelect }: PromptTemplateSel
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (open) {
-      loadTemplates()
-    }
-  }, [open, category])
-
   const loadTemplates = async () => {
     setLoading(true)
     const params = new URLSearchParams({ category })
     if (search) params.append('search', search)
 
-    const res = await fetch(`/api/teacher/templates?${params}`)
-    const data = await res.json()
-    setTemplates(data)
-    setLoading(false)
+    try {
+      const res = await fetch(`/api/teacher/templates?${params}`)
+      const data = await res.json()
+      setTemplates(data)
+    } finally {
+      setLoading(false)
+    }
   }
+
+  useEffect(() => {
+    if (open) {
+      loadTemplates()
+    }
+  }, [open, category])
 
   const handleSelect = (template: Template) => {
     onSelect(template)

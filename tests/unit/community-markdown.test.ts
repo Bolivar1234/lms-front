@@ -8,6 +8,7 @@ import { CommunityMarkdown } from '@/components/community/community-markdown'
 // #872: community posts render a small, safe markdown subset.
 function render(content: string): string {
   return renderToStaticMarkup(
+    // eslint-disable-next-line react/no-children-prop -- the provider's props type requires children
     createElement(NextIntlClientProvider, {
       locale: 'en',
       messages,
