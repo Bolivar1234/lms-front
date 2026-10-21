@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { DB_SCHEMA } from './schema'
 
 // Derive root domain for cross-subdomain cookie sharing (e.g. ".lvh.me" or ".lmsplatform.com")
 function getCookieDomain(): string | undefined {
@@ -18,6 +19,7 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
     {
+      db: { schema: DB_SCHEMA },
       cookieOptions: cookieDomain
         ? { domain: cookieDomain, path: '/' }
         : undefined,
