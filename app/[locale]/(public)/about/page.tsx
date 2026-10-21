@@ -44,11 +44,6 @@ export default async function AboutPage() {
                                     {t('visitHome')}
                                 </Button>
                             </Link>
-                            <Link href="/contact">
-                                <Button size="lg" variant="outline" className="h-12 px-8 bg-zinc-900/50 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-xl text-base backdrop-blur-sm">
-                                    {t('contact')}
-                                </Button>
-                            </Link>
                         </div>
                     </div>
                 </section>
