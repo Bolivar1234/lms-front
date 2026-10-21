@@ -11,6 +11,8 @@ function getTenantIdFromJwt(authHeader: string): string | null {
   }
 }
 
+const dbSchema = Deno.env.get("SUPABASE_DB_SCHEMA") ?? "public";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -30,6 +32,7 @@ Deno.serve(async (req) => {
 
     // Verify the user from the JWT
     const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      db: { schema: dbSchema },
       global: { headers: { Authorization: authHeader } },
     });
     const { data: { user }, error: userError } = await userClient.auth.getUser();
@@ -53,7 +56,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const admin = createClient(supabaseUrl, serviceRoleKey, { db: { schema: dbSchema } });
 
     // Check if achievements feature is enabled
     const { data: features } = await admin.rpc("get_gamification_features", { _tenant_id: tenantId });
