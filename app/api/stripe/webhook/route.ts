@@ -10,6 +10,7 @@ import { netOfRefunds } from '@/lib/payments/payouts-owed'
 import { PROVIDER_CAPABILITIES, type PaymentProvider } from '@/lib/payments/types'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 import { track, safeAnalytics } from '@/lib/analytics/server'
+import { DB_SCHEMA } from '@/lib/supabase/schema'
 
 // Lazy initialize Supabase admin client
 function getSupabaseAdmin() {
@@ -18,7 +19,7 @@ function getSupabaseAdmin() {
   if (!url || !serviceKey) {
     throw new Error('Supabase environment variables not set')
   }
-  return createClient(url, serviceKey)
+  return createClient(url, serviceKey, { db: { schema: DB_SCHEMA } })
 }
 
 /**

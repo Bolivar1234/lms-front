@@ -3,12 +3,13 @@ import { createClient } from '@supabase/supabase-js'
 import { PROVIDER_CAPABILITIES, type PaymentProvider } from '@/lib/payments/types'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 import { track } from '@/lib/analytics/server'
+import { DB_SCHEMA } from '@/lib/supabase/schema'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !serviceKey) throw new Error('Supabase env vars not set')
-  return createClient(url, serviceKey)
+  return createClient(url, serviceKey, { db: { schema: DB_SCHEMA } })
 }
 
 /**

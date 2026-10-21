@@ -22,6 +22,7 @@ import {
   failWebhookEvent,
   UNIFIED_STUDENT_WEBHOOK_PROVIDERS,
 } from '@/lib/payments/webhook-event-claim'
+import { DB_SCHEMA } from '@/lib/supabase/schema'
 
 export const runtime = 'nodejs'
 
@@ -48,7 +49,7 @@ function getSupabaseAdmin() {
   if (!url || !serviceKey) {
     throw new Error('Supabase environment variables not set')
   }
-  return createClient(url, serviceKey)
+  return createClient(url, serviceKey, { db: { schema: DB_SCHEMA } })
 }
 
 export async function POST(

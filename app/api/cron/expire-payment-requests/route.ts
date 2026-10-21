@@ -13,6 +13,7 @@ import {
   MANUAL_REQUEST_REMINDER_LEAD_DAYS,
   isManualRequestExpirable,
 } from '@/lib/payments/manual-request-ttl'
+import { DB_SCHEMA } from '@/lib/supabase/schema'
 
 export const runtime = 'nodejs'
 
@@ -50,7 +51,7 @@ function getSupabaseAdmin(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !serviceKey) throw new Error('Supabase env vars not set')
-  return createClient(url, serviceKey)
+  return createClient(url, serviceKey, { db: { schema: DB_SCHEMA } })
 }
 
 /** Resolve a human item name from a request row with product/plan embeds. */

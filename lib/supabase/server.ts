@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies, headers } from 'next/headers'
+import { DB_SCHEMA } from './schema'
 
 // Derive root domain for cross-subdomain cookie sharing
 function getCookieDomain(): string | undefined {
@@ -23,6 +24,7 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
     {
+      db: { schema: DB_SCHEMA },
       // Forward tenant ID to PostgREST so get_tenant_id() can read it
       // via current_setting('request.header.x-tenant-id'). This is
       // critical for anon users on non-default tenants where the JWT

@@ -26,6 +26,7 @@ import { createClient } from '@supabase/supabase-js'
 import { getPaymentProvider } from '@/lib/payments'
 import { PayPalPaymentProvider } from '@/lib/payments/paypal-provider'
 import { dispatchBillingEvent } from '@/lib/payments/webhook-dispatch'
+import { DB_SCHEMA } from '@/lib/supabase/schema'
 
 export const runtime = 'nodejs'
 
@@ -35,7 +36,7 @@ function getSupabaseAdmin() {
   if (!url || !serviceKey) {
     throw new Error('Supabase environment variables not set')
   }
-  return createClient(url, serviceKey)
+  return createClient(url, serviceKey, { db: { schema: DB_SCHEMA } })
 }
 
 /**

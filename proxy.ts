@@ -6,6 +6,7 @@ import { getSafeNextPath } from '@/lib/auth/safe-next-path'
 import { isProtectedPath } from '@/lib/auth/route-access'
 import { createServerClient } from '@supabase/ssr'
 import { locales, defaultLocale } from './i18n'
+import { DB_SCHEMA } from '@/lib/supabase/schema'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -229,6 +230,7 @@ export default async function proxy(request: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
         {
+          db: { schema: DB_SCHEMA },
           cookies: {
             getAll() { return request.cookies.getAll() },
             setAll() { /* not needed for lookup */ },
@@ -277,7 +279,10 @@ export default async function proxy(request: NextRequest) {
         const supabase = createServerClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
-          { cookies: { getAll: () => request.cookies.getAll(), setAll: () => {} } },
+          {
+            db: { schema: DB_SCHEMA },
+            cookies: { getAll: () => request.cookies.getAll(), setAll: () => {} },
+          },
         )
         const { data, error } = await supabase.from('tenant_users').select('id')
           .eq('user_id', user.id).eq('tenant_id', tenantId).eq('status', 'active').maybeSingle()
@@ -419,6 +424,7 @@ export default async function proxy(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
     {
+      db: { schema: DB_SCHEMA },
       cookies: {
         getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet) {

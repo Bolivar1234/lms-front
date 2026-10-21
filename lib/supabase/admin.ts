@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { getUserRole } from './get-user-role'
+import { DB_SCHEMA } from './schema'
 
 /**
  * Creates a Supabase client with service role permissions.
@@ -14,6 +15,7 @@ export function createAdminClient() {
   }
 
   return createClient(supabaseUrl, serviceRoleKey, {
+    db: { schema: DB_SCHEMA },
     auth: {
       autoRefreshToken: false,
       persistSession: false

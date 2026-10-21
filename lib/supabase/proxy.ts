@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { User } from '@supabase/supabase-js'
+import { DB_SCHEMA } from './schema'
 
 // Derive root domain for cross-subdomain cookie sharing
 function getCookieDomain(): string | undefined {
@@ -24,6 +25,7 @@ export async function updateSession(request: NextRequest): Promise<{ response: N
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
     {
+      db: { schema: DB_SCHEMA },
       cookies: {
         getAll() {
           return request.cookies.getAll()
