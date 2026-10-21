@@ -52,7 +52,7 @@ import {
   type OAuthAuthorizationDetails,
   type SupabaseClient,
 } from "@supabase/supabase-js";
-import { getSupabaseUrl, getPublishableKey } from "./env.js";
+import { getSupabaseUrl, getPublishableKey, getDbSchema } from "./env.js";
 
 // ---------------------------------------------------------------------------
 // Session cookie
@@ -95,6 +95,7 @@ function clearSessionCookie(): string {
 
 function makeSupabaseClient(): SupabaseClient {
   return createClient(getSupabaseUrl(), getPublishableKey(), {
+    db: { schema: getDbSchema() },
     auth: {
       persistSession: false,
       autoRefreshToken: false,

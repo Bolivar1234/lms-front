@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import ExerciseResultSummary from "@/components/exercises/exercise-result-summary";
 import { createClient } from "@/lib/supabase/client";
 import type { Json } from "@/lib/database.types";
+import { DB_SCHEMA } from "@/lib/supabase/schema";
 
 interface CodeChallengeWrapperProps {
     exercise: { active_file?: string | null; visible_files?: string[] | null };
@@ -198,6 +199,8 @@ function useCodeAutosave({
                 apikey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
                 Authorization: `Bearer ${accessToken.current}`,
                 "Content-Type": "application/json",
+                "Accept-Profile": DB_SCHEMA,
+                "Content-Profile": DB_SCHEMA,
                 Prefer: "return=minimal",
             },
             body,

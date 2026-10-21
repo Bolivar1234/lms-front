@@ -12,6 +12,7 @@ export async function POST() {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    db: { schema: (process.env.NEXT_PUBLIC_SUPABASE_DB_SCHEMA || 'public') as 'public' },
     auth: {
       autoRefreshToken: false,
       persistSession: false

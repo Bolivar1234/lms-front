@@ -157,3 +157,9 @@ export function demoWidgetsEnabled(): boolean {
     process.env.MCP_DEMO_WIDGETS === "1" && process.env.NODE_ENV !== "production"
   );
 }
+
+/** PostgREST schema the LMS queries; `public` unless the shared-DB `lms` schema is configured. */
+export function getDbSchema(): "public" {
+  return (process.env.SUPABASE_DB_SCHEMA?.trim() === "lms" ? "lms" : "public") as "public";
+}
+
