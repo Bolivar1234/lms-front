@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseUrl, getPublishableKey, getServiceRoleKey } from "./env.js";
+import { getSupabaseUrl, getPublishableKey, getServiceRoleKey, getDbSchema } from "./env.js";
 
 /**
  * Build a Supabase client scoped to the caller's access token.
@@ -10,6 +10,7 @@ import { getSupabaseUrl, getPublishableKey, getServiceRoleKey } from "./env.js";
  */
 export function createUserClient(accessToken: string): SupabaseClient {
   return createClient(getSupabaseUrl(), getPublishableKey(), {
+    db: { schema: getDbSchema() },
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -33,6 +34,7 @@ export function getServiceClient(): SupabaseClient | null {
   if (!key) return null;
   if (!serviceClient) {
     serviceClient = createClient(getSupabaseUrl(), key, {
+      db: { schema: getDbSchema() },
       auth: { persistSession: false, autoRefreshToken: false },
     });
   }

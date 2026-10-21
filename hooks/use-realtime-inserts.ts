@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { DB_SCHEMA } from '@/lib/supabase/schema'
 
 // supabase-js hands back the EXISTING channel for a topic it already has, so
 // two mounts of the same feed (React Strict Mode, two open threads on one post)
@@ -45,7 +46,7 @@ export function useRealtimeInserts({
     let joins = 0
     const channel = supabase
       .channel(`${table}:${filter}:${++mountSeq}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table, filter }, (payload) => {
+      .on('postgres_changes', { event: 'INSERT', schema: DB_SCHEMA, table, filter }, (payload) => {
         onInsertRef.current(payload.new as Record<string, unknown>)
       })
       .subscribe((status) => {
