@@ -14,7 +14,7 @@ export async function lookupTraceContentAllowed(tenantId: string): Promise<boole
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !key) throw new Error('trace-content lookup failed')
-  const { data, error } = await createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+  const { data, error } = await createClient(url, key, { db: { schema: (process.env.NEXT_PUBLIC_SUPABASE_DB_SCHEMA || 'public') as 'public' }, auth: { autoRefreshToken: false, persistSession: false } })
     .from('tenant_ai_settings')
     .select('tenant_id, ai_trace_content')
     .eq('tenant_id', tenantId)
