@@ -37,6 +37,8 @@ function getTenantIdFromJwt(authHeader: string): string | null {
   }
 }
 
+const dbSchema = Deno.env.get("SUPABASE_DB_SCHEMA") ?? "public";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -57,6 +59,7 @@ Deno.serve(async (req) => {
 
     // Verify user
     const userClient = createClient(supabaseUrl, anonKey, {
+      db: { schema: dbSchema },
       global: { headers: { Authorization: authHeader } },
     });
     const { data: { user }, error: userError } = await userClient.auth.getUser();
@@ -68,7 +71,7 @@ Deno.serve(async (req) => {
     }
 
     const tenantId = getTenantIdFromJwt(authHeader) || "00000000-0000-0000-0000-000000000001";
-    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const admin = createClient(supabaseUrl, serviceRoleKey, { db: { schema: dbSchema } });
 
     // Fetch profile, levels, achievements, recent XP, and features in parallel
     const [

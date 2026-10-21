@@ -25,6 +25,8 @@ function getTenantIdFromJwt(authHeader: string): string | null {
   }
 }
 
+const dbSchema = Deno.env.get("SUPABASE_DB_SCHEMA") ?? "public";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -44,6 +46,7 @@ Deno.serve(async (req) => {
 
     // Verify user
     const userClient = createClient(supabaseUrl, anonKey, {
+      db: { schema: dbSchema },
       global: { headers: { Authorization: authHeader } },
     });
     const { data: { user }, error: userError } = await userClient.auth.getUser();
@@ -62,7 +65,7 @@ Deno.serve(async (req) => {
     const offset = parseInt(url.searchParams.get("offset") || "0");
 
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const admin = createClient(supabaseUrl, serviceRoleKey, { db: { schema: dbSchema } });
 
     // Check if leaderboard feature is enabled for this tenant
     const { data: features } = await admin.rpc("get_gamification_features", { _tenant_id: tenantId });

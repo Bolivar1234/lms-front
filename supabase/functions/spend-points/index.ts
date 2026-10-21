@@ -17,6 +17,8 @@ import { corsHeaders } from "../_shared/cors.ts";
  * purchases cost one item's price. Do not reintroduce mutations here: the RPC
  * is the only writer, so the lock actually covers everything it needs to.
  */
+const dbSchema = Deno.env.get("SUPABASE_DB_SCHEMA") ?? "public";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -39,6 +41,7 @@ Deno.serve(async (req) => {
 
     // Verify user
     const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      db: { schema: dbSchema },
       global: { headers: { Authorization: authHeader } },
     });
     const { data: { user }, error: userError } = await userClient.auth.getUser();
@@ -47,7 +50,7 @@ Deno.serve(async (req) => {
     }
 
     const tenantId = getTenantIdFromJwt(authHeader) || "00000000-0000-0000-0000-000000000001";
-    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const admin = createClient(supabaseUrl, serviceRoleKey, { db: { schema: dbSchema } });
 
     // Check if store feature is enabled for this tenant's plan
     const { data: features } = await admin.rpc("get_gamification_features", { _tenant_id: tenantId });
