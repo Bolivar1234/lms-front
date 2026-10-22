@@ -237,7 +237,8 @@ export function PostCard({ post, userId, userRole, focused = false, focusComment
               )}
               {postTypeBadge()}
             </div>
-            <span className="text-[11px] text-muted-foreground">
+            {/* "5 minutes ago" is computed at render time, so the server and client can differ. */}
+            <span className="text-[11px] text-muted-foreground" suppressHydrationWarning>
               {formatDistanceToNow(new Date(post.created_at), {
                 addSuffix: true,
                 ...(locale === 'es' ? { locale: es } : {}),
