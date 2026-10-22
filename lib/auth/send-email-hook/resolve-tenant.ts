@@ -1,18 +1,16 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-
-const PLATFORM_HOSTS = ['localhost', '127.0.0.1']
+import { tenantSlugFromHostname } from '@/lib/tenant/host'
 
 function platformDomain(): string {
   return (process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'lmsplatform.com').split(':')[0]
 }
 
 /**
- * Extract a tenant slug from a URL's HOST, mirroring `getTenantSlugFromHost`
- * in `proxy.ts` (that function is private to the middleware module, so this
- * is a deliberate, small duplicate — not a shared import).
+ * Extract a tenant slug from a URL's HOST. Shares `tenantSlugFromHostname`
+ * with `proxy.ts`, so the email branding and the middleware always agree.
  *
- * Returns `null` on the platform's own domain/localhost, or when the host has
- * no subdomain — same as the middleware.
+ * Returns `null` on the platform's own domain/localhost, a listed platform
+ * host, a reserved label, or when the host has no subdomain.
  */
 export function tenantSlugFromUrl(url: string | null | undefined): string | null {
   if (!url) return null
@@ -23,14 +21,7 @@ export function tenantSlugFromUrl(url: string | null | undefined): string | null
     return null
   }
 
-  const domain = platformDomain()
-  if (PLATFORM_HOSTS.includes(hostname) || hostname === domain) return null
-
-  if (hostname.endsWith(`.${domain}`)) {
-    const slug = hostname.slice(0, -(domain.length + 1))
-    if (slug && !slug.includes('.')) return slug
-  }
-  return null
+  return tenantSlugFromHostname(hostname, platformDomain())
 }
 
 /**

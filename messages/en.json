@@ -8555,6 +8555,7 @@
     "errorPasswordTooShort": "Password must be at least 6 characters",
     "errorEmailRegistered": "This email is already registered. Please log in instead.",
     "errorSlugTaken": "This school URL is already taken. Please choose a different one.",
+    "errorSlugReserved": "This school URL is reserved. Please choose a different one.",
     "errorCreateFailed": "Failed to create school: {message}",
     "errorGeneric": "Something went wrong",
     "countryLabel": "Country",
