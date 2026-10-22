@@ -35,7 +35,7 @@ These power the student-to-school payment flow via Stripe Connect. Schools recei
 |----------|----------|-------------|-----------------|---------|
 | `STRIPE_SECRET_KEY` | **Required** (if using Stripe) | Stripe secret API key. Used server-side to create PaymentIntents, manage Connect accounts, etc. | Stripe Dashboard > Developers > API Keys > Secret key | `sk_live_51Abc...` or `sk_test_51Abc...` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | **Required** (if using Stripe) | Stripe publishable key. Used client-side by Stripe.js / Elements for payment forms. | Stripe Dashboard > Developers > API Keys > Publishable key | `pk_live_51Abc...` or `pk_test_51Abc...` |
-| `STRIPE_WEBHOOK_SECRET` | **Required** (if using Stripe) | Signing secret for the `/api/stripe/webhook` endpoint. Verifies incoming webhooks for `payment_intent.succeeded`, `charge.refunded`, `payout.paid`. | Stripe Dashboard > Developers > Webhooks > Select endpoint > Signing secret | `whsec_abc123...` |
+| `STRIPE_WEBHOOK_SECRET` | **Required** (if using Stripe) | Signing secret for the `/api/stripe/webhook` endpoint. Verifies incoming webhooks for `payment_intent.succeeded`, `charge.refunded`, `payout.paid`. | Stripe Dashboard > Developers > Webhooks > Select endpoint > Signing secret | `whsec_abc123...` Destination charges are platform-account events and need an account-scoped endpoint; `account.updated` and payouts need a Connect-scoped one. Each has its own secret: list both here, comma-separated. |
 
 ---
 
