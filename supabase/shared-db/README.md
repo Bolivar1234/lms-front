@@ -9,6 +9,10 @@ The LMS lives in the `lms` schema. Production is not on this setup yet.
   unqualified table names resolve. Idempotent.
 - `lms-access-token-hook.sql`: the access token hook. Picks the highest
   privilege role when a user has several `lms.user_roles` rows.
+- `lms-realtime-publication.sql`: publishes `lms.community_posts` and
+  `lms.community_comments` to Realtime. The repo migration publishes the
+  `public.` tables, which do not exist for the LMS on the shared DB.
+- `lms-tenant-slug-reserved.sql`: blocks platform host labels as school slugs.
 
 ## Staging auth settings (GoTrue)
 
