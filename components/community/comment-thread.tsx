@@ -707,7 +707,8 @@ function CommentItem({
                 {t(comment.authorRole === 'admin' ? 'roleBadge.admin' : 'roleBadge.teacher')}
               </Badge>
             )}
-            <span className={cn('text-muted-foreground', isLearner ? 'text-xs' : 'text-[11px]')}>
+            {/* "5 minutes ago" is computed at render time, so the server and client can differ. */}
+            <span className={cn('text-muted-foreground', isLearner ? 'text-xs' : 'text-[11px]')} suppressHydrationWarning>
               {formatDistanceToNow(new Date(comment.created_at), {
                 addSuffix: true,
                 ...(locale === 'es' ? { locale: es } : {}),
