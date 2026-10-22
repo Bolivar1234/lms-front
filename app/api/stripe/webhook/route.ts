@@ -114,8 +114,28 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event
 
+  // Destination charges live on the platform account, so their events (payment_intent.*,
+  // charge.refunded) come from an account-scoped Stripe endpoint, while account.updated and
+  // payouts come from a Connect-scoped one. Stripe gives each endpoint its own signing
+  // secret; STRIPE_WEBHOOK_SECRET may hold several, comma-separated.
+  const secrets = getWebhookSecret()
+    .split(',')
+    .map((secret) => secret.trim())
+    .filter(Boolean)
+
   try {
-    event = getStripe().webhooks.constructEvent(payload, signature, getWebhookSecret())
+    let verified: Stripe.Event | undefined
+    let lastError: unknown
+    for (const secret of secrets) {
+      try {
+        verified = getStripe().webhooks.constructEvent(payload, signature, secret)
+        break
+      } catch (err) {
+        lastError = err
+      }
+    }
+    if (!verified) throw lastError ?? new Error('No webhook secret configured')
+    event = verified
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
