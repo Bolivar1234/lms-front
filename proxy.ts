@@ -7,6 +7,7 @@ import { isProtectedPath } from '@/lib/auth/route-access'
 import { createServerClient } from '@supabase/ssr'
 import { locales, defaultLocale } from './i18n'
 import { DB_SCHEMA } from '@/lib/supabase/schema'
+import { tenantSlugFromHostname } from '@/lib/tenant/host'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -55,13 +56,6 @@ function setCachedTenantLookup(slug: string, tenant: { id: string; status: strin
 const PLATFORM_DOMAIN_RAW = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'lmsplatform.com'
 const PLATFORM_DOMAIN = PLATFORM_DOMAIN_RAW.split(':')[0] // e.g. "lvh.me" from "lvh.me:3000"
 
-// Domains that are the platform itself (not tenant subdomains)
-const PLATFORM_HOSTS = [
-  'localhost',
-  '127.0.0.1',
-  PLATFORM_DOMAIN,
-]
-
 // Create i18n middleware
 const intlMiddleware = createIntlMiddleware({
   locales,
@@ -76,23 +70,9 @@ const intlMiddleware = createIntlMiddleware({
  * Returns null if on the platform root domain or localhost without subdomain.
  */
 function getTenantSlugFromHost(host: string): string | null {
-  const hostname = host.split(':')[0] // Remove port
-
-  // Skip if it's a platform host without subdomain
-  if (PLATFORM_HOSTS.some(h => hostname === h)) {
-    return null
-  }
-
-  // Check for subdomain pattern: slug.platform.com
-  if (hostname.endsWith(`.${PLATFORM_DOMAIN}`)) {
-    const slug = hostname.replace(`.${PLATFORM_DOMAIN}`, '')
-    if (slug && !slug.includes('.')) {
-      return slug
-    }
-  }
-
-  // For localhost development: check x-tenant-slug header as override
-  return null
+  // Platform hosts (localhost, the bare platform domain, NEXT_PUBLIC_PLATFORM_HOSTS)
+  // and reserved labels resolve to no tenant; see lib/tenant/host.ts.
+  return tenantSlugFromHostname(host, PLATFORM_DOMAIN)
 }
 
 /**
@@ -257,7 +237,10 @@ export default async function proxy(request: NextRequest) {
       // publicRedirectUrl gives us the correct scheme + (dev) port from the
       // current request; we only swap the hostname to the bare platform domain.
       const platformUrl = publicRedirectUrl(request, '/')
-      platformUrl.hostname = (process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || request.headers.get('host') || 'localhost:3000').split(':')[0]
+      // With a shared root domain (saythanks.org) the bare domain is another
+      // product, so prefer the first listed platform host (the LMS home page).
+      const home = process.env.NEXT_PUBLIC_PLATFORM_HOSTS?.split(',')[0]?.trim()
+      platformUrl.hostname = (home || process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || request.headers.get('host') || 'localhost:3000').split(':')[0]
       return NextResponse.redirect(platformUrl)
     }
     tenantId = tenant.id

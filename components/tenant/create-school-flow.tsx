@@ -17,6 +17,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { CountryPicker } from '@/components/shared/country-picker'
 import { defaultCurrencyForCountry, type CountryCode } from '@/lib/countries'
+import { isReservedSlug } from '@/lib/tenant/reserved-slugs'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import {
@@ -199,6 +200,10 @@ export function CreateSchoolFlow({ user, plan, interval, initialCountry = null }
   const handleCreateSchool = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!schoolName.trim() || !slug.trim()) return
+    if (isReservedSlug(slug)) {
+      setError(t('errorSlugReserved'))
+      return
+    }
     setLoading(true)
     setError(null)
 
@@ -220,6 +225,9 @@ export function CreateSchoolFlow({ user, plan, interval, initialCountry = null }
       if (createError) {
         if (createError.code === '23505') {
           setError(t('errorSlugTaken'))
+        } else if (createError.code === '23514') {
+          // tenants_slug_not_reserved_check: the slug is a platform host label.
+          setError(t('errorSlugReserved'))
         } else {
           setError(t('errorCreateFailed', { message: createError.message }))
         }

@@ -8555,6 +8555,7 @@
     "errorPasswordTooShort": "La contraseña debe tener al menos 6 caracteres",
     "errorEmailRegistered": "Este correo ya está registrado. Inicia sesión en su lugar.",
     "errorSlugTaken": "Esta URL de escuela ya está en uso. Elige otra.",
+    "errorSlugReserved": "Esta URL de escuela está reservada. Elige otra.",
     "errorCreateFailed": "No se pudo crear la escuela: {message}",
     "errorGeneric": "Algo salió mal",
     "countryLabel": "País",

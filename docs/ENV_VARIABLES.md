@@ -59,6 +59,7 @@ These power the school-to-platform subscription flow. Schools pay the platform f
 | Variable | Required | Description | Where to get it | Example |
 |----------|----------|-------------|-----------------|---------|
 | `NEXT_PUBLIC_PLATFORM_DOMAIN` | **Required** | Root domain for subdomain-based multi-tenant routing. Each school gets `school-slug.<domain>`. Used in proxy middleware, tenant switcher, school creation form, and powered-by banner. | Your DNS provider -- the domain you deploy to | `lmsplatform.com` |
+| `NEXT_PUBLIC_PLATFORM_HOSTS` | Optional | Comma-separated hosts under the platform domain that are the platform itself, not a school (the first is also where an unknown school URL redirects). Needed when the platform domain is a shared root such as `saythanks.org`. Slugs in `lib/tenant/reserved-slugs.ts` are never schools either. | Your deployment | `circles.saythanks.org` |
 | `NEXT_PUBLIC_APP_URL` | Recommended | Full base URL of the application. Used in emails, certificate verification links, webhook callbacks, and Open Graph metadata. | Derived from your domain | `https://lmsplatform.com` |
 | `NEXT_PUBLIC_APP_NAME` | Optional | Display name of the platform. Used as fallback in certificate templates. | Choose your own | `LMS Academy` |
 
