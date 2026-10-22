@@ -1,4 +1,4 @@
-import type { User } from '@supabase/supabase-js'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
@@ -71,7 +71,30 @@ export async function deleteAccount(userId: string): Promise<DeleteAccountResult
     if (error) console.error(`Account deletion: could not remove files from ${bucket}:`, error)
   }
 
+  await recordSelfDeleteIntent(admin, userId)
+
   const { error: deleteError } = await admin.auth.admin.deleteUser(userId)
   if (deleteError) throw deleteError
   return { ok: true }
+}
+
+// PostgREST says PGRST205 for a table it can't see; Postgres says 42P01.
+const MISSING_TABLE_CODES = new Set(['PGRST205', '42P01'])
+
+/**
+ * On the shared SayThanks database a trigger on `auth.users` refuses any
+ * delete that has no short-lived intent row in `public.admin_auth_action_intents`
+ * ("Missing admin auth action intent for delete_user", SQLSTATE 42501, surfaced
+ * by GoTrue as a 500). A self-delete intent has the user as both actor and target.
+ * A standalone LMS database has no such table, so a missing table is not an error.
+ */
+async function recordSelfDeleteIntent(admin: ReturnType<typeof createAdminClient>, userId: string) {
+  // The admin client is scoped to the LMS schema; the intent table lives in `public`.
+  const shared = admin.schema('public') as unknown as SupabaseClient
+  const { error } = await shared.from('admin_auth_action_intents').insert({
+    action: 'self_delete_user',
+    acting_admin_user_id: userId,
+    target_user_id: userId,
+  })
+  if (error && !MISSING_TABLE_CODES.has(error.code)) throw error
 }
