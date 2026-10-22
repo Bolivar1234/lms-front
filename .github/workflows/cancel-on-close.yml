@@ -1,7 +1,7 @@
 name: Cancel runs on PR close
 
 # Once a PR is merged or closed, its in-flight runs are dead weight: a merge
-# re-runs CI on master anyway. Cancels queued/running runs of the PR's branch.
+# re-runs CI on main anyway. Cancels queued/running runs of the PR's branch.
 on:
   pull_request:
     types: [closed]

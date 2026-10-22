@@ -1,7 +1,7 @@
 name: Build and deploy MCP server to Dokploy
 
 # Runs after the CI workflow (which includes the `MCP server unit tests` job,
-# #669) has passed on master — a red merge commit is not shipped, same
+# #669) has passed on main — a red merge commit is not shipped, same
 # contract as deploy.yml. The image is only rebuilt when the verified commit
 # touches mcp-server/**; the `changed` job below stands in for the `paths:`
 # filter that a `workflow_run` trigger cannot express. If CI is wrong and a
@@ -12,7 +12,7 @@ on:
   workflow_run:
     workflows: ["CI"]
     types: [completed]
-    branches: ["master"]
+    branches: ["main"]
   workflow_dispatch:
 
 env:
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-          # HEAD and its first parent: master receives squash merges, so the
+          # HEAD and its first parent: main receives squash merges, so the
           # merge commit's own diff is the whole PR.
           fetch-depth: 2
       - id: diff
@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # On workflow_run `github.sha` is the default-branch head, which is
-          # what we want on master; pin to the verified commit anyway.
+          # what we want on main; pin to the verified commit anyway.
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Log in to GitHub Container Registry

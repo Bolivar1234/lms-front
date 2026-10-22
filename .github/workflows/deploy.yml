@@ -1,14 +1,14 @@
 name: Build and deploy to Dokploy
 
 # Runs after the CI workflow (typecheck, unit, Playwright E2E, image build)
-# has passed on master — a red merge commit is not shipped (#667). If CI is
+# has passed on main — a red merge commit is not shipped (#667). If CI is
 # wrong and a hotfix has to go out anyway, trigger this workflow by hand from
 # the Actions tab (workflow_dispatch) — that path skips the CI gate.
 on:
   workflow_run:
     workflows: ["CI"]
     types: [completed]
-    branches: ["master"]
+    branches: ["main"]
   workflow_dispatch:
 
 env:
@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # On workflow_run `github.sha` is the default-branch head, which is
-          # what we want on master; pin to the verified commit anyway.
+          # what we want on main; pin to the verified commit anyway.
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Log in to GitHub Container Registry

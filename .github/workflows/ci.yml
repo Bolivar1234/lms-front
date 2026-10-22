@@ -3,9 +3,9 @@ name: CI
 on:
   pull_request:
   push:
-    # master too: the merge commit is verified by the same jobs before
+    # main too: the merge commit is verified by the same jobs before
     # deploy.yml (which waits on this workflow) builds and ships it.
-    branches: ["master"]
+    branches: ["main"]
   schedule:
     # Nightly: the E2E suite also runs the `mobile` project (see `e2e`).
     - cron: "0 6 * * *"
@@ -295,7 +295,7 @@ jobs:
   # The production image, built exactly as deploy.yml builds it — but never
   # pushed. `verify` above cannot catch a broken deploy: it installs from
   # package-lock.json on the runner, while the image builds from the Dockerfile
-  # in a Linux container. When those two disagreed, master stayed green through
+  # in a Linux container. When those two disagreed, main stayed green through
   # six days of failed deploys (stripe floated to a minor whose types demand a
   # different apiVersion literal, #638). This job is the check that would have
   # caught it on the PR.
