@@ -61,8 +61,16 @@ async function createConnectLink(req: NextRequest): Promise<ConnectLinkResult> {
     // `currently_due` fields are asked upfront, so a school can start taking
     // payments in minutes (#439). Existing tenants keep their standard
     // accounts; this branch only runs when the tenant has no account yet.
+    // Stripe now rejects the legacy `type: 'express'` field on platforms that
+    // collect losses; the `controller` block below is the same Express
+    // behaviour spelled the supported way.
     const account = await stripe.accounts.create({
-      type: 'express',
+      controller: {
+        stripe_dashboard: { type: 'express' },
+        fees: { payer: 'application' },
+        losses: { payments: 'application' },
+        requirement_collection: 'stripe',
+      },
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
