@@ -1,0 +1,34 @@
+# Shared SayThanks DB (staging): LMS setup
+
+One auth service and one Postgres database serve both SayThanks and the LMS.
+The LMS lives in the `lms` schema. Production is not on this setup yet.
+
+## Files
+
+- `lms-schema-search-path.sql`: points `lms` functions at `lms, public` so
+  unqualified table names resolve. Idempotent.
+- `lms-access-token-hook.sql`: the access token hook. Picks the highest
+  privilege role when a user has several `lms.user_roles` rows.
+
+## Staging auth settings (GoTrue)
+
+These live in the staging `.env` on the Hetzner host. Changing them needs an
+auth container recreate (`docker compose up -d --no-deps auth`).
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| `SITE_URL` | `https://staging.saythanks.org` | default host for emails |
+| `ADDITIONAL_REDIRECT_URLS` | `https://circles.saythanks.org/**,https://*.circles.saythanks.org/**,https://staging.saythanks.org/**` | lets the LMS tenant hosts receive confirmation and reset links |
+
+Before this, `SITE_URL` was `http://localhost:3000` and the allow-list was
+empty, so LMS confirmation links pointed at localhost.
+
+Hook wiring: `GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_ENABLED=true` and
+`GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_URI=pg-functions://postgres/app_private/custom_access_token_hook`.
+
+## Verify
+
+- Sign up with `redirect_to=https://<tenant>.circles.saythanks.org/auth/confirm`.
+  The confirmation link in the email should carry that `redirect_to`.
+- Sign in as a teacher, admin and student. The `user_role` claim should be
+  `teacher`, `admin` and `student`.
