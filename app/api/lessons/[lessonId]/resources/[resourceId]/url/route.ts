@@ -57,11 +57,12 @@ export async function GET(
     const { url, expiresIn, fileName, mimeType } = result
     return NextResponse.json({ url, expiresIn, fileName, mimeType }, { headers: NO_STORE })
   }
+  // A logged-out caller learns nothing beyond "sign in": not whether the file exists.
+  if (!auth) return NextResponse.json({ error: 'Unauthorized', code: 'unauthorized' }, { status: 401, headers: NO_STORE })
   if (result.code === 'not_found') {
     return NextResponse.json({ error: 'Resource not found', code: 'not_found' }, { status: 404, headers: NO_STORE })
   }
   if (result.code === 'access_denied') {
-    if (!auth) return NextResponse.json({ error: 'Unauthorized', code: 'unauthorized' }, { status: 401, headers: NO_STORE })
     return NextResponse.json(
       { error: 'You do not have access to this course', code: 'access_denied' },
       { status: 403, headers: NO_STORE }

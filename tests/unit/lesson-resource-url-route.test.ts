@@ -117,6 +117,12 @@ describe('GET /api/lessons/:lessonId/resources/:resourceId/url', () => {
     expect(state.signed).toEqual([])
   })
 
+  it('401s, not 404s, a logged-out caller asking for an unknown resource', async () => {
+    state.auth = null
+    state.resources = []
+    expect((await get(2001, 7)).status).toBe(401)
+  })
+
   it('400s ids that are not positive integers', async () => {
     for (const [l, r] of [['abc', 7], [2001, '7.5'], [0, 7], [2001, '-1'], [2001, '1e3']] as const) {
       expect((await get(l, r)).status).toBe(400)
