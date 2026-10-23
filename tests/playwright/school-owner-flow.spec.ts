@@ -1,6 +1,6 @@
 import { test, expect, type Page } from './utils/test'
 import { loginAsTeacher } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 import { getServiceRoleClient } from './utils/seed-state'
 
 /**
@@ -35,7 +35,7 @@ const NEW_COURSE_LANDING = /\/dashboard\/teacher\/courses\/(\d+)\/lessons\/new\?
 
 /** Fill the quick-create form, submit, and return the new course id from the landing URL. */
 async function createCourse(page: Page, title: string): Promise<string> {
-  await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/new`)
+  await page.goto(`${BASE}/dashboard/teacher/courses/new`)
   await page.getByLabel(/title/i).first().fill(title)
   await page.locator('button[type="submit"]').click()
   await page.waitForURL(NEW_COURSE_LANDING, { timeout: 15_000 })
@@ -60,13 +60,13 @@ test.describe('School Owner Core Flows', () => {
   })
 
   test('1. admin dashboard loads', async ({ page }) => {
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin`)
+    await page.goto(`${BASE}/dashboard/admin`)
     // Should not redirect away or show error
     await expect(page).toHaveURL(/\/dashboard\/admin/)
   })
 
   test('2. create course → lands on first lesson, detail page renders', async ({ page }) => {
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/new`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/new`)
     await page.getByLabel(/title/i).first().fill('E2E Test Course')
     await page.getByLabel(/description/i).first().fill('Created by E2E test')
 
@@ -78,7 +78,7 @@ test.describe('School Owner Core Flows', () => {
     await expect(page.getByTestId('first-lesson-hint')).toContainText('E2E Test Course', { timeout: 10_000 })
 
     // The course detail page must exist and show the title (not "Course not found")
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${courseId}`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${courseId}`)
     await expect(page.getByRole('heading', { name: 'E2E Test Course' })).toBeVisible({ timeout: 10_000 })
 
     // "Course not found" should NOT be present
@@ -91,7 +91,7 @@ test.describe('School Owner Core Flows', () => {
     const cId = await createCourse(page, 'Lesson Test Course')
 
     // Navigate to add lesson
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${cId}/lessons/new`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${cId}/lessons/new`)
 
     // Fill lesson form — use placeholder-based selector for title
     await page.getByPlaceholder(/introduction to/i).fill('E2E Lesson One')
@@ -107,7 +107,7 @@ test.describe('School Owner Core Flows', () => {
     await page.waitForTimeout(3000)
 
     // Navigate back to course — lesson should appear
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${cId}`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${cId}`)
     await expect(page.getByText('E2E Lesson One')).toBeVisible({ timeout: 10_000 })
   })
 
@@ -116,7 +116,7 @@ test.describe('School Owner Core Flows', () => {
     const cId = await createCourse(page, 'Exam Test Course')
 
     // Navigate to add exam
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${cId}/exams/new`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${cId}/exams/new`)
 
     // Fill exam form
     await page.getByLabel(/exam title/i).fill('E2E Exam One')
@@ -143,7 +143,7 @@ test.describe('School Owner Core Flows', () => {
     const cId = await createCourse(page, 'Exercise Test Course')
 
     // Navigate to add exercise
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${cId}/exercises/new`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${cId}/exercises/new`)
 
     // Fill exercise form — title uses placeholder
     await page.getByPlaceholder(/build a todo/i).fill('E2E Exercise One')
@@ -157,7 +157,7 @@ test.describe('School Owner Core Flows', () => {
     await page.waitForTimeout(3000)
 
     // Navigate back and verify
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${cId}`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${cId}`)
     await page.getByRole('tab', { name: /exercises/i }).click()
     await expect(page.getByText('E2E Exercise One')).toBeVisible({ timeout: 10_000 })
   })
@@ -167,7 +167,7 @@ test.describe('School Owner Core Flows', () => {
     const cId = await createCourse(page, 'Settings Test Course')
 
     // Navigate to settings
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${cId}/settings`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${cId}/settings`)
 
     // Should load without error
     await expect(page.getByText('Course not found')).not.toBeVisible()
@@ -179,7 +179,7 @@ test.describe('School Owner Core Flows', () => {
     await createCourse(page, 'Listed Course')
 
     // Navigate to courses list
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses`)
+    await page.goto(`${BASE}/dashboard/teacher/courses`)
 
     // Should show the course
     await expect(page.getByText('Listed Course')).toBeVisible({ timeout: 10_000 })

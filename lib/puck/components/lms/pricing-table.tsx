@@ -1,3 +1,4 @@
+import { pageLinkField } from '../fields/page-link-field'
 import { ButtonLink } from '../../utils/button-link'
 import type { ComponentConfig } from '@measured/puck'
 import { useLocale, useTranslations } from 'next-intl'
@@ -80,7 +81,7 @@ export const PricingTable: ComponentConfig<PricingTableProps> = {
           ],
         },
         ctaLabel: { type: 'text', label: 'Button Label' },
-        ctaHref: { type: 'text', label: 'Button URL' },
+        ctaHref: pageLinkField('Button URL'),
       },
       defaultItemProps: {
         name: 'Plan',

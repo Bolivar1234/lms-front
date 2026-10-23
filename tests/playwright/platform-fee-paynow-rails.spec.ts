@@ -223,7 +223,7 @@ function binanceHandler(hit: StubHit) {
           prepayId,
           terminalType: 'WEB',
           expireTime: Date.now() + 60 * 60 * 1000,
-          checkoutUrl: `https://pay.binance.com/en/checkout/${prepayId}`,
+          checkoutUrl: `https://pay.binance.com/checkout/${prepayId}`,
           currency: hit.body?.currency,
           totalFee: String(hit.body?.orderAmount),
         },
@@ -475,7 +475,7 @@ test.describe('platform fee pay-now on Binance / PayPal / Solana (#950)', () => 
 
       const location = await redirectOf(page, captureUrl)
       expect(location.origin).toBe(QA_BASE)
-      expect(location.pathname).toBe(`/${LOCALE}/dashboard/admin/earnings`)
+      expect(location.pathname).toBe(`/dashboard/admin/earnings`)
       expect(location.searchParams.get('fee_payment')).toBe(paymentId)
       expect(location.searchParams.get('paypal')).toBeNull()
       expect(paypalStub!.hitsOn('POST', `/v2/checkout/orders/${orderId}/capture`)).toHaveLength(1)
@@ -560,7 +560,7 @@ test.describe('platform fee pay-now on Binance / PayPal / Solana (#950)', () => 
       paymentId = String(res.json!.paymentId)
       requestId = String(res.json!.requestId)
       checkoutPath = String(res.json!.checkoutPath)
-      expect(checkoutPath).toBe(`/${LOCALE}/dashboard/admin/billing/checkout/${requestId}`)
+      expect(checkoutPath).toBe(`/dashboard/admin/billing/checkout/${requestId}`)
 
       const { data: req, error } = await admin
         .from('platform_payment_requests')
@@ -636,7 +636,7 @@ test.describe('platform fee pay-now on Binance / PayPal / Solana (#950)', () => 
 
       // The QR page of a settled request sends the admin back to earnings.
       await page.goto(`${QA_BASE}${checkoutPath}`, { waitUntil: 'domcontentloaded' })
-      await expect(page).toHaveURL(new RegExp(`/${LOCALE}/dashboard/admin/earnings`), { timeout: 30_000 })
+      await expect(page).toHaveURL(new RegExp(`/dashboard/admin/earnings`), { timeout: 30_000 })
     })
   })
 
@@ -675,8 +675,8 @@ test.describe('platform fee pay-now on Binance / PayPal / Solana (#950)', () => 
       expect(order.orderAmount).toBe(owed)
       expect(order.currency).toBe('USDT')
       expect(order.merchantTradeNo).toMatch(/^[A-Za-z0-9]{1,32}$/)
-      expect(order.returnUrl).toBe(`${QA_BASE}/${LOCALE}/dashboard/admin/earnings?fee_payment=${paymentId}`)
-      expect(order.cancelUrl).toBe(`${QA_BASE}/${LOCALE}/dashboard/admin/earnings`)
+      expect(order.returnUrl).toBe(`${QA_BASE}/dashboard/admin/earnings?fee_payment=${paymentId}`)
+      expect(order.cancelUrl).toBe(`${QA_BASE}/dashboard/admin/earnings`)
       merchantTradeNo = order.merchantTradeNo
       passThroughInfo = order.passThroughInfo
       expect(passThroughInfo.length).toBeLessThanOrEqual(512)
@@ -700,7 +700,7 @@ test.describe('platform fee pay-now on Binance / PayPal / Solana (#950)', () => 
       expect(h['binancepay-signature']).toBe(expected)
 
       prepayId = String(res.json!.url).split('/').pop()!
-      expect(String(res.json!.url)).toBe(`https://pay.binance.com/en/checkout/${prepayId}`)
+      expect(String(res.json!.url)).toBe(`https://pay.binance.com/checkout/${prepayId}`)
       const payment = await feePayment(admin, paymentId)
       expect(payment).toMatchObject({ provider: 'binance', status: 'pending', currency: 'USD', provider_reference: prepayId })
       expect(Number(payment.amount)).toBe(owed)

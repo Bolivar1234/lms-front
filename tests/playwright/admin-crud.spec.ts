@@ -24,7 +24,7 @@ test.describe('Admin CRUD Operations', () => {
 
   test.describe('Product Management', () => {
     test('products page displays product cards with prices', async ({ page }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/products`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/products`)
       await expect(page.getByTestId('products-page')).toBeVisible()
 
       // Check for at least one product card with a price ($ or €)
@@ -38,7 +38,7 @@ test.describe('Admin CRUD Operations', () => {
     })
 
     test('new product wizard loads on the course step', async ({ page }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/products/new`, {
+      await page.goto(`${TENANT_BASE}/dashboard/admin/products/new`, {
         timeout: 30_000,
       })
 
@@ -57,7 +57,7 @@ test.describe('Admin CRUD Operations', () => {
     test('course selector renders courses in new product wizard (regression)', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/products/new`, {
+      await page.goto(`${TENANT_BASE}/dashboard/admin/products/new`, {
         timeout: 30_000,
       })
       await expect(page.getByTestId('product-creation-wizard').filter({ visible: true })).toBeVisible({
@@ -80,7 +80,7 @@ test.describe('Admin CRUD Operations', () => {
     test('product wizard fields accept input without submission', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/products/new`, {
+      await page.goto(`${TENANT_BASE}/dashboard/admin/products/new`, {
         timeout: 30_000,
       })
       await expect(page.getByTestId('product-creation-wizard').filter({ visible: true })).toBeVisible({
@@ -117,7 +117,7 @@ test.describe('Admin CRUD Operations', () => {
     test('existing product edit page loads with pre-filled data', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/products`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/products`)
       await expect(page.getByTestId('products-page')).toBeVisible()
 
       // Look for an edit link
@@ -152,7 +152,7 @@ test.describe('Admin CRUD Operations', () => {
 
   test.describe('Plan Management', () => {
     test('plans page displays plan cards with pricing', async ({ page }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/plans`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/plans`)
       await expect(page.getByTestId('plans-page')).toBeVisible()
 
       // Stats cards should be present (total, monthly, yearly)
@@ -170,7 +170,7 @@ test.describe('Admin CRUD Operations', () => {
     })
 
     test('new plan form loads with all required fields', async ({ page }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/plans/new`, {
+      await page.goto(`${TENANT_BASE}/dashboard/admin/plans/new`, {
         timeout: 30_000,
       })
 
@@ -199,7 +199,7 @@ test.describe('Admin CRUD Operations', () => {
     test('course selector renders courses in new plan form (regression)', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/plans/new`, {
+      await page.goto(`${TENANT_BASE}/dashboard/admin/plans/new`, {
         timeout: 30_000,
       })
 
@@ -217,7 +217,7 @@ test.describe('Admin CRUD Operations', () => {
     test('plan form fields accept input without submission', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/plans/new`, {
+      await page.goto(`${TENANT_BASE}/dashboard/admin/plans/new`, {
         timeout: 30_000,
       })
 
@@ -255,7 +255,7 @@ test.describe('Admin CRUD Operations', () => {
     test('users page shows user list with roles and stats', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/users`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/users`)
       await expect(page.getByTestId('users-page').filter({ visible: true })).toBeVisible()
 
       // Stats cards should be visible (total users, teachers, students)
@@ -279,7 +279,7 @@ test.describe('Admin CRUD Operations', () => {
     })
 
     test('users table supports search filtering', async ({ page }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/users`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/users`)
       await expect(page.getByTestId('users-page').filter({ visible: true })).toBeVisible()
 
       // Wait for table to render
@@ -318,7 +318,7 @@ test.describe('Admin CRUD Operations', () => {
     test('user detail page loads with profile, roles, and activity sections', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/users`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/users`)
       await expect(page.getByTestId('users-page').filter({ visible: true })).toBeVisible()
 
       // Find and click the first "View" link to a user detail page
@@ -365,7 +365,7 @@ test.describe('Admin CRUD Operations', () => {
     test('enrollments page shows table with headers and stats', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/enrollments`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/enrollments`)
       await expect(page.getByTestId('enrollments-page').filter({ visible: true })).toBeVisible()
 
       // Stats cards should be visible (total, active, completed)
@@ -385,7 +385,7 @@ test.describe('Admin CRUD Operations', () => {
     test('enrollment rows display student, course, and status', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/enrollments`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/enrollments`)
       await expect(page.getByTestId('enrollments-page').filter({ visible: true })).toBeVisible()
 
       // Check for enrollment rows
@@ -416,7 +416,7 @@ test.describe('Admin CRUD Operations', () => {
     test('enrollments page shows stats cards with numeric counts', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/enrollments`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/enrollments`)
       await expect(page.getByTestId('enrollments-page').filter({ visible: true })).toBeVisible()
 
       // Each stats card should show a number
@@ -440,7 +440,7 @@ test.describe('Admin CRUD Operations', () => {
     test('categories page loads with table, stats, and add button', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/categories`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/categories`)
       await expect(page.getByTestId('categories-page')).toBeVisible()
 
       // Stats card should show total count
@@ -463,7 +463,7 @@ test.describe('Admin CRUD Operations', () => {
     test('categories table shows rows with name and course count', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/categories`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/categories`)
       await expect(page.getByTestId('categories-page')).toBeVisible()
 
       // Wait for the table to render

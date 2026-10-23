@@ -46,8 +46,7 @@ type AdminClient = ReturnType<typeof createAdminClient>
  * `manual` is always available to everyone, so counting it would mean every
  * tenant is "connected" from birth and the metric would say nothing.
  *
- * Returns canonical provider slugs. `solana` and `solana_subs` share one wallet
- * and are written together by `setSolanaWallet`, so they collapse to `solana`.
+ * Returns canonical provider slugs for configured payment rails.
  */
 export async function getConnectedPaymentProviders(
   tenantId: string,
@@ -72,10 +71,6 @@ export async function getConnectedPaymentProviders(
 
   for (const wallet of wallets ?? []) {
     if (!wallet.wallet_address) continue
-    if (wallet.provider === 'solana' || wallet.provider === 'solana_subs') {
-      if (!connected.includes('solana')) connected.push('solana')
-      continue
-    }
     if (wallet.provider === 'binance_personal') {
       // Pay ID alone can't settle anything — the API credentials must be there.
       const credentials = (wallet.credentials || {}) as { api_key?: string }

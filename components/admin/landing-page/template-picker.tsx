@@ -1,5 +1,7 @@
 'use client'
 
+import { landingPageUrl } from '@/lib/puck/utils/page-url'
+
 import { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
@@ -108,7 +110,7 @@ export function TemplatePicker({ open, onClose, templates, onSelect, onDescribe,
   const pageTypeHint = (slug: PresetSlug) => {
     if (slug === 'home') return '/'
     if (TITLE_SLUG_TYPES.has(slug)) return tT(`pageTypeHints.${slug}` as Parameters<typeof tT>[0])
-    return `/p/${slug}`
+    return landingPageUrl(slug)
   }
 
   const pageType = selectedSlug === 'custom' ? 'home' : selectedSlug
@@ -524,7 +526,7 @@ function BindingStep({
 
       <div className="flex flex-col-reverse gap-2 border-t border-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="truncate text-xs text-muted-foreground font-mono">
-          {tT('pageUrl', { url: slug === 'home' ? '/' : `/p/${slug}` })}
+          {tT('pageUrl', { url: landingPageUrl(slug) })}
         </p>
         <div className="flex gap-2 sm:justify-end">
           <Button variant="ghost" onClick={() => confirm(true)} disabled={loading}>

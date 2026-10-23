@@ -22,7 +22,7 @@
 import { test, expect, type Page } from './utils/test'
 import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js'
 import { loginAsAdmin, loginAsTenantStudent } from './utils/auth'
-import { TENANT_BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { TENANT_BASE, ACCOUNTS } from './utils/constants'
 import { ALICE_ID, CODE_ACADEMY_TENANT, getServiceRoleClient } from './utils/seed-state'
 
 const CREATOR_ID = 'a1000000-0000-0000-0000-000000000003'
@@ -241,7 +241,7 @@ test('completing the last lesson posts one milestone in the course feed', async 
   test.setTimeout(180_000)
   await loginAsTenantStudent(page)
 
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${courseId}/lessons/${lessonIds[1]}`)
+  await page.goto(`${TENANT_BASE}/dashboard/student/courses/${courseId}/lessons/${lessonIds[1]}`)
   const toggle = page.getByTestId('lesson-complete-toggle')
   await expect(toggle).toHaveCount(1, { timeout: 30_000 })
   await expect(toggle).toBeEnabled({ timeout: 30_000 })
@@ -252,7 +252,7 @@ test('completing the last lesson posts one milestone in the course feed', async 
   expect(post.milestone_type).toBe('course_completion')
   expect(post.milestone_data).toMatchObject({ course_id: courseId, course_title: COURSE_TITLE })
 
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${courseId}/community`)
+  await page.goto(`${TENANT_BASE}/dashboard/student/courses/${courseId}/community`)
   const milestone = page.getByTestId('milestone-card').filter({ hasText: COURSE_TITLE })
   await expect(milestone).toHaveCount(1, { timeout: 30_000 })
   await expect(milestone).toHaveText(`Completed ${COURSE_TITLE}`)
@@ -284,7 +284,7 @@ test('completing the last lesson posts one milestone in the course feed', async 
 
   // "Sharing settings" lands on the toggle itself. The href carries the locale:
   // a locale-less one is redirected by proxy.ts and the fragment is dropped.
-  const settingsPath = `/${LOCALE}/dashboard/student/profile#share-milestones`
+  const settingsPath = `/dashboard/student/profile#share-milestones`
   await domClick(card.getByRole('button', { name: 'Post actions' }))
   const settingsLink = page.getByRole('menuitem', { name: 'Sharing settings' })
   await expect(settingsLink).toHaveAttribute('href', settingsPath, { timeout: 10_000 })
@@ -359,7 +359,7 @@ test('uncompleting and completing again does not post twice', async () => {
 test('with the school switch off nothing is posted', async ({ page }) => {
   test.setTimeout(120_000)
   await loginAsAdmin(page)
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/community`)
+  await page.goto(`${TENANT_BASE}/dashboard/admin/community`)
   // The sidebar has its own "Settings".
   await domClick(page.locator('[data-tour="community-header"]').getByRole('button', { name: 'Settings' }))
   const toggle = page.getByRole('switch', { name: 'Share student milestones' })
@@ -395,7 +395,7 @@ test('with the school switch off nothing is posted', async ({ page }) => {
 test('a student who opts out is not announced', async ({ page }) => {
   test.setTimeout(120_000)
   await loginAsTenantStudent(page)
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/profile`)
+  await page.goto(`${TENANT_BASE}/dashboard/student/profile`)
   const wrapper = page.getByTestId('share-milestones-toggle')
   await expect(wrapper).toBeVisible({ timeout: 30_000 })
   const toggle = wrapper.getByRole('switch', { name: 'Share my milestones in the community' })
@@ -448,7 +448,7 @@ test('level 5 and a 7-day streak show in the school feed', async ({ page }) => {
   ])
 
   await loginAsTenantStudent(page)
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/community`)
+  await page.goto(`${TENANT_BASE}/dashboard/student/community`)
   await expect(page.getByTestId('milestone-card').filter({ hasText: 'Reached level 5' })).toHaveCount(1, { timeout: 30_000 })
   await expect(page.getByTestId('milestone-card').filter({ hasText: 'Reached a 7-day streak' })).toHaveCount(1)
 })

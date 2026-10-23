@@ -8,17 +8,17 @@
  * only project PR CI runs.
  */
 import { test, expect } from './utils/test'
-import { BASE, TENANT_BASE, LOCALE } from './utils/constants'
+import { BASE, TENANT_BASE } from './utils/constants'
 
 const PAGES = [
-  `${BASE}/${LOCALE}`,
-  `${BASE}/${LOCALE}/platform-pricing`,
-  `${BASE}/${LOCALE}/about`,
-  `${BASE}/${LOCALE}/creators`,
-  `${BASE}/${LOCALE}/auth/login`,
-  `${TENANT_BASE}/${LOCALE}`,
-  `${TENANT_BASE}/${LOCALE}/courses`,
-  `${TENANT_BASE}/${LOCALE}/pricing`,
+  `${BASE}`,
+  `${BASE}/platform-pricing`,
+  `${BASE}/about`,
+  `${BASE}/creators`,
+  `${BASE}/auth/login`,
+  `${TENANT_BASE}`,
+  `${TENANT_BASE}/courses`,
+  `${TENANT_BASE}/pricing`,
 ]
 
 test.describe('Public pages at phone width', () => {

@@ -39,5 +39,5 @@ export default async function FeeStatementPage({
   const statement = await loadFeeStatement(admin, statementNumber)
   if (!statement || statement.tenantId !== tenantId) notFound()
 
-  return <FeeStatementDocument statement={statement} locale={locale} backHref={`/${locale}/dashboard/admin/earnings#platform-fees`} />
+  return <FeeStatementDocument statement={statement} locale={locale} backHref={`/dashboard/admin/earnings#platform-fees`} />
 }

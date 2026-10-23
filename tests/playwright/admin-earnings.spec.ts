@@ -16,7 +16,7 @@
  */
 import { test, expect } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 import { login, loginAsAdmin, loginAsTenantStudent } from './utils/auth'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT } from './utils/seed-state'
 
@@ -25,7 +25,7 @@ test.describe.configure({ mode: 'serial' })
 const PASSWORD = 'password123'
 const RUN_ID = Date.now().toString(36)
 const TEACHER = `qa-928-teacher-${RUN_ID}@e2etest.com`
-const EARNINGS = `${TENANT_BASE}/${LOCALE}/dashboard/admin/earnings`
+const EARNINGS = `${TENANT_BASE}/dashboard/admin/earnings`
 
 let admin: SupabaseClient
 let teacherId: string | null = null
@@ -75,7 +75,7 @@ test('earnings is linked from Monetization, and the open-requests card matches t
   test.setTimeout(120_000)
   await loginAsAdmin(page)
 
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/monetization`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${TENANT_BASE}/dashboard/admin/monetization`, { waitUntil: 'domcontentloaded' })
   const navLink = page.locator('a[href$="/dashboard/admin/earnings"]').first()
   await expect(navLink).toBeAttached({ timeout: 30_000 })
   await navLink.click()

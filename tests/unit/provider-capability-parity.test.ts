@@ -8,8 +8,6 @@ import {
 import { StripePaymentProvider } from '@/lib/payments/stripe-provider'
 import { PayPalPaymentProvider } from '@/lib/payments/paypal-provider'
 import { LemonSqueezyProvider } from '@/lib/payments/lemonsqueezy-provider'
-import { SolanaProvider } from '@/lib/payments/solana-provider'
-import { SolanaSubscriptionsProvider } from '@/lib/payments/solana-subscriptions-provider'
 import { ManualPaymentProvider } from '@/lib/payments/manual-provider'
 import { BinancePayProvider } from '@/lib/payments/binance-provider'
 import { BinancePersonalProvider } from '@/lib/payments/binance-personal-provider'
@@ -41,8 +39,6 @@ const INSTANCES: IPaymentProvider[] = [
   new StripePaymentProvider('sk_test_dummy'),
   new PayPalPaymentProvider('client-id', 'client-secret'),
   new LemonSqueezyProvider('api-key', 'store-id', 'webhook-secret'),
-  new SolanaProvider('https://rpc.example.invalid'),
-  new SolanaSubscriptionsProvider(),
   new ManualPaymentProvider(),
   new BinancePayProvider('binance-key', 'binance-secret'),
   new BinancePersonalProvider(),
@@ -51,11 +47,14 @@ const INSTANCES: IPaymentProvider[] = [
 const CAPABILITY_KEYS = Object.keys(
   PROVIDER_CAPABILITIES.stripe,
 ) as (keyof ProviderCapabilities)[]
+const DISABLED_PROVIDER_SLUGS = new Set<PaymentProvider>(['solana', 'solana_subs'])
 
 describe('provider capabilities — table ↔ class parity', () => {
   it('covers every provider slug in the static table', () => {
     const instanceSlugs = INSTANCES.map((p) => p.provider).sort()
-    const tableSlugs = (Object.keys(PROVIDER_CAPABILITIES) as PaymentProvider[]).sort()
+    const tableSlugs = (Object.keys(PROVIDER_CAPABILITIES) as PaymentProvider[])
+      .filter((slug) => !DISABLED_PROVIDER_SLUGS.has(slug))
+      .sort()
     expect(instanceSlugs).toEqual(tableSlugs)
   })
 
@@ -91,8 +90,6 @@ describe('supportsCustomerPortal / supportsProrationPreview (#604)', () => {
     for (const slug of [
       'paypal',
       'lemonsqueezy',
-      'solana',
-      'solana_subs',
       'manual',
       'binance',
       'binance_personal',

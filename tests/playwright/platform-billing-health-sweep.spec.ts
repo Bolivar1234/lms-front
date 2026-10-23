@@ -9,7 +9,7 @@
 import { test, expect } from './utils/test'
 import { createClient } from '@supabase/supabase-js'
 import { loginAsSuperAdmin } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,7 +34,7 @@ test.describe('Platform billing health — plan-limit sweep (#660)', () => {
     const expectedState = run?.error?.startsWith('vault secrets') ? 'unconfigured' : run?.completed_at ? 'ok' : 'running'
 
     await loginAsSuperAdmin(page, BASE)
-    await page.goto(`${BASE}/${LOCALE}/platform/billing-health`)
+    await page.goto(`${BASE}/platform/billing-health`)
     await expect(page.getByTestId('platform-billing-health')).toBeVisible()
 
     const section = page.getByTestId('billing-health-sweep')

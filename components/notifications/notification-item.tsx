@@ -180,7 +180,7 @@ export function NotificationItem({ row, role, variant, onOpened, onNavigate, onM
 
   const main = href ? (
     <Link
-      href={`/${locale}${href}`}
+      href={`${href}`}
       onClick={open}
       className={cn(rowClass, 'transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring/30')}
       data-testid="notification-link"

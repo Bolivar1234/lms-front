@@ -105,8 +105,6 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
     binance_personal: t('paymentMethods.binancePersonal'),
     manual: t('paymentMethods.manual'),
     lemonsqueezy: t('paymentMethods.lemonsqueezy'),
-    solana: t('paymentMethods.solanaPay'),
-    solana_subs: t('paymentMethods.solanaSubscription'),
   }
   const paymentMethod = paymentMethods[paymentProvider] ?? t('unknownPaymentMethod')
   const purchaseName = (itemName ?? (isPlan ? t('planFallback') : t('productFallback')))

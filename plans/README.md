@@ -22,7 +22,7 @@ cover the four buckets the maintainer selected: **security top tier**,
 | 006  | Payment-logic unit tests (fee split, webhook sig, dispatcher) | P2 | L | 002 (003 preferred first) | DONE |
 | 007  | Dependency hygiene (Zod alignment + safe audit fixes) | P2 | M | — | DONE (zod aligned; audit-fix no-op — see notes) |
 | 008  | SPIKE: Solana dependency vulnerability remediation | P3 | L | — | DONE (report only; no safe pin exists — recommend @solana/kit migration plan) |
-| 012  | LARGE: Migrate Solana payment rails web3.js/@solana/pay → @solana/kit | P2 | XL | #334 merged + user buy-in | TODO (scoped 2026-06-16; the durable fix 008 recommended; absorbs the H2 on-chain residual) |
+| 012  | LARGE: Migrate Solana payment rails web3.js/@solana/pay → @solana/kit | P2 | XL | #334 merged + user buy-in | CANDIDATE 2026-10-22: SDK migration/unit checks implemented; real Devnet payment/hourly-renewal gates BLOCKED by faucet funding; Phase 5 dormant by default; not complete |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 

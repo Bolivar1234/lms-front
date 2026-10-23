@@ -17,7 +17,7 @@
 import { test, expect } from './utils/test'
 import { createClient } from '@supabase/supabase-js'
 import { loginAsTeacher } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 
 const DEFAULT_TENANT = '00000000-0000-0000-0000-000000000001'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -118,7 +118,7 @@ test.describe.serial('Plan limits enforced by the database (#658)', () => {
     // dev server; the default 30s test budget is shorter than the helper's own.
     test.setTimeout(120_000)
     await loginAsTeacher(page, BASE) // owner@e2etest.com — Default School admin
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/courses`)
+    await page.goto(`${BASE}/dashboard/admin/courses`)
     await expect(page.getByTestId('admin-courses-page')).toBeVisible()
 
     const restoreViaMenu = async () => {

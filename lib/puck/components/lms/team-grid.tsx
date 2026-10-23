@@ -1,3 +1,4 @@
+import { imageUploadField } from '../fields/image-upload-field'
 import type { ComponentConfig } from '@measured/puck'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
@@ -44,7 +45,7 @@ export const TeamGrid: ComponentConfig<TeamGridProps> = {
         name: { type: 'text', label: 'Name' },
         role: { type: 'text', label: 'Role' },
         bio: { type: 'textarea', label: 'Bio' },
-        avatar: { type: 'text', label: 'Avatar URL' },
+        avatar: imageUploadField('Avatar URL'),
       },
       defaultItemProps: { name: 'Team member name', role: 'Their role', bio: '', avatar: '' },
     },

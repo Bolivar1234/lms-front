@@ -45,7 +45,7 @@ test.describe('Student plan-change (switch) UX', () => {
     page,
   }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/pricing`)
+    await page.goto(`${TENANT_BASE}/pricing`)
 
     // Alice's active plan (2001, monthly) renders as the current plan — the CTA
     // is present but disabled, not a "Subscribe"/checkout link.
@@ -59,7 +59,7 @@ test.describe('Student plan-change (switch) UX', () => {
     page,
   }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/billing`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/billing`)
 
     // A manual (self-managed) subscription is switchable via supersession, so
     // the "Change plan" trigger is shown rather than the old cancel-only note.
@@ -94,7 +94,7 @@ test.describe('Student billing — past_due subscription', () => {
 
     try {
       await loginAsTenantStudent(page)
-      await page.goto(`${TENANT_BASE}/en/dashboard/student/billing`)
+      await page.goto(`${TENANT_BASE}/dashboard/student/billing`)
 
       // Not the empty state: the real card, badged past due.
       await expect(page.getByText('Past due', { exact: true }).filter({ visible: true })).toBeVisible()

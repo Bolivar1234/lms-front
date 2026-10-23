@@ -28,6 +28,8 @@ const nextConfig: NextConfig = {
   // growing past 14 GB and killed `next build` locally. One check, in one place.
   typescript: { ignoreBuildErrors: true },
   experimental: {
+    // Audio uploads allow 25 MiB, with room for multipart form metadata.
+    serverActions: { bodySizeLimit: '27mb' },
     // Both are used repo-wide via barrel named imports (672 files each);
     // this lets Next.js rewrite them to per-icon imports at build time.
     optimizePackageImports: ['@tabler/icons-react', 'lucide-react'],

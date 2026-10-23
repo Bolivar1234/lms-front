@@ -35,7 +35,7 @@ const COURSE_ID = '2001'
 const EXAM_ID = '2001'
 const PRODUCT_ID = 2001
 
-const COURSE_URL = `${TENANT_BASE}/en/dashboard/student/courses/${COURSE_ID}`
+const COURSE_URL = `${TENANT_BASE}/dashboard/student/courses/${COURSE_ID}`
 const EXAMS_LIST_URL = `${COURSE_URL}/exams`
 const EXAM_TAKER_URL = `${EXAMS_LIST_URL}/${EXAM_ID}`
 

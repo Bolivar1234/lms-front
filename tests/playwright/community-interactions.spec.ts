@@ -13,7 +13,7 @@
 import { test, expect } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { loginAsStudent, loginAsAdmin } from './utils/auth'
-import { BASE, TENANT_BASE, LOCALE } from './utils/constants'
+import { BASE, TENANT_BASE } from './utils/constants'
 import { openSidebar, openSidebarGroup } from './utils/sidebar'
 
 /* ------------------------------------------------------------------ */
@@ -71,7 +71,7 @@ test.describe('Community Feature Gating', () => {
   test('default tenant community shows upgrade nudge or feed', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/community`)
+    await page.goto(`${BASE}/dashboard/student/community`)
 
     // Page should load — either community feed or upgrade nudge
     const heading = page.locator('h1').first()
@@ -85,7 +85,7 @@ test.describe('Community Feature Gating', () => {
   test('default tenant shows upgrade nudge when community not in plan', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/community`)
+    await page.goto(`${BASE}/dashboard/student/community`)
 
     // Check if upgrade nudge or community header is shown
     const upgradeNudge = page.getByTestId('upgrade-nudge')
@@ -103,7 +103,7 @@ test.describe('Community on Code Academy', () => {
   test('admin community page loads on code-academy tenant', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/community`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/community`)
 
     const heading = page.locator('h1').first()
     await expect(heading).toBeVisible({ timeout: 15_000 })
@@ -112,7 +112,7 @@ test.describe('Community on Code Academy', () => {
   test('admin community shows composer when available', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/community`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/community`)
 
     const communityHeader = page.locator('[data-tour="community-header"]')
     // The page renders one or the other; wait for it before branching.
@@ -133,7 +133,7 @@ test.describe('Community on Code Academy', () => {
   test('admin community shows filters when available', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/community`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/community`)
 
     const communityHeader = page.locator('[data-tour="community-header"]')
     // The page renders one or the other; wait for it before branching.
@@ -149,7 +149,7 @@ test.describe('Community on Code Academy', () => {
   test('admin community has moderation link', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/community`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/community`)
 
     const communityHeader = page.locator('[data-tour="community-header"]')
     // The page renders one or the other; wait for it before branching.

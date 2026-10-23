@@ -3,7 +3,7 @@ import { test, expect, type Page } from './utils/test'
 import fs from 'fs'
 import path from 'path'
 import { login } from './utils/auth'
-import { BASE, TENANT_BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { BASE, TENANT_BASE, ACCOUNTS } from './utils/constants'
 
 /**
  * Smoke Test — 3 personas (student / teacher / admin)
@@ -138,7 +138,7 @@ async function smokeCheckPage(page: Page, persona: Persona, def: PageDef) {
   let action = '—'
 
   try {
-    const resp = await page.goto(`${persona.base}/${LOCALE}${def.path}`, {
+    const resp = await page.goto(`${persona.base}${def.path}`, {
       waitUntil: 'domcontentloaded',
       timeout: 30_000,
     })
@@ -325,7 +325,7 @@ test.describe('Dashboard not-found keeps the shell (#677)', () => {
   for (const c of CASES) {
     test(`${c.persona}: invalid id at ${c.path} keeps the sidebar`, async ({ page }) => {
       await login(page, c.account.email, c.account.password, c.base)
-      await page.goto(`${c.base}/${LOCALE}${c.path}`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${c.base}${c.path}`, { waitUntil: 'domcontentloaded' })
 
       await openSidebar(page)
       await expect(page.getByTestId('sidebar-role')).toBeVisible({ timeout: 15_000 })

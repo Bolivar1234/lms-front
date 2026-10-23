@@ -121,13 +121,9 @@ export async function buildPageMetadata(input: PageMetaInput): Promise<Metadata>
     },
   }
 
-  if (input.path && input.locale) {
+  if (input.path) {
     metadata.alternates = {
-      canonical: `/${input.locale}${input.path === '/' ? '' : input.path}`,
-      languages: {
-        en: `/en${input.path === '/' ? '' : input.path}`,
-        es: `/es${input.path === '/' ? '' : input.path}`,
-      },
+      canonical: input.path,
     }
   }
 

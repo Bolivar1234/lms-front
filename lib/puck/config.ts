@@ -1,3 +1,4 @@
+import { imageUploadField } from './components/fields/image-upload-field'
 import type { Config } from '@measured/puck'
 // Direct module path (like the templates): the codegen script imports this file, so it must
 // not pull the generated manifest in through the `@lms/core` index.
@@ -58,7 +59,7 @@ import { BreadcrumbBlock } from './components/navigation/breadcrumb-block'
 // read by the public /p/[slug] metadata through readRootMeta().
 import { rootMetaFields, rootMetaDefaults } from './utils/root-meta'
 
-const rootConfig = { fields: rootMetaFields, defaultProps: rootMetaDefaults }
+const rootConfig = { fields: { ...rootMetaFields, ogImage: imageUploadField('Share Image URL') }, defaultProps: rootMetaDefaults }
 
 const componentDefinitions = {
   // Primitives

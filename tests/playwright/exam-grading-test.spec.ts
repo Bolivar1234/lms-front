@@ -16,7 +16,7 @@ test.describe('AI Exam Grading E2E', () => {
     console.log('✅ Logged in as student')
 
     // Step 2: Navigate to exam
-    await page.goto(`${BASE_URL}/en/dashboard/student/courses/${COURSE_ID}/exams/${EXAM_ID}`)
+    await page.goto(`${BASE_URL}/dashboard/student/courses/${COURSE_ID}/exams/${EXAM_ID}`)
     // Exam taker, "No Questions Found" and the result page all render an h2
     await expect(page.locator('h2').first()).toBeVisible({ timeout: 15000 })
     console.log('📋 Navigated to exam page:', page.url())

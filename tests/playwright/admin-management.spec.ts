@@ -13,23 +13,23 @@ test.describe('Admin Management', () => {
   })
 
   test('admin payment requests page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/payment-requests`, { timeout: 30_000 })
+    await page.goto(`${TENANT_BASE}/dashboard/admin/payment-requests`, { timeout: 30_000 })
     await expect(page.getByTestId('payment-requests-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
   })
 
   test('admin subscriptions page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/subscriptions`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/subscriptions`)
     await expect(page.getByTestId('subscriptions-page')).toBeVisible()
   })
 
   test('admin notifications page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/notifications`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/notifications`)
     await expect(page.getByTestId('notifications-page')).toBeVisible()
   })
 
   test('admin notification templates page loads', async ({ page }) => {
     await page.goto(
-      `${TENANT_BASE}/en/dashboard/admin/notifications/templates`
+      `${TENANT_BASE}/dashboard/admin/notifications/templates`
     )
     await expect(
       page.getByTestId('notification-templates-page')
@@ -37,7 +37,7 @@ test.describe('Admin Management', () => {
   })
 
   test('admin billing page shows current plan and usage', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/billing`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/billing`)
     await expect(page.getByTestId('billing-page')).toBeVisible()
     await expect(page.getByText(/Billing/i).first()).toBeVisible()
   })
@@ -45,18 +45,18 @@ test.describe('Admin Management', () => {
   test('admin billing upgrade page shows plan comparison', async ({
     page,
   }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/billing/upgrade`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/billing/upgrade`)
     await expect(page.getByTestId('upgrade-page')).toBeVisible()
     await expect(page.getByText(/Upgrade Your Plan/i)).toBeVisible()
   })
 
   test('admin analytics page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/analytics`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/analytics`)
     await expect(page.getByTestId('analytics-page').filter({ visible: true })).toBeVisible()
   })
 
   test('admin can access teacher course creation', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/teacher/courses/new`, {
+    await page.goto(`${TENANT_BASE}/dashboard/teacher/courses/new`, {
       timeout: 40_000,
     })
     await expect(page.getByLabel(/title/i)).toBeVisible()

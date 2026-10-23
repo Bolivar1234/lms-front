@@ -5,7 +5,7 @@
  * `/api/payments/binance-personal/verify`. If the student transfers but closes
  * the tab first, the transaction strands `pending` — money sent, no
  * entitlement — and the pending row blocks a retry checkout via the partial
- * unique indexes. This cron is the backstop (modeled on the #467 Solana
+ * unique indexes. This cron is the backstop for personal Binance payments.
  * reconciler):
  *
  *   - Paid-but-stranded: re-run the match against the school's Pay history
@@ -33,7 +33,7 @@ export const runtime = 'nodejs'
 
 /**
  * How long a binance_personal transaction may sit `pending` before we expire
- * it. Deliberately much longer than Solana's 30 min: a manual transfer can
+ * it. Deliberately long enough for a manual transfer to
  * take a while, and rule-3 (ambiguous) payments wait in this window for the
  * admin's one-click manual confirmation — expiring early would close it.
  */

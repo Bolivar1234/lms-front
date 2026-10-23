@@ -16,7 +16,6 @@
  */
 import { test, expect } from './utils/test'
 import { login } from './utils/auth'
-import { LOCALE } from './utils/constants'
 import {
   DAY_MS,
   SEEDED,
@@ -129,7 +128,7 @@ test.describe('access cutoff lifecycle (#296)', () => {
     expect(error).toBeNull()
 
     await login(page, SEEDED.student.email, SEEDED.student.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/student/courses/${keptCourseId}`)
+    await page.goto(`${QA_BASE}/dashboard/student/courses/${keptCourseId}`)
 
     await expect(page).toHaveURL(/\/dashboard\/student\/access-suspended/, { timeout: 20_000 })
     await expect(page.getByRole('heading', { name: "Your school's access is suspended" })).toBeVisible()
@@ -147,7 +146,7 @@ test.describe('access cutoff lifecycle (#296)', () => {
     expect((await tenantRow(admin, QA.id)).access_cutoff_at).toBeNull()
 
     await login(page, SEEDED.student.email, SEEDED.student.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/student/courses/${keptCourseId}`)
+    await page.goto(`${QA_BASE}/dashboard/student/courses/${keptCourseId}`)
     await expect(page).toHaveURL(new RegExp(`/dashboard/student/courses/${keptCourseId}`), { timeout: 20_000 })
     await expect(page).not.toHaveURL(/access-suspended/)
   })

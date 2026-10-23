@@ -14,7 +14,7 @@
  *   hidden    hidden prompts and blocked authors stay out, like the feed
  *   entitled  a subscription-entitled (not enrolled) student sees the prompts
  *   mobile    the discussion is reachable at 390px without sideways overflow
- *   i18n      Spanish labels
+ *   legacy    Spanish bookmark resolves to English labels
  *
  * Runs on Code Academy (community on). Every row carries MARK and is removed
  * afterwards; the one block row is removed by its own test and again here.
@@ -22,7 +22,7 @@
 import { test, expect, type Browser, type Page } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { loginAsAdmin, loginAsTenantStudent } from './utils/auth'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 
 const CODE_ACADEMY_TENANT = '00000000-0000-0000-0000-000000000002'
 const CREATOR_ID = 'a1000000-0000-0000-0000-000000000003' // admin, author of both courses
@@ -36,15 +36,15 @@ const LOCKED_LESSON_ID = 2002
 const OTHER_COURSE_ID = 2002 // Data Analysis with Pandas — alice: subscription entitlement, no enrollment (seed §15b)
 const OTHER_LESSON_ID = 2003
 
-const TEACHER_COURSE = `${TENANT_BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}`
-const LESSON = `${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/lessons/${LESSON_ID}`
-const COURSE_FEED = `${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/community`
+const TEACHER_COURSE = `${TENANT_BASE}/dashboard/teacher/courses/${COURSE_ID}`
+const LESSON = `${TENANT_BASE}/dashboard/student/courses/${COURSE_ID}/lessons/${LESSON_ID}`
+const COURSE_FEED = `${TENANT_BASE}/dashboard/student/courses/${COURSE_ID}/community`
 const FEEDS = {
-  studentSchool: `${TENANT_BASE}/${LOCALE}/dashboard/student/community`,
+  studentSchool: `${TENANT_BASE}/dashboard/student/community`,
   studentCourse: COURSE_FEED,
-  teacherSchool: `${TENANT_BASE}/${LOCALE}/dashboard/teacher/community`,
-  teacherCourse: `${TENANT_BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/community`,
-  adminSchool: `${TENANT_BASE}/${LOCALE}/dashboard/admin/community`,
+  teacherSchool: `${TENANT_BASE}/dashboard/teacher/community`,
+  teacherCourse: `${TENANT_BASE}/dashboard/teacher/courses/${COURSE_ID}/community`,
+  adminSchool: `${TENANT_BASE}/dashboard/admin/community`,
 }
 const UNAVAILABLE = "This post isn't available. It may have been removed."
 // `.first()` on its visibility checks: a `goto` onto the same route can briefly
@@ -169,7 +169,7 @@ test('a teacher adds a prompt to a lesson, the student answers it there, and it 
   const sheet = teacher.getByRole('dialog', { name: 'New discussion prompt' })
   await expect(sheet).toBeVisible({ timeout: 10_000 })
   // The row's overlay link into the lesson editor did not fire.
-  expect(new URL(teacher.url()).pathname).toBe(`/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}`)
+  expect(new URL(teacher.url()).pathname).toBe(`/dashboard/teacher/courses/${COURSE_ID}`)
   // The pre-selection, and the select shows a title rather than a raw id.
   await expect(sheet.getByRole('combobox')).toContainText(LESSON_TITLE)
 
@@ -404,7 +404,7 @@ test('a locked prompt can be read but not answered, on the lesson and in the fee
   await admin().from('community_posts').update({ is_locked: true }).eq('id', promptId)
 
   await loginAsTenantStudent(page)
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/lessons/${LOCKED_LESSON_ID}`)
+  await page.goto(`${TENANT_BASE}/dashboard/student/courses/${COURSE_ID}/lessons/${LOCKED_LESSON_ID}`)
   const article = promptArticle(page, title)
   await expect(article).toBeVisible({ timeout: 30_000 })
   await expect(article).toContainText('Answers are closed')
@@ -481,7 +481,7 @@ test('a student entitled by subscription, never enrolled, sees the lesson’s pr
   })
 
   await loginAsTenantStudent(page)
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${OTHER_COURSE_ID}/lessons/${OTHER_LESSON_ID}`)
+  await page.goto(`${TENANT_BASE}/dashboard/student/courses/${OTHER_COURSE_ID}/lessons/${OTHER_LESSON_ID}`)
   await expect(promptArticle(page, title)).toBeVisible({ timeout: 30_000 })
 })
 
@@ -513,13 +513,13 @@ test('on a phone the discussion is reachable without sideways overflow', async (
   expect(right).toBeLessThanOrEqual(await page.evaluate(() => window.innerWidth))
 })
 
-test('the discussion speaks Spanish', async ({ page }) => {
+test('an old Spanish lesson URL shows the English discussion', async ({ page }) => {
   test.setTimeout(120_000)
   await loginAsTenantStudent(page)
   await page.goto(`${TENANT_BASE}/es/dashboard/student/courses/${COURSE_ID}/lessons/${LESSON_ID}`)
-  const section = discussion(page, 'Discusión')
-  await expect(section.getByRole('heading', { name: 'Discusión' })).toBeVisible({ timeout: 30_000 })
+  const section = discussion(page, 'Discussion')
+  await expect(section.getByRole('heading', { name: 'Discussion' })).toBeVisible({ timeout: 30_000 })
   await expect(
-    promptArticle(page, BASE_PROMPT, 'Discusión').getByRole('button', { name: 'Responder', exact: true })
+    promptArticle(page, BASE_PROMPT, 'Discussion').getByRole('button', { name: 'Reply', exact: true })
   ).toBeVisible()
 })

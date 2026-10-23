@@ -25,7 +25,7 @@ export default async function PlatformFeeStatementPage({
     <FeeStatementDocument
       statement={statement}
       locale={locale}
-      backHref={`/${locale}/platform/tenants/${tenantId}`}
+      backHref={`/platform/tenants/${tenantId}`}
       backLabel={t('backToSchool')}
     />
   )

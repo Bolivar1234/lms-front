@@ -9,7 +9,7 @@
 import { test, expect } from './utils/test'
 import { createClient } from '@supabase/supabase-js'
 import { loginAsTeacher, loginAsAdmin } from './utils/auth'
-import { BASE, TENANT_BASE, LOCALE } from './utils/constants'
+import { BASE, TENANT_BASE } from './utils/constants'
 
 const DEFAULT_TENANT = '00000000-0000-0000-0000-000000000001'
 const admin = createClient(
@@ -40,11 +40,11 @@ test.describe('Plan feature gates (#662)', () => {
     test.setTimeout(120_000)
     await loginAsTeacher(page, BASE) // owner@e2etest.com — Default School admin
 
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/analytics`)
+    await page.goto(`${BASE}/dashboard/admin/analytics`)
     await expect(page.getByTestId('upgrade-nudge')).toBeVisible()
     await expect(page.getByTestId('upgrade-nudge')).toHaveAttribute('data-feature', 'analytics')
 
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/appearance`)
+    await page.goto(`${BASE}/dashboard/admin/appearance`)
     // Themes and their recommended colours are open on every plan (#763); only
     // a custom hex is nudged, in its own section, with no input behind it.
     await expect(
@@ -63,7 +63,7 @@ test.describe('Plan feature gates (#662)', () => {
       .order('course_id')
       .limit(1)
       .single()
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${course!.course_id}/certificates/settings`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${course!.course_id}/certificates/settings`)
     await expect(page.getByTestId('certificate-design-locked')).toBeVisible()
   })
 
@@ -71,10 +71,10 @@ test.describe('Plan feature gates (#662)', () => {
     test.setTimeout(120_000)
     await loginAsAdmin(page, TENANT_BASE) // creator@codeacademy.com — Code Academy admin
 
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/analytics`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/analytics`)
     await expect(page.locator('[data-testid="upgrade-nudge"]')).toHaveCount(0)
 
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/appearance`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/appearance`)
     await expect(page.locator('[data-testid="upgrade-nudge"]')).toHaveCount(0)
     const customColor = page.getByTestId('theme-kit-custom-color')
     await expect(customColor).toBeVisible()
@@ -93,7 +93,7 @@ test.describe('Plan feature gates (#662)', () => {
   })
 
   test('public pricing table no longer sells API access', async ({ page }) => {
-    await page.goto(`${BASE}/${LOCALE}/platform-pricing`)
+    await page.goto(`${BASE}/platform-pricing`)
     // Wait on a feature row that must render before asserting one is absent: a
     // zero count passes vacuously on an empty page. Not network idle — the
     // page's link prefetches stay open, so the network never goes idle.

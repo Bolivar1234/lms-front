@@ -60,7 +60,8 @@ const PLATFORM_DOMAIN = PLATFORM_DOMAIN_RAW.split(':')[0] // e.g. "lvh.me" from 
 const intlMiddleware = createIntlMiddleware({
   locales,
   defaultLocale,
-  localePrefix: 'always',
+  localePrefix: 'never',
+  localeDetection: false,
 })
 
 /**
@@ -300,30 +301,7 @@ export default async function proxy(request: NextRequest) {
 
   // --- Path normalization ---
   const segments = pathname.split('/')
-  const locale = segments[1]
-  const hasValidLocale = (locales as readonly string[]).includes(locale)
-
-  // --- Guarantee a locale prefix before any auth / membership logic ---
-  // Server Actions and RSC navigations can reach the middleware on a locale-less
-  // URL — the codebase convention is `redirect('/dashboard/...')` (no locale).
-  // With localePrefix 'always', next-intl REWRITES those (not redirects) to keep
-  // the RSC payload intact, so they fall through to the guards below with
-  // `segments[1]` being a route segment (e.g. "dashboard"), not a locale. That made
-  // the membership guard run on a malformed path and build the join-school URL from
-  // a garbage locale — briefly bouncing valid members to /join-school (#282, #287).
-  // Force the canonical localized URL so every downstream check sees a well-formed
-  // path. /api, /.well-known and /monitoring already returned above, so this only
-  // touches real app routes.
-  if (!hasValidLocale) {
-    // Preserve the visitor's active locale (next-intl's NEXT_LOCALE cookie),
-    // falling back to the default — so a Spanish user isn't flipped to English
-    // after a locale-less server-action redirect.
-    const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
-    const targetLocale = cookieLocale && (locales as readonly string[]).includes(cookieLocale) ? cookieLocale : defaultLocale
-    const localizedUrl = publicRedirectUrl(request, `/${targetLocale}${pathname}`)
-    localizedUrl.search = request.nextUrl.search
-    return NextResponse.redirect(localizedUrl)
-  }
+  const hasValidLocale = (locales as readonly string[]).includes(segments[1])
 
   const cleanPath = hasValidLocale
     ? `/${segments.slice(2).join('/')}`
@@ -378,7 +356,7 @@ export default async function proxy(request: NextRequest) {
   // Auth Guards — public routes
   if (isPublicRoute) {
     if (user && (normalizedPath.startsWith('/auth/login') || normalizedPath.startsWith('/auth/sign-up'))) {
-      const dashboardUrl = publicRedirectUrl(request, `/${locale}/dashboard/${userRole}`)
+      const dashboardUrl = publicRedirectUrl(request, `/dashboard/${userRole}`)
       return NextResponse.redirect(dashboardUrl)
     }
 
@@ -395,7 +373,7 @@ export default async function proxy(request: NextRequest) {
 
   // Protected Routes
   if (!user) {
-    const redirectUrl = publicRedirectUrl(request, `/${locale}/auth/login`)
+    const redirectUrl = publicRedirectUrl(request, `/auth/login`)
     // Keep the query string so purchase/enroll intent survives login
     // (e.g. /checkout?courseId=42). Login form validates via getSafeNextPath.
     redirectUrl.searchParams.set('redirectTo', normalizedPath + request.nextUrl.search)
@@ -439,7 +417,7 @@ export default async function proxy(request: NextRequest) {
       .single()
 
     if (!membership) {
-      const joinUrl = publicRedirectUrl(request, `/${locale}/join-school`)
+      const joinUrl = publicRedirectUrl(request, `/join-school`)
       // A banned user is not a non-member to bounce around (#892): the join page
       // itself renders the "you were removed" notice and offers no way back in.
       // Send them there once, with no `next` — they have nowhere to continue to.
@@ -510,7 +488,7 @@ export default async function proxy(request: NextRequest) {
   if (normalizedPath.startsWith('/platform')) {
     const isSA = await checkSuperAdmin(user.id)
     if (!isSA) {
-      const loginUrl = publicRedirectUrl(request, `/${locale}/auth/login`)
+      const loginUrl = publicRedirectUrl(request, `/auth/login`)
       return NextResponse.redirect(loginUrl)
     }
     // Allow super admin through — bypass tenant membership checks
@@ -524,16 +502,16 @@ export default async function proxy(request: NextRequest) {
 
   // Role Checks
   if (normalizedPath.startsWith('/dashboard/student') && userRole !== 'student') {
-    return NextResponse.redirect(publicRedirectUrl(request, `/${locale}/dashboard/${userRole}`))
+    return NextResponse.redirect(publicRedirectUrl(request, `/dashboard/${userRole}`))
   }
   if (normalizedPath.startsWith('/dashboard/teacher') && userRole !== 'teacher' && userRole !== 'admin') {
-    return NextResponse.redirect(publicRedirectUrl(request, `/${locale}/dashboard/${userRole}`))
+    return NextResponse.redirect(publicRedirectUrl(request, `/dashboard/${userRole}`))
   }
   if (normalizedPath.startsWith('/dashboard/admin') && userRole !== 'admin') {
-    return NextResponse.redirect(publicRedirectUrl(request, `/${locale}/dashboard/${userRole}`))
+    return NextResponse.redirect(publicRedirectUrl(request, `/dashboard/${userRole}`))
   }
   if (normalizedPath === '/dashboard') {
-    return NextResponse.redirect(publicRedirectUrl(request, `/${locale}/dashboard/${userRole}`))
+    return NextResponse.redirect(publicRedirectUrl(request, `/dashboard/${userRole}`))
   }
 
   // Allow access — copy ALL Set-Cookie headers (not just the first one)

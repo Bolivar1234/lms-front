@@ -1,3 +1,4 @@
+import { pageLinkField } from '../fields/page-link-field'
 import { ButtonLink } from '../../utils/button-link'
 import type { ComponentConfig } from '@measured/puck'
 import { Button } from '@/components/ui/button'
@@ -34,7 +35,7 @@ export const ButtonBlock: ComponentConfig<ButtonBlockProps> = {
   label: 'Button',
   fields: {
     label: { type: 'text', label: 'Label' },
-    href: { type: 'text', label: 'Link URL' },
+    href: pageLinkField('Link URL'),
     variant: {
       type: 'select',
       label: 'Variant',

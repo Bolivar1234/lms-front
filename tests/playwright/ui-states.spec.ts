@@ -9,7 +9,7 @@
  */
 import { test, expect } from './utils/test'
 import { loginAsStudent, loginAsTenantStudent } from './utils/auth'
-import { BASE, TENANT_BASE, LOCALE } from './utils/constants'
+import { BASE, TENANT_BASE } from './utils/constants'
 
 /* ================================================================== */
 /*  Empty States                                                       */
@@ -18,7 +18,7 @@ test.describe('Empty States', () => {
   test('certificates page shows empty state or certificates', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/certificates`)
+    await page.goto(`${BASE}/dashboard/student/certificates`)
 
     await expect(page.getByTestId('certificates-page')).toBeVisible({ timeout: 15_000 })
 
@@ -31,7 +31,7 @@ test.describe('Empty States', () => {
     test.setTimeout(60_000)
     // Use tenant student (Alice) — less likely to have payment requests on code-academy
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/payments`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/payments`)
 
     await expect(page.getByTestId('payments-page')).toBeVisible({ timeout: 15_000 })
 
@@ -43,7 +43,7 @@ test.describe('Empty States', () => {
   test('progress page renders stats and course progress', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/progress`)
+    await page.goto(`${BASE}/dashboard/student/progress`)
 
     await expect(page.getByTestId('progress-page')).toBeVisible({ timeout: 15_000 })
     await expect(page.getByTestId('progress-title')).toBeVisible()
@@ -52,7 +52,7 @@ test.describe('Empty States', () => {
   test('store page shows heading', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/store`)
+    await page.goto(`${BASE}/dashboard/student/store`)
 
     await expect(page.getByTestId('store-page')).toBeVisible({ timeout: 15_000 })
 
@@ -69,7 +69,7 @@ test.describe('404 Page', () => {
     test.setTimeout(60_000)
     // Login first — unauthenticated users get redirected to join-school
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/this-page-does-not-exist`)
+    await page.goto(`${BASE}/this-page-does-not-exist`)
     await page.waitForLoadState('domcontentloaded')
     await page.waitForTimeout(2_000)
 
@@ -81,7 +81,7 @@ test.describe('404 Page', () => {
   test('404 page has navigation links', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/this-page-does-not-exist`)
+    await page.goto(`${BASE}/this-page-does-not-exist`)
     await page.waitForLoadState('domcontentloaded')
     await page.waitForTimeout(2_000)
 
@@ -175,98 +175,17 @@ test.describe('Dark Mode Toggle', () => {
   })
 })
 
-/* ================================================================== */
-/*  Language Switching                                                  */
-/* ================================================================== */
-test.describe('Language Switching', () => {
-  test('login page in Spanish contains Spanish text', async ({ page }) => {
-    test.setTimeout(30_000)
+test.describe('English presentation', () => {
+  test('an old Spanish login URL opens the English form', async ({ page }) => {
     await page.goto(`${BASE}/es/auth/login`)
-
-    await expect(page.getByTestId('login-title')).toBeVisible({ timeout: 10_000 })
-
-    const body = await page.locator('body').textContent()
-    expect(body).toMatch(/Iniciar|Correo|Contrase/i)
+    await expect(page).toHaveURL(`${BASE}/auth/login`)
+    await expect(page.getByTestId('login-title')).toBeVisible()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   })
 
-  test('URL preserves /es/ locale after login', async ({ page }) => {
-    test.setTimeout(60_000)
-    await page.goto(`${BASE}/es/auth/login`)
-
-    await page.getByTestId('login-email').fill('student@e2etest.com')
-    await page.getByTestId('login-password').fill('password123')
-    await page.getByTestId('login-submit').click()
-
-    await page.waitForURL('**/dashboard/**', { timeout: 20_000 })
-
-    expect(page.url()).toContain('/es/')
-  })
-
-  test('language switcher changes locale in URL', async ({ page }) => {
-    test.setTimeout(60_000)
+  test('the authenticated layout has no language switcher', async ({ page }) => {
     await loginAsStudent(page)
-
-    // Find the language switcher (Globe icon button with "Toggle language" sr-only)
-    const langButton = page.locator('button').filter({ has: page.locator('.sr-only:text("Toggle language")') })
-
-    const isVisible = await langButton.first().isVisible({ timeout: 10_000 }).catch(() => false)
-
-    if (!isVisible) {
-      // Language switcher might not be visible in current layout
-      test.info().annotations.push({ type: 'skip-reason', description: 'Language switcher not found in sidebar' })
-      return
-    }
-
-    // Click to open dropdown
-    await langButton.first().click()
-
-    // Select Espanol
-    const esOption = page.locator('text=Espa').first()
-    const esVisible = await esOption.isVisible({ timeout: 5_000 }).catch(() => false)
-
-    if (esVisible) {
-      await esOption.click()
-      await page.waitForTimeout(2000)
-
-      // URL should now contain /es/
-      expect(page.url()).toContain('/es/')
-    }
-  })
-
-  test('switching back to English changes URL', async ({ page }) => {
-    test.setTimeout(60_000)
-
-    // Start on Spanish
-    await page.goto(`${BASE}/es/auth/login`)
-    await page.getByTestId('login-email').fill('student@e2etest.com')
-    await page.getByTestId('login-password').fill('password123')
-    await page.getByTestId('login-submit').click()
-    await page.waitForURL('**/dashboard/**', { timeout: 20_000 })
-
-    // Dismiss tours
-    await page.evaluate(() => localStorage.setItem('tours-disabled', 'true'))
-
-    expect(page.url()).toContain('/es/')
-
-    // Find and use language switcher
-    const langButton = page.locator('button').filter({ has: page.locator('.sr-only:text-is("Toggle language")') })
-
-    const isVisible = await langButton.first().isVisible({ timeout: 10_000 }).catch(() => false)
-
-    if (!isVisible) {
-      test.info().annotations.push({ type: 'skip-reason', description: 'Language switcher not found' })
-      return
-    }
-
-    await langButton.first().click()
-
-    const enOption = page.locator('text=English').first()
-    if (await enOption.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      await enOption.click()
-      await page.waitForTimeout(2000)
-
-      // URL should now contain /en/
-      expect(page.url()).toContain('/en/')
-    }
+    await expect(page.getByRole('button', { name: /toggle language/i })).toHaveCount(0)
+    await expect(page).toHaveURL(`${BASE}/dashboard/student`)
   })
 })

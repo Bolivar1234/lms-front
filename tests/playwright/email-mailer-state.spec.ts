@@ -1,6 +1,6 @@
 import { test, expect } from './utils/test'
 import { loginAsTeacher } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 
 /**
  * #676 — the platform mailer's state is visible, not implied.
@@ -20,7 +20,7 @@ test.describe('Settings → Email mailer status (#676)', () => {
     // owner@e2etest.com is the Default School admin.
     await loginAsTeacher(page, BASE)
 
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/settings?tab=email`)
+    await page.goto(`${BASE}/dashboard/admin/settings?tab=email`)
     await expect(page.getByTestId('settings-page').filter({ visible: true })).toBeVisible({ timeout: 60_000 })
 
     const row = page.getByTestId('mailer-status')

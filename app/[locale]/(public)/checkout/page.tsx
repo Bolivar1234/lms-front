@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { getCurrentTenantId } from "@/lib/supabase/tenant";
 import { isSalesOpen } from "@/lib/billing/sales-gate";
 import { getSessionUser } from '@/lib/supabase/tenant'
-import { getSolanaSettlementOptions } from "@/app/actions/admin/settings";
 import { findConflictingSubscription } from "@/lib/payments/subscription-guard";
 import { SubscriptionConflictNotice } from "@/components/public/subscription-conflict-notice";
 import { PROVIDER_CAPABILITIES, type PaymentProvider } from "@/lib/payments/types";
@@ -98,7 +97,7 @@ export default async function CheckoutPage(props: { params: Promise<{ locale: st
     let currency = 'USD';
     let productId: number | undefined = undefined;
     let durationDays: number | undefined = undefined;
-    let durationHours: number | undefined = undefined;
+    const durationHours: number | undefined = undefined;
     let features: string | null = null;
     let paymentProvider: string | null = null;
     let feeIncluded = false;
@@ -179,7 +178,7 @@ export default async function CheckoutPage(props: { params: Promise<{ locale: st
     } else if (planId) {
         const { data: dbPlan } = await supabase
             .from("plans")
-            .select("plan_name, price, plan_id, currency, payment_provider, description, duration_in_days, solana_period_hours, features")
+            .select("plan_name, price, plan_id, currency, payment_provider, description, duration_in_days, features")
             .eq("plan_id", planId)
             .eq("tenant_id", tenantId)
             .single();
@@ -225,8 +224,7 @@ export default async function CheckoutPage(props: { params: Promise<{ locale: st
             description = dbPlan.description;
             price = parseFloat(dbPlan.price);
             currency = dbPlan.currency?.toUpperCase() || 'USD';
-            durationHours = dbPlan.payment_provider === 'solana_subs' ? dbPlan.solana_period_hours ?? undefined : undefined;
-            durationDays = durationHours ? undefined : dbPlan.duration_in_days;
+            durationDays = dbPlan.duration_in_days;
             features = dbPlan.features;
             paymentProvider = dbPlan.payment_provider ?? null;
 
@@ -263,21 +261,22 @@ export default async function CheckoutPage(props: { params: Promise<{ locale: st
         }
     }
 
+    // Legacy database rows may still name a retired rail. Keep those rows
+    // harmless: they cannot render a wallet flow or create a pending checkout.
+    if (paymentProvider === 'solana' || paymentProvider === 'solana_subs') {
+        return (
+            <div className="min-h-screen bg-background">
+                <div className="mx-auto max-w-xl px-4 py-12 text-center sm:py-20">
+                    <h1 className="text-2xl font-bold tracking-tight">Payment method unavailable</h1>
+                    <p className="mt-4 text-sm text-muted-foreground">This payment method is no longer supported. Please contact the school for another option.</p>
+                </div>
+            </div>
+        )
+    }
+
     const formattedPrice = typeof price === 'number'
         ? new Intl.NumberFormat(locale, { style: 'currency', currency, minimumFractionDigits: 2 }).format(price)
         : null;
-
-    // For one-time Solana, which settlement tokens this school offers (USDC is
-    // always available when configured; native SOL is opt-in per school).
-    const solanaOptions = paymentProvider === 'solana'
-        ? await getSolanaSettlementOptions()
-        : null;
-    const solanaCurrencies = solanaOptions
-        ? ([
-            ...(solanaOptions.usdc ? ['usdc'] : []),
-            ...(solanaOptions.sol ? ['sol'] : []),
-          ] as ('usdc' | 'sol')[])
-        : undefined;
 
     return (
         <div className="min-h-screen bg-background">
@@ -302,7 +301,6 @@ export default async function CheckoutPage(props: { params: Promise<{ locale: st
                     userName={userName}
                     userEmail={userEmail}
                     paymentProvider={paymentProvider}
-                    solanaCurrencies={solanaCurrencies}
                     feeIncluded={feeIncluded}
                 />
             </div>

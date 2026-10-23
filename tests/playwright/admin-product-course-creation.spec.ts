@@ -1,12 +1,12 @@
 import { expect, type Page, test } from './utils/test'
 import { loginAsAdmin } from './utils/auth'
-import { LOCALE, TENANT_BASE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 
 // /products/new is the multi-step product wizard these helpers drive; the
 // one-screen quick create is the admin "create a course" page (#665).
-const wizardPath = `${TENANT_BASE}/${LOCALE}/dashboard/admin/products/new`
-const quickCreatePath = `${TENANT_BASE}/${LOCALE}/dashboard/admin/courses/new`
-const productsPath = `${TENANT_BASE}/${LOCALE}/dashboard/admin/products`
+const wizardPath = `${TENANT_BASE}/dashboard/admin/products/new`
+const quickCreatePath = `${TENANT_BASE}/dashboard/admin/courses/new`
+const productsPath = `${TENANT_BASE}/dashboard/admin/products`
 
 function uniqueTitle(prefix: string) {
   return `${prefix} ${Date.now()}`

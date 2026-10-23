@@ -15,7 +15,6 @@
  */
 import { test, expect } from './utils/test'
 import { login } from './utils/auth'
-import { LOCALE } from './utils/constants'
 import {
   SEEDED,
   addMember,
@@ -58,11 +57,11 @@ test.describe('plan feature tiers (#296)', () => {
   test('"Powered by" stays on a Free school and leaves on Pro', async ({ page }) => {
     const admin = getAdmin()
     await setTenantPlan(admin, QA.id, 'free')
-    await page.goto(`${QA_BASE}/${LOCALE}`)
+    await page.goto(`${QA_BASE}`)
     await expect(page.getByText('Powered by', { exact: false }).first()).toBeVisible({ timeout: 20_000 })
 
     await setTenantPlan(admin, QA.id, 'pro')
-    await page.goto(`${QA_BASE}/${LOCALE}`)
+    await page.goto(`${QA_BASE}`)
     await expect(page.getByText('Powered by', { exact: false })).toHaveCount(0)
   })
 
@@ -70,7 +69,7 @@ test.describe('plan feature tiers (#296)', () => {
     test.setTimeout(120_000)
     await setTenantPlan(getAdmin(), QA.id, 'starter')
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/analytics`)
+    await page.goto(`${QA_BASE}/dashboard/admin/analytics`)
 
     await expect(page.getByTestId('analytics-page')).toBeVisible({ timeout: 20_000 })
     await expect(page.locator(analyticsNudge)).toBeVisible()
@@ -81,7 +80,7 @@ test.describe('plan feature tiers (#296)', () => {
     test.setTimeout(120_000)
     await setTenantPlan(getAdmin(), QA.id, 'pro')
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/analytics`)
+    await page.goto(`${QA_BASE}/dashboard/admin/analytics`)
 
     await expect(page.getByTestId('analytics-page')).toBeVisible({ timeout: 20_000 })
     await expect(page.getByRole('button', { name: 'Export' })).toBeVisible()
@@ -92,7 +91,7 @@ test.describe('plan feature tiers (#296)', () => {
     test.setTimeout(120_000)
     await setTenantPlan(getAdmin(), QA.id, 'free')
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/analytics`)
+    await page.goto(`${QA_BASE}/dashboard/admin/analytics`)
 
     await expect(page.locator(analyticsNudge)).toBeVisible({ timeout: 20_000 })
     await expect(page.getByTestId('analytics-page')).toHaveCount(0)

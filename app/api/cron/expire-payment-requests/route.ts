@@ -196,7 +196,7 @@ export async function GET(req: NextRequest) {
           amountLabel: formatCurrency(row.payment_amount ?? 0, row.payment_currency || 'usd'),
           deadlineLabel: formatDateTime(row.expires_at, { locale, timeZone }),
           daysRemaining,
-          requestUrl: `${tenantBaseUrl(tenant?.slug ?? null)}/${locale}/dashboard/student/payments/${row.request_id}`,
+          requestUrl: `${tenantBaseUrl(tenant?.slug ?? null)}/dashboard/student/payments/${row.request_id}`,
           locale,
           brand,
         })

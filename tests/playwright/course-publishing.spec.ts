@@ -9,7 +9,7 @@
 import { test, expect } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { loginAsTeacher, loginAsStudent } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -46,7 +46,7 @@ test.describe('Course Settings Page', () => {
   test('teacher can access course settings page', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
 
     // Settings page should render with course title breadcrumb
     const heading = page.locator('h1').first()
@@ -60,7 +60,7 @@ test.describe('Course Settings Page', () => {
   test('course settings shows correct course title', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
 
     // Course title should appear in the breadcrumb area (web-first: waits for render)
     await expect(page.locator('body')).toContainText(/Introduction to Testing/i)
@@ -69,7 +69,7 @@ test.describe('Course Settings Page', () => {
   test('course settings has danger zone section', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
 
     // Danger zone border section should exist
     const dangerZone = page.locator('.border-destructive\\/30')
@@ -106,7 +106,7 @@ test.describe.serial('Course Status Toggle', () => {
 
     // Student browses courses — course 1001 should NOT appear
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/browse`)
+    await page.goto(`${BASE}/dashboard/student/browse`)
     await expect(page.getByTestId('browse-courses-page')).toBeVisible({ timeout: 15_000 })
 
     // The draft course should not be visible in browse
@@ -131,7 +131,7 @@ test.describe.serial('Course Status Toggle', () => {
 
     // Student browses courses — course 1001 should appear
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/browse`)
+    await page.goto(`${BASE}/dashboard/student/browse`)
     await expect(page.getByTestId('browse-courses-page')).toBeVisible({ timeout: 15_000 })
 
     // Course should be visible now
@@ -160,7 +160,7 @@ test.describe('Teacher Course Form - Status', () => {
   test('course form shows status selector with current value', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
 
     // The status select should be visible
     const statusSelect = page.locator('#status')
@@ -170,7 +170,7 @@ test.describe('Teacher Course Form - Status', () => {
   test('course form has save/update button', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/${COURSE_ID}/settings`)
 
     // Look for the update/save button
     const submitButton = page.locator('button[type="submit"]')

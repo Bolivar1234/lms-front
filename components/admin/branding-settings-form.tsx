@@ -7,7 +7,8 @@ import { toast } from 'sonner'
 import { updateSettings } from '@/app/actions/admin/settings'
 import { Button } from '@/components/ui/button'
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+import { ImageUploadField } from '@/components/shared/image-upload-field'
+import { uploadLandingPageAsset } from '@/app/actions/admin/landing-page-assets'
 
 interface BrandingSettingsFormProps {
   /** `getAllSettingsByCategory().data.general`: rows keyed by setting_key. */
@@ -28,10 +29,14 @@ function settingValue(settings: Record<string, unknown>, key: string): string {
 export default function BrandingSettingsForm({ settings }: BrandingSettingsFormProps) {
   const t = useTranslations('dashboard.admin.settings.form')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [logo, setLogo] = useState(() => settingValue(settings, 'logo_url'))
+  const [favicon, setFavicon] = useState(() => settingValue(settings, 'favicon_url'))
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [faviconUploading, setFaviconUploading] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (isSubmitting) return
+    if (isSubmitting || logoUploading || faviconUploading) return
     const formData = new FormData(event.currentTarget)
     setIsSubmitting(true)
     try {
@@ -53,10 +58,13 @@ export default function BrandingSettingsForm({ settings }: BrandingSettingsFormP
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="logo_url">{t('branding.logoUrl')}</FieldLabel>
-          <Input
+          <ImageUploadField
             id="logo_url"
             name="logo_url"
-            defaultValue={settingValue(settings, 'logo_url')}
+            value={logo}
+            onChange={setLogo}
+            uploadAction={uploadLandingPageAsset}
+            onUploadingChange={setLogoUploading}
             placeholder={t('branding.logoUrlPlaceholder')}
           />
           <FieldDescription>{t('branding.logoUrlHint')}</FieldDescription>
@@ -64,10 +72,13 @@ export default function BrandingSettingsForm({ settings }: BrandingSettingsFormP
 
         <Field>
           <FieldLabel htmlFor="favicon_url">{t('branding.faviconUrl')}</FieldLabel>
-          <Input
+          <ImageUploadField
             id="favicon_url"
             name="favicon_url"
-            defaultValue={settingValue(settings, 'favicon_url')}
+            value={favicon}
+            onChange={setFavicon}
+            uploadAction={uploadLandingPageAsset}
+            onUploadingChange={setFaviconUploading}
             placeholder={t('branding.faviconUrlPlaceholder')}
           />
           <FieldDescription>{t('branding.faviconUrlHint')}</FieldDescription>
@@ -75,7 +86,7 @@ export default function BrandingSettingsForm({ settings }: BrandingSettingsFormP
       </FieldGroup>
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting || logoUploading || faviconUploading}>
           {isSubmitting && <Loader2 data-icon="inline-start" aria-hidden className="animate-spin motion-reduce:animate-none" />}
           {isSubmitting ? t('saving') : t('saveChanges')}
         </Button>

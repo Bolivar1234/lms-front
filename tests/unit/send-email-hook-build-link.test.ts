@@ -106,10 +106,10 @@ describe('buildAuthEmailLink', () => {
     }
   })
 
-  it('preserves school and language in both verification and recovery URLs', () => {
+  it('preserves the school while using bare English verification and recovery URLs', () => {
     const url = new URL(buildAuthEmailLink({ siteUrl: 'https://platform.example.com', redirectTo: 'https://acme.example.com/es/auth/update-password', tokenHash: 'th_recovery', type: 'recovery' }).url)
     expect(url.origin).toBe('https://acme.example.com')
-    expect(url.pathname).toBe('/es/auth/confirm')
-    expect(url.searchParams.get('next')).toBe('/es/auth/update-password')
+    expect(url.pathname).toBe('/auth/confirm')
+    expect(url.searchParams.get('next')).toBe('/auth/update-password')
   })
 })

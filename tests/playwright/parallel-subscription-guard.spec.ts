@@ -14,7 +14,7 @@ import { TENANT_BASE } from './utils/constants'
 test.describe('Parallel-subscription guard', () => {
   test('checkout page blocks a second plan with the conflict notice', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/checkout?planId=2002`)
+    await page.goto(`${TENANT_BASE}/checkout?planId=2002`)
     await expect(page.getByTestId('subscription-conflict-notice')).toBeVisible()
     await expect(page.getByText(/Code Academy Pro Monthly/i)).toBeVisible()
     // No payment UI of any kind behind the notice
@@ -23,7 +23,7 @@ test.describe('Parallel-subscription guard', () => {
 
   test('same-plan checkout (renewal) is not blocked', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/checkout?planId=2001`)
+    await page.goto(`${TENANT_BASE}/checkout?planId=2001`)
     await expect(page.getByTestId('subscription-conflict-notice')).toHaveCount(0)
     // Normal checkout renders the order summary for the plan
     await expect(page.getByText(/Code Academy Pro Monthly/i)).toBeVisible()

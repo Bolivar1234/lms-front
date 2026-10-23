@@ -19,9 +19,9 @@ import { parseAiChatError, isAiSetupErrorKind } from '@/lib/ai/chat-error'
  */
 export type AiErrorAudience = 'student' | 'teacher'
 
-/** Prefix an in-app path with the active locale, leaving already-prefixed paths alone. */
-function localized(path: string, locale: string): string {
-    return /^\/(en|es)(\/|$)/.test(path) ? path : `/${locale}${path}`
+/** Keep links from older responses compatible with locale-free URLs. */
+function localized(path: string, _locale: string): string {
+    return path.replace(/^\/(en|es)(?=\/|$)/, '') || '/'
 }
 
 interface AiErrorNoticeProps {

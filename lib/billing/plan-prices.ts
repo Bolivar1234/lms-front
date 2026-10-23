@@ -48,8 +48,6 @@ export const PLAN_PRICE_PROVIDERS = [
   'binance_personal',
   'manual',
   'lemonsqueezy',
-  'solana',
-  'solana_subs',
 ] as const
 
 export type PlanPriceProvider = (typeof PLAN_PRICE_PROVIDERS)[number]
@@ -62,14 +60,8 @@ export type PlanPriceProvider = (typeof PLAN_PRICE_PROVIDERS)[number]
  * `isMerchantOfRecord` makes it the legal seller and it remits VAT for us, and
  * PayPal once #479 has run it against real credentials.
  *
- * Binance Pay and Solana joined in #610. Neither renews itself — each payment
- * buys one period and the expiry cron lapses it — but "no native recurring
- * billing" is a weaker objection than it looks for the schools this platform
- * sells to: a LATAM creator who holds USDT and no card could not pay us at all
- * before, and a rail with no proration is still better than a rail with no
- * payment. `solana_subs` stays out despite auto-pulling, because cancelling one
- * needs the payer's own wallet signature — a subscription a school cannot stop
- * from our billing page is not one to sell it.
+ * Binance Pay is a one-time, self-managed period rail; manual transfer remains
+ * available for schools that do not use a hosted provider.
  *
  * `manual` settles through `platform_payment_requests`, which carries its own
  * amount snapshot and needs no price id.
@@ -83,7 +75,6 @@ export const PLATFORM_BILLING_UI_PROVIDERS: readonly PlanPriceProvider[] = [
   'lemonsqueezy',
   'paypal',
   'binance',
-  'solana',
 ]
 
 /** Values of the `currency_type` Postgres enum, which `currency` is typed as. */
@@ -107,8 +98,6 @@ export const PROVIDER_LABELS: Record<PlanPriceProvider, string> = {
   binance_personal: 'Binance (personal)',
   manual: 'Manual transfer',
   lemonsqueezy: 'Lemon Squeezy',
-  solana: 'Solana',
-  solana_subs: 'Solana (subscription)',
 }
 
 export function providerLabel(provider: string): string {
@@ -131,7 +120,7 @@ export interface PlatformPlanPriceInput {
   planId: string
   paymentProvider: string
   interval: string
-  /** NULL on catalog-less rails (Binance Pay, Solana) — see the migration. */
+  /** NULL on catalog-less rails (Binance Pay and manual transfer). */
   providerPriceId: string | null
   currency: string
   amount: number | null

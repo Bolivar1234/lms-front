@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import type { Block } from './types'
+import type { Block, VocabularyBlock } from './types'
 
 /**
  * Serialize blocks array to MDX string
@@ -45,8 +45,10 @@ function blockToMdx(block: Block): string {
     }
     
     case 'vocabulary': {
-      const audio = block.audioUrl ? ` audioUrl="${block.audioUrl}"` : ''
-      return `<Vocabulary word="${escapeQuotes(block.word)}" translation="${escapeQuotes(block.translation)}"${audio} />`
+      const attributes = VOCABULARY_STRING_PROPS
+        .filter((name) => block[name] !== undefined)
+        .map((name) => `${name}="${escapeVocabularyAttribute(block[name]!)}"`)
+      return `<Vocabulary ${attributes.join(' ')} />`
     }
     
     case 'definition':
@@ -65,7 +67,7 @@ function blockToMdx(block: Block): string {
 
     case 'audio': {
       const title = block.title ? ` title="${escapeQuotes(block.title)}"` : ''
-      return `<Audio src="${block.src}"${title} />`
+      return `<Audio src="${escapeQuotes(block.src)}"${title} />`
     }
 
     case 'embed': {
@@ -76,7 +78,7 @@ function blockToMdx(block: Block): string {
 
     case 'file-download': {
       const desc = block.description ? ` description="${escapeQuotes(block.description)}"` : ''
-      return `<FileDownload url="${block.url}" filename="${escapeQuotes(block.filename)}"${desc} />`
+      return `<FileDownload url="${escapeQuotes(block.url)}" filename="${escapeQuotes(block.filename)}"${desc} />`
     }
 
     case 'glossary': {
@@ -138,6 +140,72 @@ function escapeQuotes(str: string): string {
 function escapeSingleQuotes(str: string): string {
   // Escape single quotes so the JSON string can be wrapped in single quotes in MDX
   return str.replace(/'/g, "\\'")
+}
+
+const VOCABULARY_STRING_PROPS = ['word', 'translation', 'audioUrl', 'audio', 'pronunciation', 'example', 'exampleTranslation', 'image', 'className'] as const
+
+function escapeVocabularyAttribute(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\r/g, '&#13;').replace(/\n/g, '&#10;')
+}
+
+/** Decode the string syntax this serializer can emit; unknown entities stay raw JSX. */
+function vocabularyAttributeValue(value: string): string | undefined {
+  let supported = true
+  const named: Record<string, string> = { amp: '&', quot: '"', apos: "'", lt: '<', gt: '>', nbsp: '\u00a0' }
+  const decoded = value.replace(/&(#x[\da-f]+|#\d+|[a-z][a-z\d]+);/gi, (entity, name: string) => {
+    if (name.startsWith('#')) {
+      const point = name[1].toLowerCase() === 'x' ? Number.parseInt(name.slice(2), 16) : Number.parseInt(name.slice(1), 10)
+      if (point > 0 && point <= 0x10ffff && !(point >= 0xd800 && point <= 0xdfff)) return String.fromCodePoint(point)
+    } else if (named[name] !== undefined) return named[name]
+    supported = false
+    return entity
+  })
+  return supported ? decoded : undefined
+}
+
+/** Consume a whole self-closing element before parsing attributes, including documented multiline JSX. */
+function readVocabularyElement(lines: string[], start: number): { source: string; next: number } {
+  const remaining = lines.slice(start).join('\n')
+  const opening = remaining.indexOf('<Vocabulary')
+  let quote = ''
+  let braces = 0
+  for (let cursor = opening + '<Vocabulary'.length; cursor < remaining.length; cursor++) {
+    const character = remaining[cursor]
+    if (quote) {
+      if (character === '\\') { cursor++; continue }
+      if (character === quote) quote = ''
+      continue
+    }
+    if (character === '"' || character === "'" || character === '`') { quote = character; continue }
+    if (character === '{') { braces++; continue }
+    if (character === '}') { braces--; continue }
+    if (character === '>' && braces === 0) {
+      if (remaining[cursor - 1] !== '/') break
+      const next = start + remaining.slice(0, cursor + 1).split('\n').length
+      return { source: lines.slice(start, next).join('\n'), next }
+    }
+  }
+  // Children, unclosed JSX or expressions we cannot safely bound: preserve the remaining MDX verbatim.
+  return { source: remaining, next: lines.length }
+}
+
+function vocabularyElementToBlock(source: string): VocabularyBlock | undefined {
+  const element = /^\s*<Vocabulary\b([\s\S]*?)\/>(?:\s*)$/.exec(source)
+  if (!element) return undefined
+  let remaining = element[1]
+  const props: Partial<Record<typeof VOCABULARY_STRING_PROPS[number], string>> = {}
+  while (remaining.trim()) {
+    const attribute = /^\s+([a-zA-Z][\w]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/.exec(remaining)
+    if (!attribute) return undefined
+    const name = attribute[1] as typeof VOCABULARY_STRING_PROPS[number]
+    if (!VOCABULARY_STRING_PROPS.includes(name) || Object.hasOwn(props, name)) return undefined
+    const value = vocabularyAttributeValue(attribute[2] ?? attribute[3])
+    if (value === undefined) return undefined
+    props[name] = value
+    remaining = remaining.slice(attribute[0].length)
+  }
+  if (props.word === undefined) return undefined
+  return { id: nanoid(), type: 'vocabulary', ...props, word: props.word, translation: props.translation ?? '' }
 }
 
 /**
@@ -290,6 +358,13 @@ export function mdxToBlocks(mdx: string): Block[] {
       continue
     }
     
+    if (/<Vocabulary\b/.test(line)) {
+      const element = readVocabularyElement(lines, i)
+      blocks.push(vocabularyElementToBlock(element.source) ?? { id: nanoid(), type: 'text', content: element.source })
+      i = element.next
+      continue
+    }
+
     // Image
     const imgMatch = line.match(/^!\[([^\]]*)\]\(([^)]+)\)/)
     if (imgMatch) {

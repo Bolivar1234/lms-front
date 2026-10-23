@@ -233,7 +233,7 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
       .eq('submission_id', parseInt(submissionId))
 
     revalidatePath(`/dashboard/teacher/courses/${courseId}/exams/${examId}/submissions`)
-    redirect(`/${await getLocale()}/dashboard/teacher/courses/${courseId}/exams/${examId}/submissions`)
+    redirect(`/dashboard/teacher/courses/${courseId}/exams/${examId}/submissions`)
   }
 
   return (

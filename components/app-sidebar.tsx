@@ -99,7 +99,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 function NavEntry({ item }: { item: NavItem }) {
     const locale = useLocale()
-    const href = `/${locale}${item.href}`
+    const href = `${item.href}`
     const { isActive } = useActiveNav()
     const active = isActive(item.href)
     const tourProps = item.tourId ? { 'data-tour': item.tourId } : {}

@@ -31,7 +31,7 @@
  */
 import { test, expect, type Page } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT } from './utils/seed-state'
 
 const BASE = TENANT_BASE
@@ -365,7 +365,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
 
     /* ---- 1. Public link → sign-up with `next` preserved → auto-enroll ---- */
     await test.step('anonymous course page offers free enrollment and keeps the intent into sign-up', async () => {
-      await page.goto(`${BASE}/${LOCALE}/courses/${courseId}`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${BASE}/courses/${courseId}`, { waitUntil: 'domcontentloaded' })
       const cta = page.getByTestId('course-enroll-cta')
       await expect(cta).toBeVisible({ timeout: 30_000 })
       await expect(cta).toHaveText(/enroll for free/i)
@@ -426,7 +426,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
 
     /* ---- 2. Learn: lesson → exercise → lesson → exam ---- */
     await test.step('lesson 1 completes and advances to lesson 2', async () => {
-      await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${courseId}/lessons/${lessonIds[0]}`, {
+      await page.goto(`${BASE}/dashboard/student/courses/${courseId}/lessons/${lessonIds[0]}`, {
         waitUntil: 'domcontentloaded',
       })
       await expect(page.locator('body')).toContainText('Introduction', { timeout: 30_000 })
@@ -446,7 +446,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
     })
 
     await test.step('exercise is graded by the platform, never by the browser', async () => {
-      await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${courseId}/exercises/${exerciseId}`, {
+      await page.goto(`${BASE}/dashboard/student/courses/${courseId}/exercises/${exerciseId}`, {
         waitUntil: 'domcontentloaded',
       })
       // Below `lg` the workspace shows one section at a time (#583) and opens on
@@ -484,7 +484,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
     })
 
     await test.step('lesson 2 completes (no certificate yet — the exam is still open)', async () => {
-      await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${courseId}/lessons/${lessonIds[1]}`, {
+      await page.goto(`${BASE}/dashboard/student/courses/${courseId}/lessons/${lessonIds[1]}`, {
         waitUntil: 'domcontentloaded',
       })
       await expect(page.locator('body')).toContainText('Conclusion', { timeout: 30_000 })
@@ -508,7 +508,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
     })
 
     await test.step('exam is answered correctly and graded 100% without AI', async () => {
-      await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${courseId}/exams/${examId}`, {
+      await page.goto(`${BASE}/dashboard/student/courses/${courseId}/exams/${examId}`, {
         waitUntil: 'domcontentloaded',
       })
       const submit = page.getByTestId('exam-finish-submit')
@@ -553,7 +553,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
         )
         .not.toBeNull()
 
-      await page.goto(`${BASE}/${LOCALE}/dashboard/student/certificates`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${BASE}/dashboard/student/certificates`, { waitUntil: 'domcontentloaded' })
       await expect(page.getByTestId('certificates-page')).toBeVisible({ timeout: 30_000 })
       await expect(page.getByTestId('certificate-download-pdf').first()).toBeVisible({ timeout: 30_000 })
       await expect(page.getByTestId('certificate-verify-link').first()).toBeVisible()
@@ -579,7 +579,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
       const anon = await browser.newContext()
       try {
         const anonPage = await anon.newPage()
-        await anonPage.goto(`${BASE}/${LOCALE}/verify/${verificationCode}`, { waitUntil: 'domcontentloaded' })
+        await anonPage.goto(`${BASE}/verify/${verificationCode}`, { waitUntil: 'domcontentloaded' })
         await expect(anonPage.getByText(/verified credential/i).first()).toBeVisible({ timeout: 30_000 })
         await expect(anonPage.locator('h1').first()).toContainText(STUDENT.name)
         await expect(anonPage.locator('body')).toContainText(verificationCode!)
@@ -590,7 +590,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
     })
 
     await test.step('student logs out', async () => {
-      await page.goto(`${BASE}/${LOCALE}/dashboard/student`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${BASE}/dashboard/student`, { waitUntil: 'domcontentloaded' })
       await logoutViaMenu(page)
     })
   })
@@ -603,7 +603,7 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
     const hasInbox = await mailpitReachable()
 
     await test.step('"Forgot your password?" sends a reset request', async () => {
-      await page.goto(`${BASE}/${LOCALE}/auth/login`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${BASE}/auth/login`, { waitUntil: 'domcontentloaded' })
       await domClick(page, 'login-forgot-password-link')
       await page.waitForURL(/\/auth\/forgot-password/, { timeout: 30_000 })
       await fillSettled(page, 'forgot-password-email', STUDENT.email)
@@ -651,9 +651,9 @@ test.describe('Loop 2 — public link → join → learn → verifiable certific
         if (error) throw new Error(`generateLink: ${error.message}`)
         tokenHash = data.properties.hashed_token
       }
-      const next = `/${LOCALE}/auth/update-password`
+      const next = `/auth/update-password`
       await page.goto(
-        `${BASE}/${LOCALE}/auth/confirm?token_hash=${encodeURIComponent(tokenHash!)}&type=recovery&next=${encodeURIComponent(next)}`,
+        `${BASE}/auth/confirm?token_hash=${encodeURIComponent(tokenHash!)}&type=recovery&next=${encodeURIComponent(next)}`,
         { waitUntil: 'domcontentloaded' }
       )
       await page.waitForURL(/\/auth\/update-password/, { timeout: 30_000 })

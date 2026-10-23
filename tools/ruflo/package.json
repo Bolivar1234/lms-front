@@ -1,0 +1,10 @@
+{
+  "name": "workspace-ruflo-runtime",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Isolated, pinned RuFlo runtime for this cloud workspace",
+  "dependencies": {
+    "ruflo": "3.38.23",
+    "@claude-flow/cli": "3.38.23"
+  }
+}

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import type { VocabularyBlock } from '../types'
 import { Input } from '@/components/ui/input'
 import { IconBook } from '@tabler/icons-react'
+import { LessonMediaUploadField } from './lesson-media-upload-field'
 
 interface VocabularyBlockEditorProps {
   block: VocabularyBlock
@@ -31,12 +32,7 @@ export function VocabularyBlockEditor({ block, onChange }: VocabularyBlockEditor
           placeholder={t('vocabulary.translation')}
         />
       </div>
-      <Input
-        value={block.audioUrl || ''}
-        onChange={(e) => onChange({ audioUrl: e.target.value || undefined })}
-        placeholder={t('vocabulary.audioUrl')}
-        className="text-sm"
-      />
+      <LessonMediaUploadField blockId={block.id} label="Vocabulary audio" purpose="lesson-audio" value={block.audioUrl || block.audio || ''} onChange={(audioUrl) => onChange({ audioUrl: audioUrl || undefined, audio: undefined })} />
     </div>
   )
 }

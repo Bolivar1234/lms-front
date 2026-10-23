@@ -6,12 +6,13 @@ const insert = vi.fn()
 const deleteUser = vi.fn()
 const schema = vi.fn()
 const rpc = vi.fn()
+const remove = vi.fn()
 
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => ({
     rpc,
     schema,
-    storage: { from: () => ({ remove: vi.fn().mockResolvedValue({ error: null }) }) },
+    storage: { from: () => ({ remove }) },
     auth: { admin: { deleteUser } },
   }),
 }))
@@ -23,6 +24,7 @@ beforeEach(() => {
   rpc.mockImplementation(async (name: string) => ({ data: name === 'account_deletion_blockers' ? [] : [], error: null }))
   schema.mockReturnValue({ from: () => ({ insert }) })
   deleteUser.mockResolvedValue({ error: null })
+  remove.mockResolvedValue({ error: null })
 })
 
 describe('deleteAccount auth intent', () => {
@@ -51,6 +53,19 @@ describe('deleteAccount auth intent', () => {
     insert.mockResolvedValue({ error: { code: '42501', message: 'permission denied' } })
 
     await expect(deleteAccount(USER)).rejects.toMatchObject({ code: '42501' })
+    expect(deleteUser).not.toHaveBeenCalled()
+  })
+
+  it('does not delete the auth user when uploaded-file cleanup fails', async () => {
+    rpc.mockImplementation(async (name: string) =>
+      name === 'prepare_account_deletion'
+        ? { data: [{ bucket_id: 'lesson-media', name: 'users/file.mp3' }], error: null }
+        : { data: [], error: null },
+    )
+    remove.mockResolvedValue({ error: { message: 'storage unavailable' } })
+
+    await expect(deleteAccount(USER)).rejects.toThrow('could not remove stored files')
+    expect(insert).not.toHaveBeenCalled()
     expect(deleteUser).not.toHaveBeenCalled()
   })
 })

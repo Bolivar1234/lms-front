@@ -31,14 +31,11 @@ export function isProtectedPath(path: string): boolean {
 }
 
 /**
- * Prefix `path` with `/<locale>` unless it already carries a supported locale.
- * Producers pass locale-less `next` values (`/products/1`); a redirect built
- * from one must not bounce through the locale redirect a second time.
+ * Keep existing redirect producers compatible with locale-free English URLs.
+ * The locale argument is retained while callers transition from localized links.
  */
-export function localizePath(path: string, locale: string): string {
-  const [first] = path.slice(1).split(/[/?#]/, 1)
-  if ((locales as readonly string[]).includes(first)) return path
-  return `/${locale}${path}`
+export function localizePath(path: string, _locale: string): string {
+  return path.replace(/^\/(en|es)(?=\/|$)/, '') || '/'
 }
 
 /** Locale-less login URL that returns to `returnTo` after sign-in. */

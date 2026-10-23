@@ -1,3 +1,4 @@
+import { imageUploadField } from '../fields/image-upload-field'
 import type { ComponentConfig } from '@measured/puck'
 import { cn } from '@/lib/utils'
 
@@ -29,7 +30,7 @@ const borderRadiusMap: Record<string, string> = {
 export const Image: ComponentConfig<ImageProps> = {
   label: 'Image',
   fields: {
-    src: { type: 'text', label: 'Image URL' },
+    src: imageUploadField('Image URL'),
     alt: { type: 'text', label: 'Alt Text' },
     width: { type: 'text', label: 'Width' },
     height: { type: 'text', label: 'Height' },

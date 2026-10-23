@@ -40,7 +40,7 @@ export async function impersonateUser(targetUserId: string, tenantId: string) {
 
   // Build the confirm URL so it goes through Supabase auth callback
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const confirmUrl = `${supabaseUrl}/auth/v1/verify?token=${data.properties.hashed_token}&type=magiclink&redirect_to=/en/dashboard`
+  const confirmUrl = `${supabaseUrl}/auth/v1/verify?token=${data.properties.hashed_token}&type=magiclink&redirect_to=/dashboard`
 
   return { url: confirmUrl }
 }

@@ -280,7 +280,7 @@ async function FeeBalanceBody({
             {account.statements.map((s) => (
               <li key={s.statementNumber} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-3 py-2">
                 <Link
-                  href={`/${locale}/dashboard/admin/earnings/statements/${s.statementNumber}`}
+                  href={`/dashboard/admin/earnings/statements/${s.statementNumber}`}
                   className="inline-flex items-center gap-1.5 font-mono text-xs hover:underline underline-offset-4"
                   aria-label={t('statements.view', { number: s.statementNumber })}
                 >

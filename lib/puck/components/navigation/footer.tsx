@@ -1,3 +1,4 @@
+import { pageLinkField } from '../fields/page-link-field'
 import { safeHref } from '../../utils/safe-href'
 import type { ComponentConfig } from '@measured/puck'
 import { useTranslations } from 'next-intl'
@@ -39,7 +40,7 @@ export const Footer: ComponentConfig<FooterProps> = {
           label: 'Links',
           arrayFields: {
             label: { type: 'text', label: 'Label' },
-            href: { type: 'text', label: 'URL' },
+            href: pageLinkField('URL'),
           },
           defaultItemProps: { label: 'Link', href: '#' },
         },
@@ -65,7 +66,6 @@ export const Footer: ComponentConfig<FooterProps> = {
     columns: [
       { title: 'Courses', links: [{ label: 'All Courses', href: '/courses' }, { label: 'Pricing', href: '/pricing' }] },
       { title: 'Company', links: [{ label: 'About', href: '#about' }, { label: 'Contact', href: '#contact' }] },
-      { title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },
     ],
     socialLinks: [],
     copyright: '\u00a9 2026 Academy. All rights reserved.',

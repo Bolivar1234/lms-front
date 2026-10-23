@@ -410,8 +410,8 @@ export async function runDailyDigest(admin: SupabaseClient, now: Date = new Date
     const allCandidates = byTenant.get(tenantId) ?? []
     const dateStr = localDateStr(now, settings.timezone)
     const schoolName = tenant.name
-    const actionUrl = `${tenantBaseUrl(tenant.slug)}/${settings.locale}/dashboard/student?src=digest`
-    const notificationsUrl = `${tenantBaseUrl(tenant.slug)}/${settings.locale}/dashboard/notifications?src=digest`
+    const actionUrl = `${tenantBaseUrl(tenant.slug)}/dashboard/student?src=digest`
+    const notificationsUrl = `${tenantBaseUrl(tenant.slug)}/dashboard/notifications?src=digest`
     // Once per tenant, not per recipient — every student in this tenant's
     // batch gets the same school brand.
     const brand = await getSchoolBrand(tenantId)

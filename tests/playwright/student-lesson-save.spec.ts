@@ -4,7 +4,7 @@ import { BASE } from './utils/constants'
 
 test('a failed lesson save remains retryable without success celebrations', async ({ page }, testInfo) => {
   await loginAsStudent(page)
-  await page.goto(`${BASE}/en/dashboard/student/courses/1002/lessons/1003`)
+  await page.goto(`${BASE}/dashboard/student/courses/1002/lessons/1003`)
   const toggle = page.getByTestId('lesson-complete-toggle')
   await expect(toggle).toBeVisible()
   // Keep this regression read-only: intercept the write rather than alter progress.

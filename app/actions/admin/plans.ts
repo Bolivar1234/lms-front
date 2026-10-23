@@ -112,16 +112,7 @@ export async function createPlan(formData: PlanFormData): Promise<ActionResult<P
       }
       providerPriceId = variantId
     } else if (providerType === 'solana' || providerType === 'solana_subs') {
-      // No catalog — but the school must have a receiving wallet, else checkout 400s.
-      const { data: wallet } = await adminClient
-        .from('tenant_payment_wallets')
-        .select('wallet_address')
-        .eq('tenant_id', tenantId)
-        .eq('provider', providerType)
-        .maybeSingle()
-      if (!wallet?.wallet_address) {
-        throw new Error('Configure your Solana wallet in Settings → Payment before creating a Solana plan.')
-      }
+      throw new Error('Solana payments are disabled.')
     }
 
     // 3. Insert plan into database
@@ -241,28 +232,8 @@ export async function updatePlan(
     const providerType = (existingPlan.payment_provider as PaymentProvider) || 'stripe'
     const caps = PROVIDER_CAPABILITIES[providerType]
 
-    // Solana native subscriptions (solana_subs) mirror price/duration onto an
-    // IMMUTABLE on-chain plan (per-period cap set once at creation). If price or
-    // duration changes here while subscribers exist, every future crank pull
-    // charges an amount that no longer matches the on-chain cap and reverts —
-    // renewals silently fail (issue #343). Block the edit instead.
-    if (providerType === 'solana_subs') {
-      const priceOrDurationChanged =
-        formData.price !== existingPlan.price || formData.duration_in_days !== existingPlan.duration_in_days
-      if (priceOrDurationChanged) {
-        const { count, error: countError } = await adminClient
-          .from('subscriptions')
-          .select('subscription_id', { count: 'exact', head: true })
-          .eq('plan_id', planId)
-          .eq('payment_provider', 'solana_subs')
-          .eq('subscription_status', 'active')
-        if (countError) throw countError
-        if ((count ?? 0) > 0) {
-          throw new Error(
-            'This Solana plan has active subscribers — price and duration are locked on-chain and cannot be changed. Archive this plan and create a new one instead.',
-          )
-        }
-      }
+    if (providerType === 'solana' || providerType === 'solana_subs') {
+      throw new Error('Solana payments are disabled.')
     }
 
     // Catalog-syncing providers (Stripe/PayPal) only: update the provider product

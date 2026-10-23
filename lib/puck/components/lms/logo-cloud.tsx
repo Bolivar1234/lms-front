@@ -1,3 +1,5 @@
+import { pageLinkField } from '../fields/page-link-field'
+import { imageUploadField } from '../fields/image-upload-field'
 import { safeHref } from '../../utils/safe-href'
 import type { ComponentConfig } from '@measured/puck'
 import { type SectionSpacingProps, sectionSpacingFields, sectionSpacingDefaults, sectionOuterProps, sectionInnerProps } from '../../utils/section-spacing'
@@ -21,9 +23,9 @@ export const LogoCloud: ComponentConfig<LogoCloudProps> = {
       type: 'array',
       label: 'Logos',
       arrayFields: {
-        src: { type: 'text', label: 'Image URL' },
+        src: imageUploadField('Image URL'),
         alt: { type: 'text', label: 'Alt Text' },
-        url: { type: 'text', label: 'Link URL' },
+        url: pageLinkField('Link URL'),
       },
       defaultItemProps: { src: 'https://placehold.co/120x40/e2e8f0/64748b?text=Logo', alt: 'Logo', url: '' },
     },

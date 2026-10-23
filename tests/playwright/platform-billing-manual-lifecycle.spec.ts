@@ -30,7 +30,7 @@
 import { test, expect } from './utils/test'
 import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js'
 import { login } from './utils/auth'
-import { BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { BASE, ACCOUNTS } from './utils/constants'
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -178,7 +178,7 @@ async function domClick(page: import('@playwright/test').Page, selector: string)
  * assertions could not tell "confirmed" from "never rendered".
  */
 async function openRequestList(page: import('@playwright/test').Page, requestId: string) {
-  await page.goto(`${BASE}/${LOCALE}/platform/billing?tab=all`)
+  await page.goto(`${BASE}/platform/billing?tab=all`)
   await page.waitForSelector('[data-testid="platform-billing-page"]')
   const rowSelector = `[data-testid="billing-request-row"][data-request-id="${requestId}"]`
   await expect(page.locator(rowSelector)).toBeVisible()

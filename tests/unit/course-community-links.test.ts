@@ -16,12 +16,12 @@ const courses: CommunityCourse[] = Array.from({ length: 7 }, (_, i) => ({
 }))
 
 describe('course community links', () => {
-  it.each(['en', 'es'])('keeps %s in visible and folded course URLs', async (language) => {
+  it.each(['en', 'es'])('emits bare English URLs when the formatting locale is %s', async (language) => {
     locale.value = language
     const html = renderToStaticMarkup(await CourseCommunityLinks({ courses }))
     for (const course of courses) {
-      expect(html).toContain(`href="/${language}/dashboard/student/courses/${course.courseId}/community"`)
+      expect(html).toContain(`href="/dashboard/student/courses/${course.courseId}/community"`)
     }
-    expect(html).not.toContain('href="/dashboard/')
+    expect(html).not.toMatch(/href="\/(en|es)\//)
   })
 })

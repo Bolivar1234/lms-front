@@ -11,7 +11,7 @@ test.describe('Certificate Issuance E2E', () => {
     test.setTimeout(60000)
 
     // Step 1: Login
-    await page.goto(`${BASE_URL}/en/auth/login`)
+    await page.goto(`${BASE_URL}/auth/login`)
     await page.fill('input[type="email"]', STUDENT_EMAIL)
     await page.fill('input[type="password"]', STUDENT_PASSWORD)
     await page.click('button[type="submit"]')
@@ -19,7 +19,7 @@ test.describe('Certificate Issuance E2E', () => {
     console.log('✅ Logged in as student')
 
     // Step 2: Navigate to the last lesson
-    await page.goto(`${BASE_URL}/en/dashboard/student/courses/${COURSE_ID}/lessons/${LAST_LESSON_ID}`)
+    await page.goto(`${BASE_URL}/dashboard/student/courses/${COURSE_ID}/lessons/${LAST_LESSON_ID}`)
     await expect(page.locator('[data-testid="lesson-complete-toggle"]')).toBeVisible()
     console.log('📖 Navigated to last lesson:', page.url())
 
@@ -59,7 +59,7 @@ test.describe('Certificate Issuance E2E', () => {
 
     // Step 4: Verify certificate exists
     // Navigate to certificates page
-    await page.goto(`${BASE_URL}/en/dashboard/student/certificates`)
+    await page.goto(`${BASE_URL}/dashboard/student/certificates`)
     await expect(page.getByTestId('certificates-page')).toBeVisible()
     console.log('📜 Certificates page loaded')
 
@@ -74,7 +74,7 @@ test.describe('Certificate Issuance E2E', () => {
     }
 
     // Step 5: Also check exam result page shows certificate banner
-    await page.goto(`${BASE_URL}/en/dashboard/student/courses/${COURSE_ID}/exams/2001/result`)
+    await page.goto(`${BASE_URL}/dashboard/student/courses/${COURSE_ID}/exams/2001/result`)
     // May redirect to the exam or 404; the checks below only log, so nothing specific to wait on
     await page.waitForLoadState('domcontentloaded')
     console.log('📋 Exam result page loaded')

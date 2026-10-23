@@ -61,7 +61,8 @@ function pruneFields(fields: AnyFields): AnyFields {
   const out: AnyFields = {}
   for (const [k, f] of Object.entries(fields)) {
     if (!f || typeof f !== 'object') continue
-    const entry: AnyFields = { type: f.type }
+    // A custom editor may still persist a plain string (image/link upload widgets).
+    const entry: AnyFields = { type: f.type === 'custom' && f.valueType === 'string' ? 'text' : f.type }
     if (typeof f.label === 'string') entry.label = f.label
     if (Array.isArray(f.options)) {
       entry.options = f.options

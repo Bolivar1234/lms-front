@@ -71,15 +71,16 @@ describe('isProtectedPath', () => {
 })
 
 describe('localizePath', () => {
-  it('adds the locale only when the path lacks one', () => {
-    expect(localizePath('/products/1', 'es')).toBe('/es/products/1')
-    expect(localizePath('/es/products/1', 'es')).toBe('/es/products/1')
-    expect(localizePath('/en/products/1', 'es')).toBe('/en/products/1')
+  it('emits bare paths and keeps old locale-prefixed links compatible', () => {
+    expect(localizePath('/products/1', 'es')).toBe('/products/1')
+    expect(localizePath('/es/products/1', 'es')).toBe('/products/1')
+    expect(localizePath('/en/products/1', 'es')).toBe('/products/1')
+    expect(localizePath('/en', 'en')).toBe('/')
   })
 
   it('is not fooled by a segment that merely starts with a locale', () => {
-    expect(localizePath('/entrenamiento', 'es')).toBe('/es/entrenamiento')
-    expect(localizePath('/español', 'en')).toBe('/en/español')
+    expect(localizePath('/entrenamiento', 'es')).toBe('/entrenamiento')
+    expect(localizePath('/español', 'en')).toBe('/español')
   })
 })
 

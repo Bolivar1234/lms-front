@@ -1,3 +1,4 @@
+import { imageUploadField } from '../fields/image-upload-field'
 import type { ComponentConfig } from '@measured/puck'
 import {
   type SectionSpacingProps,
@@ -29,7 +30,7 @@ export const ContentFeature: ComponentConfig<ContentFeatureProps> = {
   fields: {
     heading: { type: 'text', label: 'Heading' },
     body: { type: 'textarea', label: 'Body' },
-    imageUrl: { type: 'text', label: 'Image URL' },
+    imageUrl: imageUploadField('Image URL'),
     imageAlt: { type: 'text', label: 'Image Alt Text' },
     imagePosition: {
       type: 'radio',

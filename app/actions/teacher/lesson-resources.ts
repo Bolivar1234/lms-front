@@ -5,48 +5,13 @@ import { createClient } from '@/lib/supabase/server'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
 import { getUserRole } from '@/lib/supabase/get-user-role'
 import { signLessonResourceDownload } from '@/lib/lessons/resource-download'
-import { nanoid } from 'nanoid'
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-const ALLOWED_TYPES = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'text/csv',
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-]
+import { authorizeLessonStorage } from '@/lib/storage/authorization'
+import { storeLessonMedia } from '@/lib/storage/lesson-media'
+import { isScopedLessonResourcePath } from '@/lib/storage/references'
 
 async function verifyLessonOwnership(lessonId: number) {
-  const supabase = await createClient()
-  const tenantId = await getCurrentTenantId()
-  const role = await getUserRole()
-
-  const userId = await getCurrentUserId()
-  if (!userId) throw new Error('Not authenticated')
-
-  const { data: lesson } = await supabase
-    .from('lessons')
-    .select('id, course_id, courses(author_id)')
-    .eq('id', lessonId)
-    .eq('tenant_id', tenantId)
-    .single()
-
-  if (!lesson) throw new Error('Lesson not found')
-
-  const course = lesson.courses as unknown as { author_id: string | null } | null
-  const isOwner = course?.author_id === userId
-  const isAdmin = role === 'admin'
-
-  if (!isOwner && !isAdmin) {
-    throw new Error('Access denied')
-  }
-
-  return { userId, tenantId }
+  const actor = await authorizeLessonStorage(lessonId)
+  return { userId: actor.user.id, tenantId: actor.tenantId }
 }
 
 export async function uploadLessonResource(
@@ -54,69 +19,10 @@ export async function uploadLessonResource(
   formData: FormData
 ): Promise<ActionResult<{ id: number; file_name: string; file_size: number; mime_type: string }>> {
   try {
-    const { userId, tenantId } = await verifyLessonOwnership(lessonId)
-    const file = formData.get('file') as File | null
-
-    if (!file) {
-      return { success: false, error: 'No file provided' }
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      return { success: false, error: 'File size must be under 10MB' }
-    }
-
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return { success: false, error: 'File type not allowed' }
-    }
-
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'bin'
-    const storagePath = `${tenantId}/${lessonId}/${nanoid()}.${ext}`
-
-    const adminClient = createAdminClient()
-
-    const { error: uploadError } = await adminClient.storage
-      .from('lesson-resources')
-      .upload(storagePath, file, {
-        contentType: file.type,
-        upsert: false,
-      })
-
-    if (uploadError) throw uploadError
-
-    // Get current max display_order
-    const { data: existing } = await adminClient
-      .from('lesson_resources')
-      .select('display_order')
-      .eq('lesson_id', lessonId)
-      .eq('tenant_id', tenantId)
-      .order('display_order', { ascending: false })
-      .limit(1)
-
-    const nextOrder = (existing?.[0]?.display_order ?? -1) + 1
-
-    const { data: resource, error: insertError } = await adminClient
-      .from('lesson_resources')
-      .insert({
-        lesson_id: lessonId,
-        tenant_id: tenantId,
-        file_name: file.name,
-        file_path: storagePath,
-        file_size: file.size,
-        mime_type: file.type,
-        uploaded_by: userId,
-        display_order: nextOrder,
-      })
-      .select('id, file_name, file_size, mime_type')
-      .single()
-
-    if (insertError) throw insertError
-
-    return { success: true, data: resource }
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : 'Failed to upload resource',
-    }
+    const asset = await storeLessonMedia(lessonId, formData, 'resource')
+    return { success: true, data: { id: asset.resourceId!, file_name: asset.fileName, file_size: asset.size, mime_type: asset.mimeType } }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to upload resource' }
   }
 }
 
@@ -124,37 +30,15 @@ export async function deleteLessonResource(
   resourceId: number
 ): Promise<ActionResult> {
   try {
-    const tenantId = await getCurrentTenantId()
-    const role = await getUserRole()
-    const userId = await getCurrentUserId()
-    if (!userId) throw new Error('Not authenticated')
-
     const adminClient = createAdminClient()
-
-    // Fetch resource and verify ownership
-    const { data: resource } = await adminClient
-      .from('lesson_resources')
-      .select('id, file_path, lesson_id, tenant_id, lessons(course_id, courses(author_id))')
-      .eq('id', resourceId)
-      .single()
-
-    if (!resource || resource.tenant_id !== tenantId) {
-      return { success: false, error: 'Resource not found' }
-    }
-
-    const course = (resource.lessons as unknown as { courses: { author_id: string | null } | null } | null)
-      ?.courses
-    const isOwner = course?.author_id === userId
-    const isAdmin = role === 'admin'
-
-    if (!isOwner && !isAdmin) {
-      return { success: false, error: 'Access denied' }
-    }
-
-    // Remove from storage
-    await adminClient.storage
-      .from('lesson-resources')
-      .remove([resource.file_path])
+    const tenantId = await getCurrentTenantId()
+    const { data: resource, error: lookupError } = await adminClient.from('lesson_resources')
+      .select('id, file_path, lesson_id, tenant_id').eq('id', resourceId).eq('tenant_id', tenantId).maybeSingle()
+    if (lookupError || !resource) throw new Error('Resource not found')
+    await authorizeLessonStorage(resource.lesson_id)
+    if (!isScopedLessonResourcePath(resource.file_path, tenantId, resource.lesson_id)) throw new Error('Invalid resource path')
+    const { error: removeError } = await adminClient.storage.from('lesson-resources').remove([resource.file_path])
+    if (removeError) throw new Error('Failed to delete stored resource')
 
     // Remove from DB
     const { error } = await adminClient
@@ -178,7 +62,8 @@ export async function reorderLessonResources(
   orderedIds: number[]
 ): Promise<ActionResult> {
   try {
-    await verifyLessonOwnership(lessonId)
+    const { tenantId } = await verifyLessonOwnership(lessonId)
+    if (!Array.isArray(orderedIds) || !orderedIds.every((id) => Number.isSafeInteger(id) && id > 0)) throw new Error('Invalid resource order')
 
     const adminClient = createAdminClient()
 
@@ -189,9 +74,11 @@ export async function reorderLessonResources(
         .update({ display_order: index })
         .eq('id', id)
         .eq('lesson_id', lessonId)
+        .eq('tenant_id', tenantId)
     )
 
-    await Promise.all(updates)
+    const results = await Promise.all(updates)
+    if (results.some((result) => result.error)) throw new Error('Failed to reorder resources')
 
     return { success: true }
   } catch (err) {

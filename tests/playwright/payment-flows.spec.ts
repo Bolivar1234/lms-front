@@ -11,7 +11,7 @@ import { BASE, TENANT_BASE } from './utils/constants'
 test.describe('Payment Flows', () => {
   test('pricing page shows tenant-specific products', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/pricing`)
+    await page.goto(`${TENANT_BASE}/pricing`)
     await expect(page.getByTestId('pricing-title')).toBeVisible()
     await expect(page.getByText(/Code Academy Pro Monthly/i)).toBeVisible()
     // Price displayed as integer: $19/mo
@@ -20,7 +20,7 @@ test.describe('Payment Flows', () => {
 
   test('manual checkout page renders product details', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/checkout/manual?productId=3&courseId=3`)
+    await page.goto(`${TENANT_BASE}/checkout/manual?productId=3&courseId=3`)
     // Alice may already have an active subscription covering this product
     const checkoutTitle = page.getByTestId('manual-checkout-title')
     const isCheckout = await checkoutTitle.isVisible({ timeout: 10_000 }).catch(() => false)
@@ -35,12 +35,12 @@ test.describe('Payment Flows', () => {
 
   test('student can view payment requests page', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/payments`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/payments`)
     await expect(page.getByTestId('payments-title')).toBeVisible()
   })
 
   test('checkout page requires authentication', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/checkout/manual?productId=3&courseId=3`)
+    await page.goto(`${TENANT_BASE}/checkout/manual?productId=3&courseId=3`)
     await page.waitForTimeout(2000)
     // Should redirect to login when not authenticated
     expect(page.url()).toMatch(/\/auth\/login/)
@@ -48,13 +48,13 @@ test.describe('Payment Flows', () => {
 
   test('default tenant pricing page renders', async ({ page }) => {
     await loginAsStudent(page)
-    await page.goto(`${BASE}/en/pricing`)
+    await page.goto(`${BASE}/pricing`)
     await expect(page.getByTestId('pricing-title')).toBeVisible()
   })
 
   test('payment request list is scoped to current tenant', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/payments`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/payments`)
     await expect(page.getByTestId('payments-page')).toBeVisible()
     // Should only show Code Academy payment data
     const body = await page.locator('body').textContent()
@@ -114,7 +114,7 @@ test.describe('Student payments list names plan requests (#757)', () => {
     test(`shows the plan name, not "Unknown Product" (${viewport.name})`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height })
       await loginAsTenantStudent(page)
-      await page.goto(`${TENANT_BASE}/en/dashboard/student/payments`)
+      await page.goto(`${TENANT_BASE}/dashboard/student/payments`)
       await expect(page.getByTestId('payments-page')).toBeVisible()
 
       if (process.env.QA_SHOTS_DIR) {

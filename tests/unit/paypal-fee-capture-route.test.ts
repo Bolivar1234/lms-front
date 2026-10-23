@@ -243,7 +243,7 @@ describe('GET /api/billing/fees/paypal/capture', () => {
       const res = await call(next)
       const loc = new URL(res.headers.get('location')!)
       expect(loc.origin).toBe(ORIGIN)
-      expect(loc.pathname).toBe('/en/dashboard/admin/earnings')
+      expect(loc.pathname).toBe('/dashboard/admin/earnings')
       expect(loc.searchParams.get('paypal')).toBe('unauthorized')
     }
   })

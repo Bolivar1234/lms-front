@@ -41,7 +41,6 @@
 import { test, expect } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { login } from './utils/auth'
-import { LOCALE } from './utils/constants'
 import {
   SEEDED,
   addMember,
@@ -226,7 +225,7 @@ test.describe('analytics arithmetic (#716)', () => {
   })
 
   test('the revenue page reports gross, fees and net to the cent', async ({ page }) => {
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/revenue`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/revenue`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('revenue-page')).toBeVisible({ timeout: 20_000 })
 
     // 310.00, not 360.00: the partial refund is netted out, the full refund is gone.
@@ -238,7 +237,7 @@ test.describe('analytics arithmetic (#716)', () => {
   })
 
   test('revenue by product splits the same money between the two products', async ({ page }) => {
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/revenue`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/revenue`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('revenue-page')).toBeVisible({ timeout: 20_000 })
 
     await expect(page.getByTestId('revenue-by-product-row')).toHaveCount(2)
@@ -249,7 +248,7 @@ test.describe('analytics arithmetic (#716)', () => {
   })
 
   test('the analytics page reports the same revenue as the revenue page', async ({ page }) => {
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/analytics?period=30`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/analytics?period=30`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('analytics-page')).toBeVisible({ timeout: 20_000 })
 
     // Two screens, one ledger: they must agree, or one of them is lying (#547).
@@ -258,7 +257,7 @@ test.describe('analytics arithmetic (#716)', () => {
   })
 
   test('engagement metrics count real learning activity, not zeros', async ({ page }) => {
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/analytics?period=30`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/analytics?period=30`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('analytics-page')).toBeVisible({ timeout: 20_000 })
 
     await expect(page.getByTestId('engagement-enrollments')).toHaveText(EXPECTED.enrollments)
@@ -272,7 +271,7 @@ test.describe('analytics arithmetic (#716)', () => {
   })
 
   test('course popularity ranks the courses and rates each one', async ({ page }) => {
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/analytics?period=30`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/analytics?period=30`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('analytics-page')).toBeVisible({ timeout: 20_000 })
 
     // The whole chart was empty for every school until #716: the courses query
@@ -285,7 +284,7 @@ test.describe('analytics arithmetic (#716)', () => {
   })
 
   test('the admin dashboard stat cards agree with the revenue page', async ({ page }) => {
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('admin-stats-grid')).toBeVisible({ timeout: 20_000 })
 
     await expect(page.getByTestId('admin-stat-revenue')).toHaveText(EXPECTED.gross)
@@ -296,7 +295,7 @@ test.describe('analytics arithmetic (#716)', () => {
   test('another school never sees this ledger', async ({ page }) => {
     // The same admin account also administers the Default School; every figure
     // above is tenant-scoped arithmetic, so the seeded tenant must not move.
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/revenue`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/revenue`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('revenue-total')).toHaveText(EXPECTED.gross)
 
     const admin = getAdmin()

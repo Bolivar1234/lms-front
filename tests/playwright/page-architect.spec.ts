@@ -126,7 +126,7 @@ async function outline(page: Page): Promise<string[]> {
 
 async function openEditor(page: Page) {
   await loginAsAdmin(page)
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/landing-page`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${TENANT_BASE}/dashboard/admin/landing-page`, { waitUntil: 'domcontentloaded' })
   const row = page.locator('tr', { hasText: TITLE })
   await row.waitFor({ timeout: 60_000 })
   // A click before the list hydrates lands on server HTML and does nothing: press until the
@@ -310,7 +310,7 @@ test.describe('Page Architect (mocked /api/landing/chat)', () => {
     })
     try {
       await loginAsAdmin(page)
-      await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/landing-page`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${TENANT_BASE}/dashboard/admin/landing-page`, { waitUntil: 'domcontentloaded' })
       const newPage = page.getByRole('button', { name: /new page/i }).first()
       const dialog = page.getByRole('dialog')
       await newPage.waitFor({ timeout: 60_000 })

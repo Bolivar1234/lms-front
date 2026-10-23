@@ -1,6 +1,6 @@
 import { test, expect } from './utils/test'
 import { login } from './utils/auth'
-import { BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { BASE, ACCOUNTS } from './utils/constants'
 import { DEFAULT_TENANT, getServiceRoleClient } from './utils/seed-state'
 
 /**
@@ -25,7 +25,7 @@ import { DEFAULT_TENANT, getServiceRoleClient } from './utils/seed-state'
  * on for Default School and off again afterwards. Stripe defaults to enabled.
  */
 
-const UPGRADE = `${BASE}/${LOCALE}/dashboard/admin/billing/upgrade`
+const UPGRADE = `${BASE}/dashboard/admin/billing/upgrade`
 
 const CRYPTO_TOGGLES = ['binance_enabled', 'solana_enabled']
 

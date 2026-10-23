@@ -1,38 +1,31 @@
 import { test, expect } from './utils/test'
 import { BASE } from './utils/constants'
+import { loginAsStudent } from './utils/auth'
 
-/**
- * P2 — Internationalization Tests
- * Verifies locale routing and language switching.
- */
-
-test.describe('Internationalization', () => {
-  test('default route includes /en locale', async ({ page }) => {
+test.describe('English URLs', () => {
+  test('the root stays locale-free and ignores a previous language preference', async ({ page, context }) => {
+    await context.addCookies([{ name: 'NEXT_LOCALE', value: 'es', url: BASE }])
+    await page.setExtraHTTPHeaders({ 'Accept-Language': 'es' })
     await page.goto(`${BASE}/`)
-    await expect(page).toHaveURL(/\/en/)
+    await expect(page).toHaveURL(`${BASE}/`)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.getByRole('button', { name: /toggle language/i })).toHaveCount(0)
   })
 
-  test('/es locale route loads correctly', async ({ page }) => {
-    await page.goto(`${BASE}/es`)
-    await expect(page).toHaveURL(/\/es/)
-  })
+  for (const oldLocale of ['en', 'es']) {
+    test(`old /${oldLocale} links reach the English page and preserve the query`, async ({ page }) => {
+      await page.goto(`${BASE}/${oldLocale}/auth/login?next=%2Fcourses`)
+      await expect(page).toHaveURL(`${BASE}/auth/login?next=%2Fcourses`)
+      await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+      await expect(page.getByTestId('login-submit')).toHaveText(/log\s?in|sign\s?in/i)
+    })
+  }
 
-  test('login page renders in Spanish', async ({ page }) => {
-    await page.goto(`${BASE}/es/auth/login`)
-    await expect(page.getByTestId('login-title')).toBeVisible()
-    await expect(page.getByTestId('login-email')).toBeVisible()
-    // The page should contain Spanish text
-    const body = await page.locator('body').textContent()
-    expect(body).toMatch(/Iniciar|Correo|Contraseña/i)
-  })
-
-  test('dashboard respects locale from URL', async ({ page }) => {
-    await page.goto(`${BASE}/es/auth/login`)
-    await page.getByTestId('login-email').fill('student@e2etest.com')
-    await page.getByTestId('login-password').fill('password123')
-    await page.getByTestId('login-submit').click()
-    await page.waitForURL('**/dashboard/**', { timeout: 20_000 })
-    // URL should preserve /es/ locale
-    expect(page.url()).toContain('/es/')
+  test('authenticated navigation emits bare English URLs', async ({ page }) => {
+    await loginAsStudent(page)
+    await expect(page).toHaveURL(`${BASE}/dashboard/student`)
+    const hrefs = await page.locator('a[href]').evaluateAll((links) => links.map((link) => link.getAttribute('href')!))
+    expect(hrefs.filter((href) => /^\/(en|es)(\/|$)/.test(href))).toEqual([])
+    await expect(page.getByRole('button', { name: /toggle language/i })).toHaveCount(0)
   })
 })

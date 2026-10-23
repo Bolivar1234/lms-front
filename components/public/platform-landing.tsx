@@ -16,7 +16,7 @@ const SUN_VARS = { "--sun": "#FFC247", "--sun-ink": "#11142B" } as React.CSSProp
 const H2 = cn(display.className, "text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl")
 const H3 = cn(display.className, "text-2xl font-bold leading-tight tracking-tight sm:text-3xl")
 
-const PAY_METHODS = ["cards", "paypal", "binance", "solana", "transfer"] as const
+const PAY_METHODS = ["cards", "paypal", "binance", "transfer"] as const
 const STEPS = ["create", "build", "share"] as const
 const PLANS = [
   { key: "free", lines: ["f1", "f2", "f3"], featured: false },

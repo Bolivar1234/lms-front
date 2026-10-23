@@ -12,6 +12,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { hasCourseAccess } from '@/lib/services/course-access'
+import { isScopedLessonResourcePath } from '@/lib/storage/references'
 
 /** Seconds a signed URL stays valid. Callers open it right away. */
 export const RESOURCE_URL_TTL_SECONDS = 300
@@ -54,6 +55,7 @@ export async function signLessonResourceDownload(
   // Belt and braces on the tenant: the filter above already scopes it.
   if (!resource || resource.tenant_id !== tenantId) return { ok: false, code: 'not_found' }
   if (lessonId !== undefined && resource.lesson_id !== lessonId) return { ok: false, code: 'not_found' }
+  if (!isScopedLessonResourcePath(resource.file_path, tenantId, resource.lesson_id)) return { ok: false, code: 'not_found' }
 
   const courseId = resource.lessons?.course_id
   if (!courseId) return { ok: false, code: 'not_found' }

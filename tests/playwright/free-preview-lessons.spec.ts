@@ -13,7 +13,7 @@
  */
 
 import { test, expect } from './utils/test'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 import { loginAsAdmin } from './utils/auth'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT } from './utils/seed-state'
 
@@ -72,7 +72,7 @@ test.describe('Free preview lessons (#791)', () => {
   test('the catalog says which courses can be started without an account', async ({ page }) => {
     test.setTimeout(120_000)
 
-    await page.goto(`${TENANT_BASE}/${LOCALE}/courses?search=%23791`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${TENANT_BASE}/courses?search=%23791`, { waitUntil: 'domcontentloaded' })
 
     const withPreviews = page.getByRole('link', { name: new RegExp(PREVIEW_COURSE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })
     await expect(withPreviews).toBeVisible({ timeout: 60_000 })
@@ -91,7 +91,7 @@ test.describe('Free preview lessons (#791)', () => {
     // A dev server cold-compiles the course and lesson routes on first visit.
     test.setTimeout(240_000)
 
-    await page.goto(`${TENANT_BASE}/${LOCALE}/courses/${previewCourseId}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${TENANT_BASE}/courses/${previewCourseId}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { name: PREVIEW_COURSE })).toBeVisible({ timeout: 120_000 })
 
     // The curriculum is behind the "All Lessons" accordion, closed on arrival.
@@ -132,7 +132,7 @@ test.describe('Free preview lessons (#791)', () => {
     const admin = getServiceRoleClient()
 
     await loginAsAdmin(page, TENANT_BASE)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/teacher/courses/${previewCourseId}`, {
+    await page.goto(`${TENANT_BASE}/dashboard/teacher/courses/${previewCourseId}`, {
       waitUntil: 'domcontentloaded',
     })
 
@@ -159,7 +159,7 @@ test.describe('Free preview lessons (#791)', () => {
     const anon = await page.context().browser()!.newContext()
     const anonPage = await anon.newPage()
     await anonPage.goto(
-      `${TENANT_BASE}/${LOCALE}/courses/${previewCourseId}/lessons/${lockedLessonId}`,
+      `${TENANT_BASE}/courses/${previewCourseId}/lessons/${lockedLessonId}`,
       { waitUntil: 'domcontentloaded' }
     )
     await expect(anonPage.getByText('Secret.')).toBeVisible({ timeout: 60_000 })
@@ -175,7 +175,7 @@ test.describe('Free preview lessons (#791)', () => {
 
   test('a lesson that is not a preview stays shut for a logged-out visitor', async ({ page }) => {
     await page.goto(
-      `${TENANT_BASE}/${LOCALE}/courses/${previewCourseId}/lessons/${lockedLessonId}`,
+      `${TENANT_BASE}/courses/${previewCourseId}/lessons/${lockedLessonId}`,
       { waitUntil: 'domcontentloaded' }
     )
     // The property is that the body never reaches the page — asserted on the

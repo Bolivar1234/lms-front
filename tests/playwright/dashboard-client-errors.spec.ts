@@ -1,6 +1,6 @@
 import { test, expect, type ConsoleMessage, type Page } from './utils/test'
 import { loginAsStudent } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 
 /**
  * Regression net for LMS-FRONT-9F / 8F (issue #679).
@@ -50,8 +50,8 @@ function captureClientErrors(page: Page): string[] {
 }
 
 const ROUTES = [
-  { name: 'student dashboard (LMS-FRONT-8F)', path: `/${LOCALE}/dashboard/student` },
-  { name: 'student profile (LMS-FRONT-9F)', path: `/${LOCALE}/dashboard/student/profile` },
+  { name: 'student dashboard (LMS-FRONT-8F)', path: `/dashboard/student` },
+  { name: 'student profile (LMS-FRONT-9F)', path: `/dashboard/student/profile` },
 ]
 
 test.describe('Student dashboard renders without a React hook-order crash (#679)', () => {

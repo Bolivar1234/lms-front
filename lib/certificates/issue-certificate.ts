@@ -4,6 +4,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { Json } from '@/lib/database.types';
 import { generateAchievementCredential, signCredential } from './open-badges';
 import { getSchoolBrand } from '@/lib/themes/school-brand';
@@ -195,6 +196,7 @@ export async function issueCertificate(
 
         // 12. Generate PDF certificate
         const verificationUrl = `${appUrl}/verify/${verificationCode}`;
+        const storageAdmin = createAdminClient();
 
         const { generateAndUploadPDF } = await import('./pdf-generator');
         const pdfUrl = await generateAndUploadPDF(
@@ -215,7 +217,7 @@ export async function issueCertificate(
                 showQrCode: template.design_settings?.show_qr_code,
             },
             certificate.certificate_id,
-            supabase
+            storageAdmin
         );
 
         // 13. Generate badge image
@@ -231,7 +233,7 @@ export async function issueCertificate(
                 credential: signedCredential,
             },
             certificate.certificate_id,
-            supabase
+            storageAdmin
         );
 
         // 14. Update certificate with file URLs

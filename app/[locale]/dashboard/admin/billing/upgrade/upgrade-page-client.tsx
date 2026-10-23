@@ -118,7 +118,7 @@ export function UpgradePageClient({
       // polled, not an address a desktop browser can navigate to — sending the
       // admin there would dead-end them on an unhandled protocol.
       if (data.kind === 'qr' && data.requestId) {
-        router.push(`/${locale}/dashboard/admin/billing/checkout/${data.requestId}`)
+        router.push(`/dashboard/admin/billing/checkout/${data.requestId}`)
       } else if (data.url) {
         window.location.href = data.url
       } else {
@@ -162,7 +162,7 @@ export function UpgradePageClient({
   }
 
   const navigateToBilling = () => {
-    router.push(`/${locale}/dashboard/admin/billing`)
+    router.push(`/dashboard/admin/billing`)
   }
 
   if (manualTransfer) {

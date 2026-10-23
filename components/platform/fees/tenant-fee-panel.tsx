@@ -82,7 +82,7 @@ export async function TenantFeePanel({ tenantId, locale }: { tenantId: string; l
         >
           <IconAlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
           <span className="min-w-0 flex-1">{t('noBankAccount')}</span>
-          <Link href={`/${locale}/platform/bank-accounts`} className="font-medium underline underline-offset-4">
+          <Link href={`/platform/bank-accounts`} className="font-medium underline underline-offset-4">
             {t('noBankAccountLink')}
           </Link>
         </p>
@@ -188,7 +188,7 @@ export async function TenantFeePanel({ tenantId, locale }: { tenantId: string; l
                     </span>
                     <span className="tabular-nums">{formatMoney(s.feeAmount, s.currency, locale)}</span>
                     <Link
-                      href={`/${locale}/platform/tenants/${tenantId}/statements/${s.statementNumber}`}
+                      href={`/platform/tenants/${tenantId}/statements/${s.statementNumber}`}
                       className="text-xs text-primary hover:underline underline-offset-4"
                     >
                       {t('viewStatement')}

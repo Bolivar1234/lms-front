@@ -22,7 +22,7 @@
 import { test, expect, type Browser, type Page } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { login, loginAsAdmin, loginAsTenantStudent } from './utils/auth'
-import { LOCALE, TENANT_BASE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 
 const CODE_ACADEMY = '00000000-0000-0000-0000-000000000002'
 const ALICE_ID = 'a1000000-0000-0000-0000-000000000004'
@@ -39,11 +39,11 @@ const FEEDBACK = 'Clear and correct — add an example next time.'
 const B_EMAIL = `qa-873-b-${RUN}@e2etest.com`
 const B_PASSWORD = 'password123'
 
-const TEACHER_COURSE = `${TENANT_BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}`
-const TEACHER_DASHBOARD = `${TENANT_BASE}/${LOCALE}/dashboard/teacher`
-const LESSON = `${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/lessons/${LESSON_ID}`
-const COURSE_FEED = `${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/community`
-const PROGRESS = `${TENANT_BASE}/${LOCALE}/dashboard/student/progress`
+const TEACHER_COURSE = `${TENANT_BASE}/dashboard/teacher/courses/${COURSE_ID}`
+const TEACHER_DASHBOARD = `${TENANT_BASE}/dashboard/teacher`
+const LESSON = `${TENANT_BASE}/dashboard/student/courses/${COURSE_ID}/lessons/${LESSON_ID}`
+const COURSE_FEED = `${TENANT_BASE}/dashboard/student/courses/${COURSE_ID}/community`
+const PROGRESS = `${TENANT_BASE}/dashboard/student/progress`
 
 function admin() {
   return createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {

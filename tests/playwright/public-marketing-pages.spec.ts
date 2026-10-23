@@ -160,10 +160,10 @@ test.describe('public marketing pages (#716)', () => {
     test.skip(testInfo.project.name !== 'desktop-chromium', 'runs once — fixtures are shared DB state')
   })
 
-  for (const locale of ['en', 'es'] as Locale[]) {
-    test(`the marketing home renders its own copy in /${locale}`, async ({ page }) => {
+  for (const locale of ['en'] as Locale[]) {
+    test(`the marketing home renders its own copy in `, async ({ page }) => {
       const hero = catalogue[locale].home.hero
-      const response = await page.goto(`${BASE}/${locale}`, { waitUntil: 'domcontentloaded' })
+      const response = await page.goto(`${BASE}`, { waitUntil: 'domcontentloaded' })
 
       expect(response?.status()).toBeLessThan(400)
       // Still anonymous: an entry point that bounces to the login wall is the
@@ -174,9 +174,9 @@ test.describe('public marketing pages (#716)', () => {
       await expectNoErrorBoundary(page)
     })
 
-    test(`/creators reads ${locale === 'en' ? 'English' : 'Spanish'} in /${locale}`, async ({ page }) => {
+    test(`/creators reads ${locale === 'en' ? 'English' : 'Spanish'} in `, async ({ page }) => {
       const creators = catalogue[locale].creators
-      const response = await page.goto(`${BASE}/${locale}/creators`, { waitUntil: 'domcontentloaded' })
+      const response = await page.goto(`${BASE}/creators`, { waitUntil: 'domcontentloaded' })
 
       expect(response?.status()).toBeLessThan(400)
       await expect(page.getByRole('heading', { name: creators.heroTitle }).first()).toBeVisible({ timeout: 20_000 })
@@ -194,7 +194,7 @@ test.describe('public marketing pages (#716)', () => {
     if (error) throw new Error(`could not read the plans: ${error.message}`)
     expect(plans?.length ?? 0).toBeGreaterThan(0)
 
-    const response = await page.goto(`${BASE}/en/platform-pricing`, { waitUntil: 'domcontentloaded' })
+    const response = await page.goto(`${BASE}/platform-pricing`, { waitUntil: 'domcontentloaded' })
     expect(response?.status()).toBeLessThan(400)
     expect(page.url()).not.toContain('/auth/login')
 
@@ -207,7 +207,7 @@ test.describe('public marketing pages (#716)', () => {
   })
 
   test('/courses shows this school’s published courses and nobody else’s', async ({ page }) => {
-    const response = await page.goto(`${QA_BASE}/en/courses`, { waitUntil: 'domcontentloaded' })
+    const response = await page.goto(`${QA_BASE}/courses`, { waitUntil: 'domcontentloaded' })
     expect(response?.status()).toBeLessThan(400)
     expect(page.url()).not.toContain('/auth/login')
     await expectStillOnTenant(page)
@@ -230,15 +230,16 @@ test.describe('public marketing pages (#716)', () => {
     await expectNoErrorBoundary(page)
   })
 
-  test('/courses reads Spanish in /es', async ({ page }) => {
+  test('an old Spanish catalogue URL resolves to the English catalogue', async ({ page }) => {
     await page.goto(`${QA_BASE}/es/courses`, { waitUntil: 'domcontentloaded' })
     await expectStillOnTenant(page)
-    await expect(page.getByText(es.coursesCatalog.title).first()).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByText(en.coursesCatalog.title, { exact: true })).toHaveCount(0)
+    await expect(page).toHaveURL(`${QA_BASE}/courses`)
+    await expect(page.getByText(en.coursesCatalog.title).first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByText(es.coursesCatalog.title, { exact: true })).toHaveCount(0)
   })
 
   test('/pricing offers the school’s own plans to a stranger', async ({ page }) => {
-    const response = await page.goto(`${QA_BASE}/en/pricing`, { waitUntil: 'domcontentloaded' })
+    const response = await page.goto(`${QA_BASE}/pricing`, { waitUntil: 'domcontentloaded' })
     expect(response?.status()).toBeLessThan(400)
     expect(page.url()).not.toContain('/auth/login')
 
@@ -251,7 +252,7 @@ test.describe('public marketing pages (#716)', () => {
   test('a published Puck landing page replaces the default school page', async ({ page }) => {
     await seedLandingPage(getAdmin(), true)
 
-    const response = await page.goto(`${QA_BASE}/en`, { waitUntil: 'domcontentloaded' })
+    const response = await page.goto(`${QA_BASE}`, { waitUntil: 'domcontentloaded' })
     expect(response?.status()).toBeLessThan(400)
 
     await expectStillOnTenant(page)
@@ -262,7 +263,7 @@ test.describe('public marketing pages (#716)', () => {
   test('an unpublished one falls back to the school landing page', async ({ page }) => {
     await seedLandingPage(getAdmin(), false)
 
-    await page.goto(`${QA_BASE}/en`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}`, { waitUntil: 'domcontentloaded' })
 
     await expectStillOnTenant(page)
     await expect(page.getByRole('heading', { name: QA.name }).first()).toBeVisible({ timeout: 20_000 })
@@ -272,7 +273,7 @@ test.describe('public marketing pages (#716)', () => {
   })
 
   test('the public course page is reachable without an account', async ({ page }) => {
-    const response = await page.goto(`${QA_BASE}/en/courses/${publishedCourseId}`, { waitUntil: 'domcontentloaded' })
+    const response = await page.goto(`${QA_BASE}/courses/${publishedCourseId}`, { waitUntil: 'domcontentloaded' })
 
     expect(response?.status()).toBeLessThan(400)
     expect(page.url()).not.toContain('/auth/login')

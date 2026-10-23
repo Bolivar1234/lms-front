@@ -42,7 +42,7 @@ export default async function PlatformLayout({
   const user = await getSessionUser()
 
   if (!user || !(await isSuperAdmin())) {
-    redirect(`/${locale}/auth/login`)
+    redirect(`/auth/login`)
   }
 
   return (

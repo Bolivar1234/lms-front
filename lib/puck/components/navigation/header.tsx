@@ -1,3 +1,5 @@
+import { pageLinkField } from '../fields/page-link-field'
+import { imageUploadField } from '../fields/image-upload-field'
 import Link from 'next/link'
 import { ButtonLink, safeHref } from '../../utils/button-link'
 import type { ComponentConfig } from '@measured/puck'
@@ -28,19 +30,19 @@ export type HeaderProps = {
 export const Header: ComponentConfig<HeaderProps> = {
   label: 'Header',
   fields: {
-    logo: { type: 'text', label: 'Logo Image URL' },
+    logo: imageUploadField('Logo Image URL'),
     logoText: { type: 'text', label: 'Logo Text (fallback)' },
     navLinks: {
       type: 'array',
       label: 'Navigation Links',
       arrayFields: {
         label: { type: 'text', label: 'Label' },
-        href: { type: 'text', label: 'URL' },
+        href: pageLinkField('URL'),
       },
       defaultItemProps: { label: 'Link', href: '#' },
     },
     ctaLabel: { type: 'text', label: 'CTA Button Label' },
-    ctaHref: { type: 'text', label: 'CTA Button URL' },
+    ctaHref: pageLinkField('CTA Button URL'),
     showLogin: {
       type: 'radio',
       label: 'Show Login Button',

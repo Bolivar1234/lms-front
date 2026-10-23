@@ -164,7 +164,7 @@ test.describe('GET /api/lessons/:lessonId/resources/:resourceId/url (#848)', () 
   test('the web lesson page still downloads through the shared gate', async ({ page }) => {
     test.setTimeout(180_000)
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/courses/2001/lessons/${CA_LESSON}`, {
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/2001/lessons/${CA_LESSON}`, {
       waitUntil: 'domcontentloaded',
     })
     const row = page.locator('div.rounded-lg', { has: page.getByText('e2e-848.csv', { exact: true }) })

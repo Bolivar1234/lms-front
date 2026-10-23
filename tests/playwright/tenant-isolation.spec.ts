@@ -12,7 +12,7 @@ test.describe('Tenant Isolation', () => {
     page,
   }) => {
     await loginAsStudent(page)
-    await page.goto(`${BASE}/en/dashboard/student/browse`)
+    await page.goto(`${BASE}/dashboard/student/browse`)
     await expect(page.getByTestId('browse-course-count')).toBeVisible()
     // Python for Beginners belongs to Code Academy — must NOT appear
     await expect(page.getByText(/Python for Beginners/i)).not.toBeVisible()
@@ -22,7 +22,7 @@ test.describe('Tenant Isolation', () => {
     page,
   }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/browse`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/browse`)
     await expect(page.getByTestId('browse-course-count')).toBeVisible()
     // Introduction to Testing belongs to default tenant — must NOT appear
     await expect(page.getByText(/Introduction to Testing/i)).not.toBeVisible()
@@ -33,7 +33,7 @@ test.describe('Tenant Isolation', () => {
   }) => {
     // student@e2etest.com is NOT a member of code-academy
     await loginAsStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student`, { timeout: 30_000 })
+    await page.goto(`${TENANT_BASE}/dashboard/student`, { timeout: 30_000 })
     await page.waitForURL(/\/join-school|\/auth\/login/)
     const url = page.url()
     expect(url).toMatch(/\/join-school|\/auth\/login/)
@@ -54,14 +54,14 @@ test.describe('Tenant Isolation', () => {
     page,
   }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/pricing`)
+    await page.goto(`${TENANT_BASE}/pricing`)
     await expect(page.getByTestId('pricing-title')).toBeVisible()
     await expect(page.getByText(/Code Academy Pro Monthly/i)).toBeVisible()
   })
 
   test('teacher courses list scoped to current tenant', async ({ page }) => {
     await login(page, ACCOUNTS.teacher.email, ACCOUNTS.teacher.password, BASE)
-    await page.goto(`${BASE}/en/dashboard/teacher/courses`)
+    await page.goto(`${BASE}/dashboard/teacher/courses`)
     await expect(page.getByTestId('teacher-courses-list')).toBeVisible()
     // Should not contain Code Academy courses
     await expect(page.getByText(/Python for Beginners/i)).not.toBeVisible()
@@ -69,7 +69,7 @@ test.describe('Tenant Isolation', () => {
 
   test('student browse page scoped to current tenant', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/browse`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/browse`)
     await expect(page.getByTestId('browse-title')).toBeVisible()
     // Code Academy should show its own courses
     await expect(page.getByText(/Python for Beginners/i)).toBeVisible()
@@ -78,18 +78,18 @@ test.describe('Tenant Isolation', () => {
   test('API request to pages includes tenant context', async ({ page }) => {
     await loginAsTenantStudent(page)
     // Navigate to a page and verify it loads correctly on the tenant subdomain
-    await page.goto(`${TENANT_BASE}/en/dashboard/student`)
+    await page.goto(`${TENANT_BASE}/dashboard/student`)
     await expect(page).toHaveURL(/code-academy\.lvh\.me/)
   })
 
   test('platform root (lvh.me) loads', async ({ page }) => {
-    await page.goto(`${BASE}/en`)
+    await page.goto(`${BASE}`)
     // Derive from BASE rather than hardcoding a port — the dev server may run anywhere.
-    await expect(page).toHaveURL(`${BASE}/en`)
+    await expect(page).toHaveURL(`${BASE}`)
   })
 
   test('subdomain (code-academy.lvh.me) shows Code Academy Pro', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en`)
+    await page.goto(`${TENANT_BASE}`)
     await expect(page.getByText(/Code Academy Pro/i).first()).toBeVisible({ timeout: 15_000 })
   })
 })

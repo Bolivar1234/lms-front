@@ -27,7 +27,7 @@
 import { test, expect, type APIRequestContext } from './utils/test'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { login } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 import {
   DAY_MS,
   SEEDED,
@@ -291,7 +291,7 @@ test.describe('platform fee lifecycle (#929)', () => {
     expect(Number(ledger![0].accrued)).toBe(EXPECTED_OWED)
 
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/earnings`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/earnings`, { waitUntil: 'domcontentloaded' })
     const card = page.getByTestId('fee-balance-card')
     await expect(card).toBeVisible({ timeout: 30_000 })
     await expect(card.getByTestId('fee-balance-error')).toHaveCount(0)
@@ -375,7 +375,7 @@ test.describe('platform fee lifecycle (#929)', () => {
 
     // The checkout page shows the neutral notice instead of any payment UI.
     await login(page, SEEDED.student.email, SEEDED.student.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/checkout?courseId=${stripeCourseId}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/checkout?courseId=${stripeCourseId}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('checkout-sales-blocked')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByTestId('checkout-sales-blocked')).toHaveText(
       "This school isn't accepting new enrollments right now. Please try again later.",
@@ -384,7 +384,7 @@ test.describe('platform fee lifecycle (#929)', () => {
     await expect(page.getByText(/platform fee|overdue/i)).toHaveCount(0)
 
     // The bank-transfer request page shows the same notice, not a submit form.
-    await page.goto(`${QA_BASE}/${LOCALE}/checkout/manual?productId=${openManualProductId}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/checkout/manual?productId=${openManualProductId}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('checkout-sales-blocked')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByRole('button', { name: /submit request/i })).toHaveCount(0)
     await expect(page.getByText(/platform fee|overdue/i)).toHaveCount(0)
@@ -393,10 +393,10 @@ test.describe('platform fee lifecycle (#929)', () => {
   test('super admin adds the platform bank account; the fee panel stops warning', async ({ page }) => {
     test.setTimeout(120_000)
     await login(page, SEEDED.owner.email, SEEDED.owner.password, BASE)
-    await page.goto(`${BASE}/${LOCALE}/platform/tenants/${QA.id}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/platform/tenants/${QA.id}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('tenant-fee-no-bank-account')).toBeVisible({ timeout: 30_000 })
 
-    await page.goto(`${BASE}/${LOCALE}/platform/bank-accounts`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/platform/bank-accounts`, { waitUntil: 'domcontentloaded' })
     await page.getByTestId('bank-account-add-btn').first().click()
     const form = page.getByTestId('bank-account-dialog')
     await expect(form).toBeVisible()
@@ -425,7 +425,7 @@ test.describe('platform fee lifecycle (#929)', () => {
     expect(audit?.map((a) => a.action)).toEqual(['bank_account_created'])
     expect(JSON.stringify(audit)).not.toContain(BANK_ACCOUNT_NUMBER)
 
-    await page.goto(`${BASE}/${LOCALE}/platform/tenants/${QA.id}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/platform/tenants/${QA.id}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('tenant-fee-panel')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByTestId('tenant-fee-no-bank-account')).toHaveCount(0)
   })
@@ -433,7 +433,7 @@ test.describe('platform fee lifecycle (#929)', () => {
   test('admin requests a bank-transfer pay-now for the full balance', async ({ page }) => {
     test.setTimeout(120_000)
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/earnings`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/earnings`, { waitUntil: 'domcontentloaded' })
     const card = page.getByTestId('fee-balance-card')
     await expect(card.getByTestId('fee-standing-state')).toHaveText('Sales paused', { timeout: 30_000 })
 
@@ -480,7 +480,7 @@ test.describe('platform fee lifecycle (#929)', () => {
   test('super admin confirms the transfer: balance cleared and sales resume at once', async ({ page, request }) => {
     test.setTimeout(120_000)
     await login(page, SEEDED.owner.email, SEEDED.owner.password, BASE)
-    await page.goto(`${BASE}/${LOCALE}/platform/tenants/${QA.id}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/platform/tenants/${QA.id}`, { waitUntil: 'domcontentloaded' })
     const panel = page.getByTestId('tenant-fee-panel')
     await expect(panel).toBeVisible({ timeout: 30_000 })
     await panel.getByTestId('fee-confirm-request-btn').click()

@@ -17,15 +17,15 @@
 import { test, expect, type Page } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { loginAsAdmin, loginAsTenantStudent } from './utils/auth'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 
 const CODE_ACADEMY_TENANT = '00000000-0000-0000-0000-000000000002'
 const MARK = `[E2E-860 ${Date.now()}]`
-const STUDENT_FEED = `${TENANT_BASE}/${LOCALE}/dashboard/student/community`
-const ADMIN_FEED = `${TENANT_BASE}/${LOCALE}/dashboard/admin/community`
+const STUDENT_FEED = `${TENANT_BASE}/dashboard/student/community`
+const ADMIN_FEED = `${TENANT_BASE}/dashboard/admin/community`
 const COURSE_ID = 2001 // Python for Beginners — alice has access (seed)
-const COURSE_FEED = `${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/community`
-const TEACHER_COURSE_FEED = `${TENANT_BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/community`
+const COURSE_FEED = `${TENANT_BASE}/dashboard/student/courses/${COURSE_ID}/community`
+const TEACHER_COURSE_FEED = `${TENANT_BASE}/dashboard/teacher/courses/${COURSE_ID}/community`
 const PAGED = 25 // > one page of 20
 
 // 1×1 transparent PNG

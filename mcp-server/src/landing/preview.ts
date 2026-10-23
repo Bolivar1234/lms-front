@@ -6,7 +6,7 @@
  * the bound course/product/plan names in `RefLookup` — the same tenant-filtered lookup that
  * validated the ids — and `binding` tells the reader what the block is wired to.
  */
-import { normalizeRefIds, pageCatalog, refKindOf, isListRef, type PageData } from "@lms/core";
+import { normalizeRefIds, landingPageUrl, pageCatalog, refKindOf, isListRef, type PageData } from "@lms/core";
 import type { RefLookup } from "./page-builder.js";
 
 /** Wireframe layout archetype per block type (view rendering hint). */
@@ -182,7 +182,7 @@ export interface PreviewRow {
 }
 
 export function publicPath(slug: string): string {
-  return slug === "home" ? "/" : `/p/${slug}`;
+  return landingPageUrl(slug);
 }
 
 export function previewPath(pageId: string): string {

@@ -209,7 +209,7 @@ describe('POST /api/billing/fees/checkout', () => {
       providerCustomerId: 'cus_1',
       metadata: { kind: 'platform_fee', tenant_id: TENANT, payment_id: 'pay-1' },
     })
-    expect(String(state.checkoutCalls[0].successUrl)).toContain('/es/dashboard/admin/earnings')
+    expect(String(state.checkoutCalls[0].successUrl)).toContain('/dashboard/admin/earnings')
     const ref = state.writes.find((w) => w.table === 'platform_fee_payments' && w.kind === 'update')
     expect(ref?.payload).toMatchObject({ provider_reference: 'cs_1' })
   })

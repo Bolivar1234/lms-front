@@ -10,7 +10,7 @@ import { BASE, TENANT_BASE } from './utils/constants'
 test.describe('Feature Gating', () => {
   test('billing page shows usage meters', async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/billing`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/billing`)
     await expect(page.getByTestId('billing-page')).toBeVisible()
     // Should show some plan/usage info
     const body = await page.locator('body').textContent()
@@ -19,7 +19,7 @@ test.describe('Feature Gating', () => {
 
   test('upgrade page shows plans with pricing', async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/billing/upgrade`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/billing/upgrade`)
     await expect(page.getByTestId('upgrade-page')).toBeVisible()
     // Should show plan names
     const body = await page.locator('body').textContent()
@@ -29,14 +29,14 @@ test.describe('Feature Gating', () => {
   test('public platform-pricing page renders plan comparison', async ({
     page,
   }) => {
-    await page.goto(`${BASE}/en/platform-pricing`)
+    await page.goto(`${BASE}/platform-pricing`)
     // This page may redirect or show pricing — just verify it loads
     await expect(page.locator('body')).toBeVisible()
   })
 
   test('course creation shows plan limit info', async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/teacher/courses`)
+    await page.goto(`${TENANT_BASE}/dashboard/teacher/courses`)
     await expect(page.getByTestId('teacher-courses-list')).toBeVisible()
     // The courses page should load without errors
     const body = await page.locator('body').textContent()
