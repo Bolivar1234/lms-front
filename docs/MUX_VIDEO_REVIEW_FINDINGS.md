@@ -1,10 +1,10 @@
 # Mux video hosting: findings and disposition ledger
 
-Read the [master contracts](MUX_VIDEO_HOSTING_PLAN.md), [TDD acceptance families](MUX_VIDEO_TDD_PLAN.md), [operations receipts](MUX_VIDEO_OPS_RUNBOOK.md) and [pinned evidence](MUX_VIDEO_REFERENCES.md). This file tracks decisions and remaining implementation/launch work; it does not duplicate the normative route, limits or environment tables.
+Read the [master contracts](MUX_VIDEO_HOSTING_PLAN.md), [TDD acceptance families](MUX_VIDEO_TDD_PLAN.md), [operations receipts](MUX_VIDEO_OPS_RUNBOOK.md) and [pinned evidence](MUX_VIDEO_REFERENCES.md). The [file map](MUX_VIDEO_FILE_MAP.md) adds proposed physical paths and reference/owner coverage. This file tracks decisions and remaining implementation/launch work; it does not duplicate the normative route, limits or environment tables.
 
 ## Provenance and status meanings
 
-The original Claude review covered plan commit `c221efbb` and spot-checked merged code at `d5db2bf477374d229aa6c049ffce08c7d7c4700e`. Its six read-only model passes were review, not runtime evidence. Codex's [ID-by-ID review of `dad21165`](https://github.com/Bolivar1234/lms-front/pull/26#issuecomment-6373777308) corrected facts; Claude's `0113d577f5de0f30fdb9ee476218cf324a1998af` preserved those corrections. PR #26 subsequently merged as `d4301200`, which is this reconciliation branch's base. This revision reconciles all five documents, retaining IDs and the original restricted-code/reference boundaries.
+The original Claude review covered plan commit `c221efbb` and spot-checked merged code at `d5db2bf477374d229aa6c049ffce08c7d7c4700e`. Its six read-only model passes were review, not runtime evidence. Codex's [ID-by-ID review of `dad21165`](https://github.com/Bolivar1234/lms-front/pull/26#issuecomment-6373777308) corrected facts; Claude's `0113d577f5de0f30fdb9ee476218cf324a1998af` preserved those corrections. PR #26 subsequently merged as `d4301200`, the application base of the five-document reconciliation. This revision reconciles all five documents, retaining IDs and the original restricted-code/reference boundaries.
 
 Evidence identifiers C1–C14 refer to the exact code paths/commit in the [repository evidence index](MUX_VIDEO_REFERENCES.md#lms-repository-evidence-index). **Code-read** means static evidence at that baseline, not a live deployment test. **SDK-documented** means the published `@mux/ts` 15.6.1 sources. **Design** means a chosen application policy. **Live-unverified** means provider/target/account/operational evidence is still required.
 

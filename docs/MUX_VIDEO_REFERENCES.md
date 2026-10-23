@@ -1,7 +1,7 @@
 # Mux hosting reference appendix
 
 
-Read with [the master plan](MUX_VIDEO_HOSTING_PLAN.md), [TDD work packages](MUX_VIDEO_TDD_PLAN.md), and [the ops runbook](MUX_VIDEO_OPS_RUNBOOK.md). These are references, not extra pilot requirements.
+Read with [the master plan](MUX_VIDEO_HOSTING_PLAN.md), [TDD work packages](MUX_VIDEO_TDD_PLAN.md), and [the ops runbook](MUX_VIDEO_OPS_RUNBOOK.md). The [file map](MUX_VIDEO_FILE_MAP.md#reference-keys-used-below) binds these exact sources to proposed modules and tests. These are references, not extra pilot requirements.
 
 ## Source verification and reuse rules
 

@@ -1,6 +1,6 @@
 # Mux hosting: staging pilot and rollout runbook
 
-Read the [master contracts](MUX_VIDEO_HOSTING_PLAN.md), [TDD gates](MUX_VIDEO_TDD_PLAN.md), [references](MUX_VIDEO_REFERENCES.md) and [finding ledger](MUX_VIDEO_REVIEW_FINDINGS.md). This is a proposed operating procedure. No step below is a completed deployment or authorization to write a hosted database, modify secrets, delete provider assets or enable a school.
+Read the [master contracts](MUX_VIDEO_HOSTING_PLAN.md), [proposed file/tool inventory](MUX_VIDEO_FILE_MAP.md), [TDD gates](MUX_VIDEO_TDD_PLAN.md), [references](MUX_VIDEO_REFERENCES.md) and [finding ledger](MUX_VIDEO_REVIEW_FINDINGS.md). This is a proposed operating procedure. No step below is a completed deployment or authorization to write a hosted database, modify secrets, delete provider assets or enable a school.
 
 ## Owners and target record
 
@@ -90,7 +90,7 @@ Pilot observation targets are proposals for the named owner's approval: upload s
 
 ## Rollout receipt
 
-Store a redacted Markdown/JSON receipt alongside the implementation PR/artifact, with a permanent link from the findings ledger. Do not commit secret manifests or user rows.
+Store a redacted Markdown/JSON receipt alongside the implementation PR/artifact, with a permanent link from the findings ledger. Do not commit secret manifests or user rows. The file map separates source tools from generated private fixtures, catalogs and externally registered scheduler/alert settings; listing those artifacts does not create them.
 
 ```text
 source commit / PR / SDK versions and checksums:

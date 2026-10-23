@@ -1,6 +1,6 @@
 # Mux video hosting: TDD packages and acceptance contracts
 
-The [master](MUX_VIDEO_HOSTING_PLAN.md) owns scope, routes, DTOs, policy numbers and environment names. This file owns package order and executable acceptance requirements. The [runbook](MUX_VIDEO_OPS_RUNBOOK.md) owns real target/provider receipts; the [findings ledger](MUX_VIDEO_REVIEW_FINDINGS.md) tracks F-01–F-30. All tests below are requirements, not completed results.
+The [master](MUX_VIDEO_HOSTING_PLAN.md) owns scope, routes, DTOs, policy numbers and environment names. The [file map](MUX_VIDEO_FILE_MAP.md) owns proposed physical paths and integrations; this file owns package order and executable acceptance requirements. The [runbook](MUX_VIDEO_OPS_RUNBOOK.md) owns real target/provider receipts; the [findings ledger](MUX_VIDEO_REVIEW_FINDINGS.md) tracks F-01–F-30. All tests below are requirements, not completed results.
 
 ## TDD method
 
@@ -34,10 +34,11 @@ Proposed ordered migration files (confirm filenames remain available and later t
 | WS1 | `supabase/migrations/20261023120000_lesson_media_core.sql` |
 | WS2a | `supabase/migrations/20261023121000_mux_webhook_queue.sql` |
 | WS2b | `supabase/migrations/20261023121500_lesson_media_operations.sql` |
+| WS4 caption application operations | `supabase/migrations/20261023121800_lesson_caption_operations.sql` |
 | WS4 global Storage | `supabase/migrations/20261023122000_lms_caption_storage.sql` |
 | WS5 | `supabase/migrations/20261023123000_media_plan_limits.sql` |
 | WS6 | `supabase/migrations/20261023124000_media_history.sql` |
-| WS1b and every later namespace change | Update ordered feature sections in `supabase/shared-db/lms-lesson-media.sql` and its explicit source-file manifest/checksums. Apply global caption SQL separately as `supabase/shared-db/lms-caption-storage.sql`, matching its canonical Storage migration without an LMS namespace rewrite. |
+| WS1b and every later namespace change | Update ordered feature sections in `supabase/shared-db/lms-lesson-media.sql` and its explicit `supabase/shared-db/lesson-media-manifest.json` source/section/checksum inventory. Apply global caption SQL separately as `supabase/shared-db/lms-caption-storage.sql`, matching its canonical Storage migration without an LMS namespace rewrite. |
 
 Implement only the current package's SQL, updating the feature manifest/variant together; future filenames are not existing runnable migrations. A shared migration includes only approved feature sections, never an imported baseline. Apply feature SQL twice in disposable fixtures, compare normalized catalogs/grants/policies/functions and assert sentinel SayThanks public/auth objects unchanged. The verifier must reject an unknown baseline, wrong project/schema/owner, missing prerequisites, incompatible ID types/version or excessive grants **without writes**. Every subsequent feature migration reruns parity before hosted application.
 
@@ -66,7 +67,7 @@ Each T-ID is a stable behavioral family, mapped to its finding below. Expand it 
 
 ### T03
 
-**App and MCP schema/auth paths (F-03; merged baseline PR #27, WS3/WS6).** Under `lms`, real SDK Bearer membership fallback, reads and RPC writes send the lms profile; default/explicit public still works. Invalid app/MCP selectors fail validation. MCP uses its own server variable. Real disposable Auth/PostgREST fixtures expose different public/lms data; student/teacher/admin cookie/Bearer journeys prove actual RLS, membership and selected namespace. PR #27's unit/HTTP results alone do not close this live gate. No duplicate Bearer implementation PR.
+**App and MCP schema/auth paths (F-03; merged baseline PR #27, WS3/WS6).** Under `lms`, real SDK Bearer membership fallback, reads and RPC writes send the lms profile; default/explicit public still works. Invalid app/MCP selectors fail validation. MCP uses its own server variable and the safe authenticated GET source-summary API, forwarding an end-user scoped token to its verified configured LMS_APP_URL; ambiguous or conflicting tenant context fails closed without service credentials or caller-origin/header bypass. Real disposable Auth/PostgREST fixtures expose different public/lms data; student/teacher/admin cookie/Bearer journeys prove actual RLS, membership and selected namespace. PR #27's unit/HTTP results alone do not close this live gate. No duplicate Bearer implementation PR.
 
 ### T04
 
@@ -82,7 +83,7 @@ Each T-ID is a stable behavioral family, mapped to its finding below. Expand it 
 
 ### T07
 
-**Remove-first pilot replacement (F-07; WS2b/WS4).** Ready/selected hosted media blocks a new upload with stable conflict and no Mux call/daily attempt. Two concurrent starts, two restarts, start-versus-select and remove-versus-ready preserve one active attempt/generation. Duplicate keys retain their safe outcome. Explicit removal/external selection stops new old-media grants and queues cleanup. Existing issued tokens follow their actual expiry. Later overlap tests belong to WS6.
+**Remove-first pilot replacement (F-07; WS2b/WS4).** An unsaved lesson cannot create a provider upload; save the owned draft first. Ready/selected hosted media blocks a new upload with stable conflict and no Mux call/daily attempt. Two concurrent starts, two restarts, start-versus-select and remove-versus-ready preserve one active attempt/generation. Duplicate keys retain their safe outcome. Explicit removal/external selection stops new old-media grants and queues cleanup. Existing issued tokens follow their actual expiry. Later overlap tests belong to WS6.
 
 ### T08
 
@@ -114,7 +115,7 @@ Each T-ID is a stable behavioral family, mapped to its finding below. Expand it 
 
 ### T15
 
-**Included manual-caption product (F-15; WS4).** Teacher upload/update/remove, distinct Video/Captions states, language/keyboard controls and signed entitled playback work in en/es. Missing/pending captions warn; any school-required caption policy blocks publish appropriately. Select hosted media while retained video_url and cached legacy YouTube transcript/timestamps exist: generation/extraction must not use the old video; hosted extraction is explicitly unavailable or an explicit lesson-text/manual-input path. External/manual generation remains intact. Unsupported native/MCP/core consumers resolve or refuse hosted mode before pilot rather than silently rendering the old URL. No SRT/AI/auto-caption key is required for pilot. Show actionable unsupported-format and failed-ingest feedback, rather than silently claiming inaccessible content is captioned.
+**Included manual-caption product (F-15; WS4).** Teacher upload/update/remove, distinct Video/Captions states, language/keyboard controls and signed entitled playback work in en/es. Missing/pending captions warn; any school-required caption policy blocks publish appropriately. Select hosted media while retained video_url and cached legacy YouTube transcript/timestamps exist: generation/extraction must not use the old video; hosted extraction is explicitly unavailable or an explicit lesson-text/manual-input path. External/manual generation remains intact. Unsupported native/MCP/core consumers resolve or refuse hosted mode before pilot rather than silently rendering the old URL. No SRT/AI/auto-caption key is required for pilot. Show actionable unsupported-format and failed-ingest feedback, rather than silently claiming inaccessible content is captioned. Approved checkpoint saving uses selected-source readiness: hosted-only lessons retain supported requested checkpoints, while a stale retained external URL cannot drive availability. Course list indicators and MCP learner/preview/viewer schemas/renderers resolve hosted state explicitly; initial unsupported clients show that state and suppress both legacy URL and embed fallback.
 
 ### T16
 
@@ -170,7 +171,7 @@ Each T-ID is a stable behavioral family, mapped to its finding below. Expand it 
 
 ### T29
 
-**Durable cascade outbox (F-29; WS1/WS2b).** Explicit remove, caption remove, lesson/course/tenant cascade and repeated triggers converge on one owned cleanup identity. Uploader auth deletion leaves school media intact. Audit/outbox has no deletion-blocking parent/auth FK, survives rollback/retry appropriately, and captures IDs before rows vanish. Failed/paused provider/Storage deletion retains inventory; confirmed not-found releases it once. No replica-mode/trigger disabling in application deletion paths.
+**Durable cascade outbox (F-29; WS1/WS2b).** Explicit remove, caption remove, lesson/course/tenant cascade and repeated triggers converge on one owned cleanup identity. Uploader auth deletion leaves school media intact. Audit/outbox has no deletion-blocking parent/auth FK, survives rollback/retry appropriately, and captures provider IDs plus pending upload/intent nonce before rows vanish. A late owned asset after its lesson is deleted enriches the retained cleanup tombstone without recreating ownership/source rows. Failed/paused provider/Storage deletion retains inventory; confirmed not-found releases it once. No replica-mode/trigger disabling in application deletion paths.
 
 ### T30
 
