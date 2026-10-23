@@ -1,186 +1,183 @@
-# Mux video hosting: TDD execution and issue briefs
+# Mux video hosting: TDD packages and acceptance contracts
 
-Read with the [master design](MUX_VIDEO_HOSTING_PLAN.md), [ops runbook](MUX_VIDEO_OPS_RUNBOOK.md), and [references](MUX_VIDEO_REFERENCES.md). The work packages below are local issue-ready briefs, not created GitHub issues. Each implementation PR names its actual issue, files and route contract before coding.
+The [master](MUX_VIDEO_HOSTING_PLAN.md) owns scope, routes, DTOs, policy numbers and environment names. This file owns package order and executable acceptance requirements. The [runbook](MUX_VIDEO_OPS_RUNBOOK.md) owns real target/provider receipts; the [findings ledger](MUX_VIDEO_REVIEW_FINDINGS.md) tracks F-01–F-30. All tests below are requirements, not completed results.
 
-## TDD method and evidence
+## TDD method
 
-For each actor/state/request/result behavior, write the failing contract test first, run it to establish the intended failure, implement the smallest change, then refactor green. Keep pure/domain, actual SQL/RLS, HTTP/session, browser, and real-provider checks distinct. Do not assert private implementation text or mock an entitlement check and call it application authorization.
+For each behavior: write the contract test; run it and retain the intended failure; implement the smallest change; refactor with the test green. Distinguish pure/unit, actual SQL/RLS, Auth/HTTP, browser and real-provider evidence. A mocked entitlement helper or service-role assertion is not end-user authorization. A seeded ready row proves downstream behavior only; ingest tests traverse reservation, bind, receipt and worker.
 
-Use synthetic RSA keys, fake clocks, scoped tenants/lessons/roles, realistic verified event fixtures and deterministic provider responses. Bound body sizes and errors; no test keys/tokens in artifacts. Service-role fixture setup may create prerequisites, but user assertions go through end-user sessions, RLS, routes and signed response validation. A ready-row seed proves downstream playback only; ingest tests traverse the actual reserve/bind/event/worker path.
+Use synthetic RSA keys, fake clocks and distinct tenants/roles/lessons. Service-role setup is allowed only against a confirmed disposable fixture; assertions use end-user sessions/RLS. Never put real keys/capability URLs in artifacts. Keep existing external video, audio/resources, preview, completion, checkpoints, i18n and applicable mobile tests. Use normal full-config typecheck and production build, including generated validators; no font mocks, source exclusions or weakened types.
 
-Retain the existing en/es, mobile, checkpoint/completion and external-video tests. Full-config typecheck and normal production build must pass before commits according to repository rules. Never exclude generated validators, weaken types or mock font fetches to obtain a build. Report passed, failed, skipped and blocked separately under the existing PR template's **How to QA**, with fixture host/role, commands and material source citations. Existing jobs may run in parallel; this plan defines dependencies without pretending CI is globally sequential.
+Every implementation PR records the exact reviewed main/SDK version, owned files, route/test contracts, red/green commands and actual issue if one exists. The repository currently disables GitHub issues; do not invent issue numbers or enable issues. Planned PR aliases below are work-package identifiers. Use the repository work-issue/ship-pr/pr-review-loop workflows where applicable when execution is authorized; this document alone does not start application work.
 
-## PR0: establish the actual SQL test gate
+## Package order and deliverables
 
-**Problem:** current CI starts local Supabase but does not execute the SQL test suite. A plan cannot assume an existing db-tests check.
+| Package / alias | Dependencies | Deliverable and gate |
+| --- | --- | --- |
+| WS0 / PR0 | None | Disposable SQL test runner/CI gate; inventory and repair actual existing pgTAP suite. T25. |
+| WS1 / PR1 | WS0 | Public media/source/caption/settings/outbox/rate/audit schema, integrity and initial restore/clone guards, generated types. T05/T27–T30. |
+| WS1b / PR1b | WS1; repeat on later feature SQL | Checked shared variant, parity fixtures, read-only target verifier; actual owner/catalog receipt gates hosted application, not independent coding. |
+| WS2a / PR2a | WS1 | Lazy SDK/signatures, unleased enqueue/worker, receipt redaction and payment scan isolation. T01/T02/T19/T22. |
+| WS2b / PR2b | WS2a | Upload/status/restart/source/remove APIs, locks, finite pilot quotas, atomic throttles, reconcile/cleanup/cron authentication. T04/T07/T09/T12/T20/T21/T23/T26. |
+| WS3 / PR3 | WS2b; baseline Bearer fix merged in PR #27; live shared check remains | Shared lesson access service, stateless grants, real player harness, renewal and fixture TTL policy. T03/T06/T13/T17. |
+| WS4 / PR4 | WS2b; integrates WS3; WS1b before hosted smoke | Teacher/student UI, manual captions/private bucket and transport ceiling, source-aware legacy transcript/question guards, operator takedown/report and accessibility. T10/T11/T15/T16. UI and playback work may run in parallel behind those contracts. |
+| WS5 / PR5 | Pilot implementation; before broader plan-tier release | Media-specific plan resolver, usage/attribution and cost UX. T18. Finite WS2b caps already gate pilot. |
+| WS6 / PR6 | Pilot implementation; before enabling each wider capability | History/replacement/restore/clone contracts, native/MCP/core DTO support; unsupported capabilities remain visibly disabled. |
+| Ops / live | Relevant implementation + WS1b + named approved targets | Account allowance, scheduler, actual callbacks/upload/frames/CC/renewal/recovery/delete and operator/privacy receipts. T08/T14/T24 plus live portions below. |
 
-**Red:** add tests for the gate's runner/report contract: nonzero SQL exit, no discovered tests, skipped required media cases, invalid pgTAP plans and missing local database must fail. Inventory the actual `supabase/tests/` files rather than repeat a reviewer’s remembered count. Issue scripts under `tests/sql/` are a separate inventory, not silently discovered by `supabase test db`.
+WS3 includes an authenticated harness so the renewal drill does not wait for final editor styling. Keep PRs bounded by these dependencies and ownership, rather than packing unrelated UI/SQL/operations changes together. No application implementation or school enablement is authorized by a docs merge.
 
-**Green:** add the minimal CI step/job that starts/resets a disposable local database and runs `supabase test db`; repair real existing suite/setup defects. Keep any explicitly diagnosed historical blocker visible; do not claim the gate green while omitting the media contract. Preserve independently running verify/e2e/image/MCP checks. No shared staging or production reset.
+Proposed ordered migration files (confirm filenames remain available and later than main at execution):
 
-**Gate:** a fresh local reset, actual SQL execution and uploaded result/artifact work in CI. Distinguish repository/setup defects from new feature failures. Apply work-issue/ship-pr/pr-review-loop at execution time, and preserve the existing PR template.
-
-## Workstream 1 / PR1: public-mode minimal schema and permissions
-
-**Scope:** media, side source pointer, service-only school settings, caption row, durable outbox and needed webhook-ledger fields. Do not import a full shared-database baseline or add a playback-session table.
-
-**Red first:**
-
-- Public reset applies all new objects, types, grants, RLS and safe function execute permissions.
-- Composite tenant+lesson+course+media keys reject wrong-lesson and cross-tenant pointers, even from an otherwise privileged mutation function.
-- Direct browser media/provider/source/settings/outbox writes fail; a school admin cannot self-enable through broad tenants grants.
-- No source row preserves external `video_url` behavior; media state changes do not generate ordinary lesson snapshots.
-- A non-null immutable request actor plus key is unique despite `uploaded_by` becoming null after account deletion.
-- Provider environment/asset/upload uniqueness prevents ownership by two schools; tenant-local request keys do not collide unnecessarily.
-- Transition trigger rejects regression and late resurrection. Source generation changes are compare-and-swap.
-- Media-delete trigger captures cleanup with no parent/auth FK; parent cascade and repeated removal keep one durable job. Uploader departure does not delete school assets.
-- Restore/clone/import guards prevent silent hosted-pointer loss before full version support; external-only operations still work.
-- Caption row/storage scope cannot point at another media/tenant.
-
-**Green:** the reviewed idempotent public feature migration and schema-aware DTO/client changes, locally regenerated types, settings disabled by default and minimal guard changes. No broad auth-hook, search-path or SayThanks-policy rewrite.
-
-**Gate:** real SQL/RLS assertions pass from fresh public reset. Missing shared prerequisites block PR1b launch, not public-mode development.
-
-## PR1b: required shared lms launch gate
-
-**Scope:** a checked namespace variant and target verifier, separate from the public schema PR if needed.
-
-**Red first:**
-
-- A bounded `public.` -> `lms.` variant matches the canonical feature SQL while preserving auth/extensions references and empty search paths.
-- Drift checker fails when either variant changes alone or introduces an unexpected namespace/unqualified function dependency.
-- Apply shared SQL twice to an isolated minimal prerequisite fixture; catalog/grants/constraints/trigger/RLS definitions match the public-mode contract after namespace normalization.
-- Sentinel SayThanks public objects and auth settings remain unchanged.
-- Read-only verifier rejects wrong project/schema/owner role, missing/incompatible prerequisites, unsafe grants, and unrecognized baseline versions; it does not repair or write.
-
-**Green:** committed `supabase/shared-db/lms-lesson-media.sql`, a small parity/verification check, and explicit prerequisite/owner/catalog evidence instructions. No generic SQL framework or 1 MB unreviewed dump in this slice.
-
-**Gate:** shared fixture passes and the actual staging catalog/owner baseline location is recorded before shared SQL application. The named database operator applies approved SQL. Public-only results are not shared-mode evidence.
-
-## Workstream 2a: SDK adapter, webhook ledger and state trigger
-
-**Scope:** @mux/ts, signature verification, rapid durable acknowledgement and async event processing. No UI or unguarded provider creation.
-
-**Red first:**
-
-- Current SDK import/contracts, lazy credentials, disabled builds without Mux keys and callback-secret independence from feature flags.
-- Exact `/api/mux/webhook` platform path passes proxy without login/locale/tenant redirects; callback tenant headers do not select event ownership.
-- Missing/invalid/tampered raw signatures, old/far-future timestamps, malformed/oversize body fail; valid current event is durably stored/deduped and acknowledged within the local budget.
-- Database insert failure returns retryable 5xx. No external provider API call blocks acknowledgement.
-- Duplicate/replayed event, lost worker claim, crash after side effect before completion, and expired claim converge idempotently.
-- Ready-before-created, missing binding, foreign intent, delayed error, deletion-before-ready, provider environment mismatch and irrelevant signed event types follow the state table.
-- Billing dispatchers ignore the Mux namespace; Mux dispatch does not process payment events.
-- Logs/Sentry redact upload/source URLs, JWTs, credentials and headers without hiding useful event IDs/error codes.
-
-**Green:** minimal SDK adapter with no side-effectful automatic-create retries, callback durable insert, namespaced worker claim/replay and DB transition trigger. Use bounded batches and a safe body/clock policy.
-
-**Gate:** actual local HTTP/SQL event processing works with synthetic signed fixtures. SDK types/mock payload shape are not live callback evidence.
-
-## Workstream 2b: upload/restart, plain pilot caps, reconcile and cleanup worker
-
-**Scope:** internal API plus harness, pending-state safety and the minimum caps needed before a pilot. PR5 plan tiers are not a dependency.
-
-**Red first:**
-
-- Teacher/admin, active membership, anonymous/student, wrong school, missing/global/school flag and correct lesson-role matrix; denied requests make no Mux create call.
-- Every cookie mutation requires JSON and exact server-derived school Origin; missing origin, sibling school, body CORS injection and spoofed forwarded host fail or are ignored as specified. Bearer-only writes independently validate identity and never fall back to cookies.
-- Server derives origin from verified tenant ID/slug and configured platform rules; no invented custom-domain allowlist.
-- Declared MIME/bytes/name/duration guidance fails malformed declarations but no test claims these are actual provider-enforced limits.
-- Creation success with a URL returns the handoff once; duplicate request returns already-created/status without URL. A create or retrieve response without its optional URL never causes a blind duplicate upload or an unhandled exception.
-- Explicit restart only after cancellation/absence is confirmed, under lock, with a new attempt/key; provider ingest winning cancellation returns processing. Test two concurrent restarts and response-lost-after-create.
-- Unknown bind outcome retains intent; bounded nonce/environment recovery never adopts another school's/SayThanks asset.
-- Five-attempt/day, two-pending/school, one-pending/lesson and conservative stored-duration reservation caps win concurrent races. Distinct attempts count; duplicate keys do not. Missing pilot config fails closed.
-- Post-ingest invalid duration/video track quarantines asset; waiting timeout, preparing-age alert, 429/backoff, callback never arriving and partial outage are repairable.
-- Cleanup paused makes zero destructive calls; due owned asset delete/not-found succeeds once; failed deletion retains inventory/capacity and visible retry. Cascade outbox and caption cleanup survive parent deletion.
-- Loopback override reuses `isLoopbackOrigin`; deceptive/non-loopback URLs are rejected without sending credentials. No additional public or CI-only URL override switch.
-
-**Green:** upload/status/explicit-retry routes, service-only finite pilot-cap check, actual metadata verification, bounded reconciliation and deletion worker, and monitored maintenance routes. No hard pre-ingest byte-limit claim, provider URL persistence or future plan-ledger dependency.
-
-**Gate:** real application/session/local DB path passes. Actual waiting-upload cancellation/lost-handoff behavior is a mandatory live staging drill before pilot; absent live access is blocked evidence, not a fake pass. Worker scheduler registration belongs in ops, not an assumed cron declaration.
-
-## Workstream 3: stateless playback and renewal
-
-**Scope:** signed current-source gate/player, no session table and no per-grant DB write/lesson-row lock.
-
-**Red first:**
-
-- Author, active school admin and entitled student succeed; expired entitlement/access-cutoff/inactive member, anonymous and cross-tenant fail without provider tokens/IDs. Enrollment alone is insufficient.
-- Cookie and verified Bearer paths use the same gate and selected schema. A client Mux ID/old media ID cannot choose a private asset.
-- Real synthetic-RSA verification of sub, kid, aud and expiry, correct video/image audiences, positive jitter and max-duration/retention margin. Do not mint DRM audience d for this scope.
-- Per-user/school mint throttle, private/no-store responses and log/Sentry redaction.
-- Renewal calls the same current-pointer gate with deduped requests; revoked access shows access-ended; a new selected version shows video-updated and does not silently apply old playhead to new video.
-- Referrer restriction settings align with server-derived hosts; missing-Referer/native behavior is explicitly handled, not bypassed as authentication.
-- Background return, expired start, local resume scoped to user+LMS media, logout cleanup and network error preserve explicit user state.
-- Flag-off stops new grants while callback/reconcile continue; existing JWT expiry is not falsely treated as immediate invalidation.
-
-**Green:** access service patterned on `resource-download.ts`, stateless playback route, Mux player and renewal UI. Retained retired assets keep already issued tokens until expiry; new grants resolve current source. No play-completion mutation.
-
-**Gate:** PR CI proves actual auth/SQL/JWT/player wiring only. Real signed stream renewal before/during expiry is a hard live gate; player token prop updates alone are insufficient.
-
-## Workstream 4: pilot upload UI, manual captions, removal and operator abuse path
-
-**Scope:** minimum teacher/student product on the shared staging target. Replacement overlap can ship later in a separate slice of this workstream.
-
-**Red first:**
-
-- Browser file guidance/progress/pause/retry, processing vs ready, lost-File refresh/reselection and explicit restart flow.
-- Source choice respects existing external video and disables unsupported custom-domain upload. Non-video lessons remain publishable.
-- Caption JSON size is counted from actual bounded request bytes; unauthorized/missing-origin/malformed UTF-8/VTT, invalid cue ranges and cross-tenant updates fail.
-- Caption language/label, private media-scoped storage, ready-asset text track ingest, refreshed-source retry, duplicate track prevention, ready/errored events, removal/cascade cleanup and signed student CC access.
-- Missing/processing captions produce a visible publish warning; CC keyboard controls and accessible en/es labels work. A caption warning is not a legal compliance certificate.
-- Explicit media remove blocks new grants and queues durable cleanup. Uploader account departure differs from tenant/course erasure.
-- Operator-only audited school disable/asset takedown, correct environment/owner check and abuse/cost escalation; school admins cannot bypass it.
-- Existing audio/docs, external preview, manual lesson completion/checkpoints and teacher author preview remain correct.
-
-**Green:** existing editor/player integration, manual WebVTT endpoint/storage/track controls, safe remove UX and operator takedown surface. Minimum acceptable-use/abuse contact, privacy/subprocessor and optional-tracking choices are linked from ops/product docs. No required AI/auto-caption credentials.
-
-**Pilot gate:** PR0/1/1b/2a/2b/3/4 tests plus all ops/live acceptance pass. Named school, approved finite caps, cost alert/owner, actual scheduler, manual captions and cleanup must exist before enablement.
-
-**Later replacement slice red/green:** A selected while B uploads; atomic ready+generation swap, stale ready loses to newer source choice, retired A held for fixed 24-hour retention longer than max JWT plus margin; no session table or old-version renewal. Fresh grants use B. Test concurrent selection, explicit external switch and caption/version association. Only claim the defined pointer/retention continuity, not immunity to CDN outage.
-
-## Workstream 5: plan limits and school cost UX
-
-**Scope:** broad-release economics; finite pilot caps already work.
-
-**Red first:** feature/limit backfills, media-specific missing-key failure, explicit eligible unlimited value, concurrent allocation, pending->actual conversion, rejected/deleting storage count, once-only release after provider deletion, replacement A+B accounting, daily request replay, downgrade/access cutoff and recovery. Ensure existing non-media missing=unlimited semantics are unchanged.
-
-**Green:** extend `platform_plans` features/limits, existing plan resolver/usage/admin patterns with an explicit media-cap resolver. Add monitored per-school attribution using opaque Mux references plus LMS mapping. Do not add client-telemetry delivery invoicing or promise hard direct-upload bytes/duration enforcement. No automatic non-payment asset destruction.
-
-**Gate:** durable cost/usage tests and current Mux pricing/allowance review recorded before wider enablement. Budget warning and kill-switch owner is named; no remembered prices presented as facts.
-
-## Workstream 6: integrations and wider release
-
-Split into content-history and client-contract PRs when needed. No premature full baseline migration, automatic Mux AI features or separate auth project.
-
-**Red first:**
-
-- Snapshot/source/version/restore round trips for external, hosted, legacy snapshot, retained/deleted media, wrong tenant/lesson and competing generation; restore increments current generation rather than rewinding it.
-- Side source pointer is restored together with the intended video metadata, without creating provider URLs or dropping live media. Expired/deleted historical video is explicitly unavailable.
-- Clone/import/export never share provider ownership or leak a capability; initial export can require re-upload and unsupported copy must be explicit. Historical snapshots do not pin storage forever.
-- Core/MCP DTO source/status and updates cannot inject provider IDs or lose hosted media; existing public/lms environment selection remains valid.
-- Native Bearer player/renewal/referrer/captions use the same access gate. Native-device playback is separate from mobile Chromium emulation.
-- YouTube/manual transcript/question paths remain intact; hosted extraction shows deferred/unavailable and never passes a Mux URL into the YouTube extractor.
-- School/account deletion outbox, privacy docs, local resume clearing, schema/env/ops and en/es coverage match final enabled behavior.
-
-**Green:** supported content/client contracts and their versioned rollout, explicit guards for unsupported actions, current docs and operator evidence. Full clone can require independent re-upload rather than a new provider-copy subsystem.
-
-**Gate:** all enabled integration contracts and live shared staging checks pass; separate approval is still needed for production SQL/deploy/enablement. Unsupported client capabilities remain safely disabled and documented rather than silently skipped.
-
-## CI topology and mandatory browser coverage
-
-Current jobs are verify, MCP, e2e and production image. Add SQL execution in PR0; add focused `npx vitest run tests/unit/media` when media tests exist, while retaining the full unit/typecheck/lint/build gates. Add a drift/shared-contract check with PR1b; do not invent an already-existing authenticated-media project.
-
-Media specs live in the current desktop-chromium project and use existing login helpers/one worker plus `test.describe.configure({ retries: 0 })`. Extend the report checker to fail any required media skip/fixme and unexpected retries/flakes, regardless of wording, with report-fixture unit coverage. Focused discovery must fail if expected media tests are absent; do not demand every file on every shard. Mobile applicability is selected deliberately, not hidden by auth skips.
-
-Use the existing loopback provider stub with synthetic keys and real local application sessions. Six browser scenario families:
-
-| Family | Required contract |
+| Package | Proposed file / variant |
 | --- | --- |
-| Teacher upload/recovery | Actual reserve/bind route, stub request CORS/provenance, signed synthetic callback/worker -> local ready, restart/cancel race and lost-File UX. |
-| Authorization | Anonymous, wrong school, no entitlement, inactive member; author/admin and cookie/Bearer allow cases; no tokens on denial. |
-| Student player | Actual signed response/claims/player attributes, renewal/access-ended/resume; real frames explicitly outside PR-CI proof. |
-| Captions/accessibility | Private WebVTT upload/ingest/ready/error/remove, CC language/keyboard, missing-caption warning, unauthorized caption denial. |
-| Remove/existing behavior | Durable removal/worker pause, external/video/audio/document paths, current checkpoints/completion, restore/clone guards and later supported round trips. |
-| Caps/operator/flags | Finite pilot caps under concurrency, sibling-school CSRF, operator takedown, global/school flag rollback with callback/reconcile still alive. |
+| WS1 | `supabase/migrations/20261023120000_lesson_media_core.sql` |
+| WS2a | `supabase/migrations/20261023121000_mux_webhook_queue.sql` |
+| WS2b | `supabase/migrations/20261023121500_lesson_media_operations.sql` |
+| WS4 global Storage | `supabase/migrations/20261023122000_lms_caption_storage.sql` |
+| WS5 | `supabase/migrations/20261023123000_media_plan_limits.sql` |
+| WS6 | `supabase/migrations/20261023124000_media_history.sql` |
+| WS1b and every later namespace change | Update ordered feature sections in `supabase/shared-db/lms-lesson-media.sql` and its explicit source-file manifest/checksums. Apply global caption SQL separately as `supabase/shared-db/lms-caption-storage.sql`, matching its canonical Storage migration without an LMS namespace rewrite. |
 
-Real Mux smoke is a separate protected workflow/manual staging run, not a fork-PR secret dependency. Its run manifest and cleanup-always step plus independent sweeper cover actual uploads, signed caption/stream playback, mid-stream renewal, optional-field/lost-handoff recovery, cancellation races, abuse/flag drills, provider deletion and inventory release. Full procedure and pass/fail/blocked reporting are in the ops runbook.
+Implement only the current package's SQL, updating the feature manifest/variant together; future filenames are not existing runnable migrations. A shared migration includes only approved feature sections, never an imported baseline. Apply feature SQL twice in disposable fixtures, compare normalized catalogs/grants/policies/functions and assert sentinel SayThanks public/auth objects unchanged. The verifier must reject an unknown baseline, wrong project/schema/owner, missing prerequisites, incompatible ID types/version or excessive grants **without writes**. Every subsequent feature migration reruns parity before hosted application.
+
+## Test placement and CI gates
+
+- Real SQL/pgTAP: `supabase/tests/lesson_media_*.test.sql` and `supabase/tests/mux_webhook_*.test.sql`. Inventory existing `supabase/tests/`; `tests/sql/` is a separate collection and is not silently covered by `supabase test db`.
+- Pure/HTTP/adapter: `tests/unit/media/*.test.ts`; the existing Vitest include covers these paths. Use actual SDK request serialization/JWT cryptographic verification where contract behavior matters.
+- Browser: `tests/playwright/media-*.spec.ts` under existing `desktop-chromium`, existing login helpers, one worker per appropriate fixture group and `test.describe.configure({ retries: 0 })`. Native-device playback is separate evidence from mobile Chromium.
+- Protected staging workflow/manual equivalent: real Mux and verified disposable fixture school, cleanup-always plus independent sweeper, redacted manifest. No hosted secrets in fork PR CI.
+
+WS0 adds a real `supabase test db` step after disposable provisioning/reset, uploads test output and checks its nonzero exit. Runner/report tests must fail on missing database, zero discovery, invalid pgTAP plan, failed assertions and skipped required cases. If an existing suite is broken, diagnose/repair it or report the gate blocked; do not drop required files to turn green. Existing verify, MCP, E2E and image jobs remain independent.
+
+Media test discovery/report checks fail on absent expected tests, required skip/fixme and unexpected retries/flakes. Assert discovery per project/shard appropriately, not every file on every shard. PR CI proves actual local Auth/SQL/HTTP/DTO wiring with the loopback Mux stub; it does not prove streaming frames, Mux optional fields or deployed RLS. The protected real-provider smoke may be non-blocking for code merge, but its required scenarios block pilot enablement. Measure added runtime; there is no arbitrary 25-spec ceiling that permits missing coverage.
+
+## Acceptance contracts
+
+Each T-ID is a stable behavioral family, mapped to its finding below. Expand it into test cases at implementation; tests must assert observable outcomes and failures, not source-text matching. A documentation disposition cannot mark a test passed.
+
+### T01
+
+**Durable receipts and workers (F-01; WS2a).** A verified event is immutably enqueued unleased/due now and promptly acknowledged with no provider call. Durability failure returns retryable 503. Duplicate delivery cannot overwrite payload or advance business state twice. Real SQL proves lease fencing, due-only claims, SKIP LOCKED competition, expiry/crash recovery, backoff/exhaustion/dead letter and side effect before completion replay. Irrelevant signed types finish safely. Old stored verified receipts replay without inbound freshness checks. Payment claim semantics remain unchanged.
+
+### T02
+
+**Payment isolation (F-02; WS2a).** Insert 25 older, eligible stalled Mux rows and a newer eligible payment row into actual disposable `webhook_events`. Execute the payment query/route: the payment progresses and Mux receipts remain untouched. Assert the provider allowlist is applied before ordering/LIMIT, covering both student and platform payment namespaces. Fresh/ineligible rows do not stand in for the failure fixture. Unknown future namespaces must not permanently occupy payment batches.
+
+### T03
+
+**App and MCP schema/auth paths (F-03; merged baseline PR #27, WS3/WS6).** Under `lms`, real SDK Bearer membership fallback, reads and RPC writes send the lms profile; default/explicit public still works. Invalid app/MCP selectors fail validation. MCP uses its own server variable. Real disposable Auth/PostgREST fixtures expose different public/lms data; student/teacher/admin cookie/Bearer journeys prove actual RLS, membership and selected namespace. PR #27's unit/HTTP results alone do not close this live gate. No duplicate Bearer implementation PR.
+
+### T04
+
+**Credential mode and Origin (F-04; WS2b).** Every new teacher mutation rejects mixed Bearer+sb-cookie credentials. Missing/malformed credentials fail; valid native Bearer has no cookie fallback and requires no browser Origin. Cookie writes require verified identity, JSON, exact server-derived Origin and active scoped role. Wrong/missing/sibling Origin and spoofed forwarded-host/body tenant/CORS values cannot authorize. A mere Bearer header never suppresses cookie Origin checks. The existing unrelated helper precedence is not silently rewritten.
+
+### T05
+
+**Snapshot marker and guards (F-05; WS1 then WS6).** Real SQL records explicit source-mode/version metadata. Legacy snapshots, current-hosted/snapshot-external and current-external/snapshot-hosted restores are covered. Initially refuse any hosted restore atomically without changing title/video/pointer; external-only restore works. Unsupported clone/import/export cannot copy provider ownership or silently drop the pointer. Later round trips preserve ownership, unavailable deleted history and a strictly increasing generation under competing restores/source changes.
+
+### T06
+
+**Expiry and real renewal (F-06; WS3/Ops).** Fake-clock JWT tests verify normal duration formula/jitter/retention plus short-fixture policy. Production, incomplete override, wrong fixture and wrong stage reject/ignore overrides as specified by the master. No client TTL is accepted. A staging operator's actual 120-second fixture grant uses the normal authenticated endpoint and short-token renewal lead; decoded frames continue through expiry, pause/background return and renewal. Revocation denies renewal; temporary outage preserves existing valid grant then explicitly resumes after reauthorization. Player prop changes alone fail this gate.
+
+### T07
+
+**Remove-first pilot replacement (F-07; WS2b/WS4).** Ready/selected hosted media blocks a new upload with stable conflict and no Mux call/daily attempt. Two concurrent starts, two restarts, start-versus-select and remove-versus-ready preserve one active attempt/generation. Duplicate keys retain their safe outcome. Explicit removal/external selection stops new old-media grants and queues cleanup. Existing issued tokens follow their actual expiry. Later overlap tests belong to WS6.
+
+### T08
+
+**Provider/account feasibility (F-08; Ops).** Record actual plan/allowance, existing inventory, fixture budget and current pricing source/date. The test-asset SDK contract is not account state. Label which checks can use short watermarked test assets and which require real duration/retention/caption/stream behavior. Prove basic quality, signed policies, resolution and CORS with the selected pinned SDK/real account. Missing allowance/access blocks live evidence; do not purchase a plan or claim compatibility from a type alone.
+
+### T09
+
+**Shared throttles (F-09; WS2b/WS3).** Two app instances share the same Postgres user/school operation windows. Real SQL proves both-budget atomic consume/refusal, expiry cleanup, window boundaries and environment separation. Store failure denies 503; actual budget exhaustion is 429 with bounded retry information. Tests distinguish grant counters from upload daily attempts and caption budgets; no playback-session or per-view ledger is introduced.
+
+### T10
+
+**Private captions and cleanup (F-10; WS1/WS4/Ops).** Configure Next proxy buffering and actual ingress ceilings above the master raw-route bound. In a production-mode server through proxy, valid escaped JSON above the default 10 MiB reaches the caption validator and over-limit requests return 413 without truncation/JSON-parse errors; serverActions limits are separate. Test raw JSON and decoded UTF-8 boundaries, escaped strings, absent/false Content-Length, invalid UTF-8/surrogates, BOM/NUL, cue/settings limits, supported overlapping cues, duration bounds and STYLE/REGION rejection/NOTE stripping. Cue script text never renders as HTML. Real Storage tests include unrelated permissive policies, cross-tenant paths and anonymous/browser access; service-role storage setup alone is insufficient. Real ingest, ready/error events, uncertain track creation, bounded URL refresh/retry, replacement association, signed CC and remove/cascade cleanup are required. Same-language/same-label replacement uses a durably reserved unique provider ingest-attempt UUID/name and opaque passthrough; a confirmed retry has a fresh UUID/name even while an older errored track exists, with all track IDs retained for cleanup. A lost track-create response reconciles that exact reserved attempt without allocating another while the previous ready track stays playable. Caption source URL never reaches a lesson DTO, log or student response.
+
+### T11
+
+**Operator authorization/audit (F-11; WS4).** Verify session/Bearer identity at the API boundary, then fresh super_admins membership using that UUID. A forged super-admin x-user-id header without a session, or a conflicting header with an ordinary session, cannot grant operator access. Verified super-admin succeeds; school admin/student/anonymous/impersonation-as-school-user cannot takedown. Assert platform Origin/JSON, reason, environment and owned target; basic inventory/report omits capabilities. Audit survives deleting actor/tenant/lesson and records disable/delete requests. Provider-key deletion requires a separate explicit incident action/receipt and affects only the confirmed environment/key; synthetic keys in automated tests.
+
+### T12
+
+**Idempotency, locking and quotas (F-12; WS2b).** Same key+fingerprint returns no new handoff/charge; changed lesson/declaration/generation/operation conflicts. Actor deletion does not weaken uniqueness. Parallel transactions across lessons/schools obey master caps and consistent lock order. Test explicit UTC day bounds under non-UTC session time zones. Daily attempts are not refunded on cancel. Pending/stored capacity releases exactly once only after confirmed absence/deletion; uncertain create/cancel/ingest still counts. Outbox/inventory dedupe prevents counting an asset twice.
+
+### T13
+
+**Private playback errors (F-13; WS3).** New media endpoints return identical 404 for missing/cross-school/non-entitled private media, 401 for unauthenticated and 503 for real dependency failure. No response leaks provider IDs/tokens on denial; valid author/admin/entitled student succeeds. Existing resource-route refusal/public-preview semantics stay covered independently. Test lookup ordering so flags/status cannot disclose inaccessible media.
+
+### T14
+
+**Platform callback path (F-14; WS2a/Ops).** Unit test reserved circles without an explicit host entry plus a normal school slug. Actual local proxy/HTTP tests and deployed signed POST prove the verified platform callback bypasses page locale/login guards without tenant lookup/404/redirect, with hosting disabled and no session. Caller tenant/forwarded headers cannot select receipt ownership. A passing hostname helper is not a passing callback.
+
+### T15
+
+**Included manual-caption product (F-15; WS4).** Teacher upload/update/remove, distinct Video/Captions states, language/keyboard controls and signed entitled playback work in en/es. Missing/pending captions warn; any school-required caption policy blocks publish appropriately. Select hosted media while retained video_url and cached legacy YouTube transcript/timestamps exist: generation/extraction must not use the old video; hosted extraction is explicitly unavailable or an explicit lesson-text/manual-input path. External/manual generation remains intact. Unsupported native/MCP/core consumers resolve or refuse hosted mode before pilot rather than silently rendering the old URL. No SRT/AI/auto-caption key is required for pilot. Show actionable unsupported-format and failed-ingest feedback, rather than silently claiming inaccessible content is captioned.
+
+### T16
+
+**Pilot operations/privacy/UX (F-16; WS4/Ops).** Record actual budget/contact/takedown/acceptable-use/privacy/subprocessor ownership and receipts. Verify optional Mux Data disabled with actual network capture and no viewer names/emails, local resume clearing and safe diagnostics/report path. No unmeasured processing-time or hard uploaded-byte guarantee in copy. Test school-disable/flag rollback while callback/reconciliation survive. Legal applicability and any CSP rollout are assigned decisions, not blanket compliance claims.
+
+### T17
+
+**Shared access service (F-17; WS3).** Fresh active school membership is required before every branch. Real scoped active course author, admin and entitled student pass; enrollment-only, expired/cutoff/inactive/cross-school users fail. Explicitly test inactive authors and inactive entitled students through cookie and Bearer paths. Forged client author/provider IDs grant nothing. DB/RPC failure is unavailable and mints no token. Existing lesson-resource/free-preview tests remain unchanged in behavior. Test gate calls from cookie, Bearer and later enabled client contracts.
+
+### T18
+
+**Fail-closed media plans (F-18; WS2b/WS5).** Missing pilot settings disable; approved finite reservations hold before WS5 exists. Missing/error media plan limits later disable; explicit -1 only works on an approved eligible plan. Generic course/student missing=unlimited behavior remains unchanged. Count pending-to-actual conversion, rejected/deleting inventory, A+B replacement, downgrade/access cutoff and deletion confirmation without watch-based invoicing or automatic asset destruction on non-payment.
+
+### T19
+
+**Redaction boundaries (F-19; WS2a).** Inject synthetic known capabilities/keys into SDK errors, request/extra/contexts/breadcrumbs, console output and immutable receipt payload. Test existing covered Bearer/token-query patterns plus bare Mux JWT, upload path URLs, signed Storage source URLs and RSA PEM. Useful event/error IDs remain. Assert persisted receipt replay can re-fetch authoritative data without retaining sensitive raw payloads.
+
+### T20
+
+**Maintenance authentication/bounds (F-20; WS2b).** Strict Bearer parser/shared constant-time comparison denies unset/malformed/wrong secret. Dedicated Mux secret has no payment-secret fallback. Test max batch/time budget, no work after deadline, no secret logs and independent cleanup flag. A successful empty tick still reports health; a failed dependency does not report successful maintenance.
+
+### T21
+
+**Uncertain create and bounded discovery (F-21; WS2b/Ops).** Lost create response/bind, absent optional URL, pagination budget exhaustion and provider outages retain owned intent/history/quota without blind create retries. Exact nonce/environment/asset binding rejects foreign inventory. Bounded scan exhaustion means unknown, not absence. Verify real waiting cancellation and ingest-winning cancellation; no restart until absence/cancellation is confirmed. Refresh loses File/URL honestly, while an existing in-tab chunk session can resume.
+
+### T22
+
+**Webhook rotation and deletion replay (F-22; WS2a/Ops).** Current/next distinct callback URLs share receipt dedupe; the same provider event delivered to both processes once. Capture one-time secret privately; invalid/missing secret never becomes accepted via feature flags. Raw-body tamper/oversize, timestamp age/future skew and environment mismatch fail before ownership effects. Retiring old endpoint/secret preserves queued replay. Replaying ready/track events after deletion never revives source/ownership. Signing-key retirement waits greatest issued TTL+margin; test emergency deletion using disposable keys only.
+
+### T23
+
+**Pure trusted origin (F-23; WS2b).** Actual tenant/config builder handles the configured circles/shared-root/local topology. Malicious Host/Origin/forwarded values and body cors_origin do not influence it; unverified custom domains fail explicitly. A real browser upload from each intended school origin validates provider CORS behavior. Do not copy the header-derived display URL helper as an authorization boundary.
+
+### T24
+
+**Scheduler and missed-run detection (F-24; Ops).** Record actual staging service/host/owner and prove one minute task invokes bounded routes with the dedicated secret. Verify its HTTP client/runtime, provider health/timeout behavior and no duplicate GitHub staging registration. Induce missed ticks to observe external alert after master grace; test manual replay, empty success and dependency failure. A saved schedule declaration is not execution evidence.
+
+### T25
+
+**Actual SQL gate (F-25; WS0).** A fresh disposable provisioning/reset executes the discovered pgTAP suite in CI with meaningful assertions. Runner fixtures cover nonzero exit, zero discovery, bad plan, missing DB and required skip. Upload the real report and separate legacy/setup defects from feature failures. CI status without a SQL execution step cannot pass this family.
+
+### T26
+
+**Local-only adapter seam (F-26; WS2b).** Reuse `isLoopbackOrigin`; allow explicit local test origins and reject deceptive/nonloopback values before any credentials/request. Mux's policy is reject, not other providers' warn/fallback. Disabled app build does not need Mux secrets. Synthetic test keys and a production-mode local server are allowed in CI; never infer the real staging drill from a stub or configure this seam on a deployed app.
+
+### T27
+
+**Schema types/namespace fidelity (F-27; WS1/WS1b).** Catalog checks verify actual lesson/course/tenant types and required composite uniqueness before new FKs/functions. Full generated types and cold/warm normal compiler inputs remain valid. Public/shared fixtures exercise qualified helper resolution/execute grants under empty search paths and reject unsafe namespace drift without altering SayThanks public/auth sentinels.
+
+### T28
+
+**Pointer constraints/deletion (F-28; WS1).** Wrong-tenant/wrong-lesson media selection fails even from a privileged mutation function. Insert media then select without circular-FK workarounds. Verify target-specific SET NULL support; any fallback covers real DB cascades atomically, retains unavailable source semantics and captures cleanup. Test provider-global uniqueness across two schools and competing generation updates.
+
+### T29
+
+**Durable cascade outbox (F-29; WS1/WS2b).** Explicit remove, caption remove, lesson/course/tenant cascade and repeated triggers converge on one owned cleanup identity. Uploader auth deletion leaves school media intact. Audit/outbox has no deletion-blocking parent/auth FK, survives rollback/retry appropriately, and captures IDs before rows vanish. Failed/paused provider/Storage deletion retains inventory; confirmed not-found releases it once. No replica-mode/trigger disabling in application deletion paths.
+
+### T30
+
+**Service-only enablement (F-30; WS1).** Browser/admin direct settings/source/provider/outbox/counter writes fail despite table-level/default grants on unrelated tables. Only service-owned functions change them after verified role/access checks; safe capability DTOs expose no secrets. Confirm RLS, explicit revoke/default privilege behavior and no school self-enable via broad tenants UPDATE. Apply public/shared feature migrations twice with flags disabled.
+
+## Evidence and completion
+
+For each enabled package/family retain red and green commands, source/SDK checksum, fixture host/role, discovery/pass/fail/skip counts and artifact path. Update actual task records and the relevant finding's **implementation** status; a design correction closes only a design gap. Normal app checks are `npm run typecheck`, `npm run test:unit`, `npm run lint`, `npm run build` plus applicable actual SQL/E2E/MCP checks after final source changes.
+
+[The rollout receipt](MUX_VIDEO_OPS_RUNBOOK.md#rollout-receipt) records real target IDs and all live scenarios, including blocked/skipped failures and cleanup. Unverified shared prerequisites, signed frames/captions/expiry/recovery or required operational owners keep the pilot disabled. Production migration, deployment and enablement remain separate approved actions.

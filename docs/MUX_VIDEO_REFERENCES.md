@@ -5,7 +5,7 @@ Read with [the master plan](MUX_VIDEO_HOSTING_PLAN.md), [TDD work packages](MUX_
 
 ## Source verification and reuse rules
 
-All 50 unique nested source-file links below were verified against their exact commit objects in the corresponding checkouts during this review. This proves the paths exist at those commits; it does not prove their code is secure or compatible with current SDKs. The upstream links and pinned commits requested by the user remain intact.
+The original 50 unique nested application-reference source-file links below were verified against their exact commit objects in the corresponding checkouts during the original reference review. This proves those paths exist at those commits; it does not prove their code is secure or compatible with current SDKs. The upstream links and pinned commits requested by the user remain intact.
 
 Current implementation SDK: `@mux/ts` 15.6.1 was observed in npm during this review. `@mux/mux-node` 15.5.0 carries an explicit deprecation notice directing users to `@mux/ts`. Historical examples below legitimately use the old import; adapt them, do not install that deprecated name for new work. See the [SDK repository](https://github.com/muxinc/mux-ts), [migration guide](https://github.com/muxinc/mux-ts/blob/main/MIGRATION.md), and [current npm package](https://www.npmjs.com/package/@mux/ts).
 
@@ -21,7 +21,7 @@ Current implementation SDK: `@mux/ts` 15.6.1 was observed in npm during this rev
 
 Code from a restricted or unclear license is excluded from the implementation copy list. Its cited architectural observations remain for traceability, as the user requested. No need to remove the evidence merely because code reuse is restricted.
 
-## Verified provider contracts
+## Documented provider contracts and live boundaries
 
 - [Create upload](https://www.mux.com/docs/api-reference/video/direct-uploads/create-direct-upload): signed playback policy, expiry, CORS, metadata limits, encoding settings.
 - [Retrieve upload](https://www.mux.com/docs/api-reference/video/direct-uploads/get-direct-upload): response URL is not guaranteed; SDK Upload.url is optional. Do not base retry correctness on it.
@@ -29,6 +29,42 @@ Code from a restricted or unclear license is excluded from the implementation co
 - [Signed playback](https://www.mux.com/docs/guides/secure-video-playback): expiry can interrupt an active stream; mid-stream renewal remains a live acceptance gate.
 - [Signing keys API](https://www.mux.com/docs/api-reference/system/signing-keys): deletion invalidates signatures. There is no separate key-revoke operation to call.
 - The published `@mux/ts` 15.6.1 types confirm that createTrack requires a ready asset and accepts text track URL, language, name, text_type, and closed_captions. Use the actual API/SDK shape when implementing manual captions.
+
+
+Published SDK evidence is pinned to [`@mux/ts` 15.6.1](https://www.npmjs.com/package/@mux/ts/v/15.6.1), inspected from its downloaded npm sources. Revalidate/package-pin at implementation; do not assume this remains the latest version.
+
+| Published source / symbol | What it documents; acceptance boundary |
+| --- | --- |
+| [`video/uploads.ts`](https://unpkg.com/@mux/ts@15.6.1/src/resources/video/uploads.ts): `Upload.url`, `Uploads.cancel`, `UploadListParams` | URL optional; cancellation succeeds only while waiting; listing is environment-scoped and pagination-only. Lost-handoff/cancel/ingest races still need actual staging evidence (T21). |
+| [`video/assets.ts`](https://unpkg.com/@mux/ts@15.6.1/src/resources/video/assets.ts): `AssetOptions.test`, `AssetCreateTrackParams`, `createTrack` | Test assets are ten seconds/watermarked/deleted after 24 hours; tracks require a ready asset and valid BCP 47 language. Text-track names must be unique within the asset's text group; use a durably reserved unique ingest-attempt UUID/name and opaque passthrough for each confirmed replacement/retry, reconciling an uncertain attempt before retry. Actual source fetching, signed CC and basic-quality compatibility remain live gates (T08/T10). |
+| [`webhooks/webhooks.ts`](https://unpkg.com/@mux/ts@15.6.1/src/resources/webhooks/webhooks.ts): `BaseWebhookEvent`, `VideoAssetTrackReadyWebhookEvent`, `VideoAssetTrackErroredWebhookEvent` | Event environment and genuine track event names are typed contract evidence, not evidence that a specific endpoint delivers them (T01/T10/T22). |
+| [`system/webhooks.ts`](https://unpkg.com/@mux/ts@15.6.1/src/resources/system/webhooks.ts): create/retrieve/Webhook | Signing secret returned only on creation; address unique per environment. Use distinct current/next URLs with shared event dedupe (T22). |
+| [`webhooks/webhooks.ts`](https://unpkg.com/@mux/ts@15.6.1/src/resources/webhooks/webhooks.ts) | Verify raw bytes using the reviewed SDK freshness contract; explicitly bound future skew. Stored verified receipts are replayed internally without inbound freshness expiry (T01/T22). |
+
+The [master](MUX_VIDEO_HOSTING_PLAN.md) owns application limits, canonical secret names, credential mode and TTL choices. Optional retrieve URLs, player localization, actual CORS/referrer/native behavior, stream renewal, caption source TTL and current Mux pricing/allowance must be established by the relevant [TDD contracts](MUX_VIDEO_TDD_PLAN.md#acceptance-contracts) and [live receipts](MUX_VIDEO_OPS_RUNBOOK.md#rollout-receipt). A type or summarized provider page cannot close those gates.
+
+## LMS repository evidence index
+
+Code facts below are pinned to merged [`d5db2bf`](https://github.com/Bolivar1234/lms-front/tree/d5db2bf477374d229aa6c049ffce08c7d7c4700e). They explain existing seams/gaps; no code changes are claimed by this documentation revision. Every finding links its exact test family separately.
+
+| Evidence ID | Source and relevant fact |
+| --- | --- |
+| C1 | [`atomic_webhook_event_claim.sql`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/migrations/20260808154215_atomic_webhook_event_claim.sql): leased insert, fenced complete/fail, payload overwritten on reclaim. |
+| C2 | [`redeliver-webhook-events/route.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/app/api/cron/redeliver-webhook-events/route.ts): unfiltered oldest-first 25-row scan; unknown providers skipped unchanged. Eligibility includes age, attempt and lease/error predicates. |
+| C3 | [`api-auth.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/supabase/api-auth.ts), [`schema.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/supabase/schema.ts), [`MCP env.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/mcp-server/src/env.ts): missing Bearer schema options; cookie-first legacy behavior; separate app/MCP selectors. Merged [PR #27](https://github.com/Bolivar1234/lms-front/pull/27) at `7fd28b49fd3d9fc28a92234187793d6dc1cfbf97` merged as `189eaf364ccb4c94cb9f9320835383824d9f5f22` and handles app schema options/validation, not live RLS or MCP validation. |
+| C4 | [`snapshot migration`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/migrations/20260302180000_fix_version_triggers_nullable_changed_by.sql), [`restore migration`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/migrations/20260729120000_fix_version_restore_course_join.sql): legacy video snapshot/restore and no future side-source marker. |
+| C5 | [`rate-limit.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/rate-limit.ts): in-memory per-instance LRU. |
+| C6 | [`private-media migration`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/migrations/20261022121000_private_lesson_media_and_avatars.sql), [`hardening migration`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/migrations/20261022120000_storage_security_hardening.sql): lesson-resources is 25 MiB, private, lacks VTT, and has restrictive browser policies. Global storage needs separate treatment. |
+| C7 | [`host.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/tenant/host.ts), [`reserved-slugs.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/tenant/reserved-slugs.ts), [`proxy.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/proxy.ts): circles already non-tenant; API skips page guards; no generic API verified-user-header guarantee. |
+| C8 | [`get-user-role.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/supabase/get-user-role.ts), [`tenant.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/supabase/tenant.ts), [`resource-download.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/lessons/resource-download.ts): fresh operator identity must precede super-admin membership; private resource helper is a pattern, not the complete new-media active-membership gate. |
+| C9 | [`plan-limit SQL`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/migrations/20260901120000_plan_limit_db_triggers.sql), [`plan-limits.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/billing/plan-limits.ts): existing non-media missing=unlimited semantics. |
+| C10 | [`redact-core.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/ai/byok/redact-core.ts), [`redact-event.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/sentry/redact-event.ts): some Bearer/token-query forms already covered; console/receipt boundaries separate. |
+| C11 | [`tenant-site-url.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/platform/tenant-site-url.ts), [`loopback-origin.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/payments/loopback-origin.ts): request-derived display URL and reusable local-only seam predicate. |
+| C12 | [`ci.yml`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/.github/workflows/ci.yml), [`cron.yml`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/.github/workflows/cron.yml), [`supabase/tests`](https://github.com/Bolivar1234/lms-front/tree/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/tests): no actual SQL test execution gate; seven pgTAP files at review; existing production schedules do not register staging Mux. |
+| C13 | [`canonical schema`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/migrations/20260126190500_lms_complete.sql), [`seed-prod.sql`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/seed-prod.sql), [`bank grants`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/supabase/migrations/20261009140000_platform_fee_bank_details_929.sql): bigint lesson PK, exceptional replica-mode seed, server-only bank writes with scoped authenticated SELECT. |
+| C14 | [`question generation`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/app/api/teacher/lessons/[lessonId]/generate-questions/route.ts) and [`video-transcript.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/lib/lessons/video-transcript.ts) read retained external metadata/cache and require source-aware guards before hosted pilot use; legacy video_url/cached transcript is not the selected hosted source. Next proxy buffering and actual ingress limits also need WS4 transport tests; [`next.config.ts`](https://github.com/Bolivar1234/lms-front/blob/d5db2bf477374d229aa6c049ffce08c7d7c4700e/next.config.ts) only configures serverActions size, while installed Next 16.4.2 `dist/server/body-streams.js` defaults proxy buffering to 10 MiB. See the [pinned package source](https://unpkg.com/next@16.4.2/dist/server/body-streams.js). |
+
+## Pinned application references
 
 
 Agents must inspect the pinned sources below before implementing a corresponding LMS module. These references are design and behavior inputs, not permission to copy an entire application. Every implementation must be reconciled with the current LMS auth, tenant, RLS, route, and lesson-resource contracts.
@@ -119,7 +155,7 @@ Inspect [`components/teacher/MuxUpload.tsx`](https://github.com/ARYPROGRAMMER/Si
 
 ## Official provider references
 
-Agents must read the current official documentation before changing the provider integration. The Supabase mirror documentation is reference material only for this release; it is not an instruction to add the package or Edge Function.
+Agents must re-read the current official documentation and pinned SDK before changing the provider integration; documentation is a contract source, not evidence of actual account/deployed behavior. The Supabase mirror documentation is reference material only for this release; it is not an instruction to add the package or Edge Function.
 
 - [Mux direct uploads](https://www.mux.com/docs/api-reference/video/direct-uploads): upload creation, upload URL handling, expiration, and browser handoff.
 - [Mux webhooks](https://www.mux.com/docs/guides/listen-for-webhooks): raw event verification, event types, retries, and asset/track lifecycle behavior.
@@ -134,13 +170,13 @@ Agents must read the current official documentation before changing the provider
 
 When an implementation choice differs from one of these references, record the reason in the PR and preserve the LMS-specific security boundary.
 
-### Official Mux/Vercel workflow reference: muxinc/nextjs-video-ai-workflows
+## Deferred: official Mux/Vercel AI workflows and search
 
 Repository: [muxinc/nextjs-video-ai-workflows](https://github.com/muxinc/nextjs-video-ai-workflows), inspected at commit [ef90b23df7daef585d44335aa87f7b6d2b8b2035](https://github.com/muxinc/nextjs-video-ai-workflows/tree/ef90b23df7daef585d44335aa87f7b6d2b8b2035). This is the official Mux/Vercel reference for durable video-AI orchestration. It is useful for the post-upload enrichment layer, but it is not an LMS upload, entitlement, or tenant-authorization implementation.
 
 The pinned checkout has no root LICENSE file. Treat it as a cited architecture reference until the repository owner confirms reuse rights; do not copy the repository wholesale. Any code reuse must be checked against the upstream license status at the time of implementation and recorded in the PR.
 
-Agents implementing captions, summaries, translations, or semantic search must inspect these exact files and symbols:
+When later media-intelligence work is separately authorized, agents implementing generated captions, summaries, translations or semantic search must inspect these exact files and symbols. Manual WebVTT pilot upload does not require these workflows:
 
 - [AGENTS.md](https://github.com/muxinc/nextjs-video-ai-workflows/blob/ef90b23df7daef585d44335aa87f7b6d2b8b2035/AGENTS.md) and [README.md](https://github.com/muxinc/nextjs-video-ai-workflows/blob/ef90b23df7daef585d44335aa87f7b6d2b8b2035/README.md): the three-layer model (primitives, durable workflows, connectors), environment contract, and the distinction between server-side durable execution and browser-local progress rehydration.
 - [app/lib/env.ts](https://github.com/muxinc/nextjs-video-ai-workflows/blob/ef90b23df7daef585d44335aa87f7b6d2b8b2035/app/lib/env.ts): Zod startup validation for Mux credentials, optional signing keys, AI providers, and workflow-specific storage. LMS should keep its existing validated environment module and add only the Mux variables it actually uses.
