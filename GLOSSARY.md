@@ -43,3 +43,15 @@ _Avoid_: Test playback
 **School cap**:
 The fixed per-school limit on hosted videos and total minutes, set by the platform.
 _Avoid_: Quota, plan limit
+
+**Current hosted video**:
+The single hosted video a lesson plays; replacing a video moves this to the new one only once it is ready.
+_Avoid_: Active media, latest upload
+
+**Sweep**:
+The scheduled recovery pass that reconciles hosted videos with the provider when a notification was missed or a state is stuck.
+_Avoid_: Cron, reconciler, worker
+
+**Takedown**:
+Removing a hosted video from the provider so grants stop working; the only way to cut off an already issued playback grant.
+_Avoid_: Revocation, kill switch
