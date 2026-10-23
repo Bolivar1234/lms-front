@@ -2,7 +2,7 @@
 
 This is the file-level implementation blueprint for the [master design](MUX_VIDEO_HOSTING_PLAN.md), [TDD contracts](MUX_VIDEO_TDD_PLAN.md), [runbook](MUX_VIDEO_OPS_RUNBOOK.md), [references](MUX_VIDEO_REFERENCES.md) and [finding ledger](MUX_VIDEO_REVIEW_FINDINGS.md). It maps the whole approved hosting vision before coding: saved lesson -> owned direct upload -> durable callback -> ready source -> signed player/captions -> recovery/removal -> operator/accounting, followed by supported wider-release history/client contracts.
 
-**Inventory baseline:** application `d43012004ac45d49c5926b306bd95f786c885285`, planning `9784ef810b3c24b137a1ba6021ce9a56cce37c6a`. Every existing path below was checked against this checkout. `Create` paths are proposed, not implemented. `Modify` names an existing seam; `Verify` requires evidence and does not presume a code change; `Regenerate` is a generated artifact, not hand-authored logic. WS5/WS6 are later packages, not pilot prerequisites unless explicitly marked initial guard. Internal `[locale]` directories do not alter the agreed public English URLs.
+**Inventory baseline:** application `981c596f247accc6c069b35b22b4a27f095e2c6f`, earlier planning `d22ec342f261606507a90f582f9eca595dfc9040`. Every existing path below was checked against this checkout. The [PR #28 follow-up](MUX_VIDEO_PR28_REVIEW_RECONCILIATION.md) explains new contracts/integration entries; counts are recalculated against this baseline, including the already-merged map as Modify. `Create` records absence at the baseline; this revision authors planning documents only, while runtime paths remain proposed. `Modify` names an existing seam; `Verify` requires evidence and does not presume a code change; `Regenerate` is a generated artifact, not hand-authored logic. WS5/WS6 are later packages, not pilot prerequisites unless explicitly marked initial guard. Internal `[locale]` directories do not alter the agreed public English URLs.
 
 This map preserves the full vision across the master's [five delivery milestones](MUX_VIDEO_HOSTING_PLAN.md#delivery-milestones); the file count spans the whole roadmap. It does not authorize application coding, dependency installation, hosted SQL, deployment or enablement. Do not create empty modules/migrations to make the tree look complete. Implement vertical slices in [package order](MUX_VIDEO_TDD_PLAN.md#package-order-and-deliverables), starting with failing acceptance tests, and apply the [milestone completion rules](MUX_VIDEO_TDD_PLAN.md#milestone-completion-and-evidence). A coherent implementation may consolidate a proposed module, but update this map and its consumers/tests before changing a boundary; do not silently add a parallel architecture.
 
@@ -65,13 +65,13 @@ Each key names exact source files/symbols, not a recommendation to transplant a 
 
 ## Inventory totals
 
-The following **228 file entries** cover pilot and explicitly staged wider release, including tests/fixtures and existing integration seams. Counts describe this proposed layout, not completed work or a requirement for empty scaffolding.
+The following **244 file entries** cover pilot and explicitly staged wider release, including tests/fixtures and existing integration seams. Counts describe this proposed layout, not completed work or a requirement for empty scaffolding.
 
 | Action | Entries |
 | --- | --- |
-| Create | 134 |
-| Modify | 61 |
-| Verify | 31 |
+| Create | 136 |
+| Modify | 69 |
+| Verify | 37 |
 | Regenerate | 2 |
 
 ## Shared contracts and application services
@@ -82,11 +82,11 @@ The following **228 file entries** cover pilot and explicitly staged wider relea
 | --- | --- | --- | --- | --- |
 | Create | `packages/core/src/types/media.ts` | WS1 | Client-safe source/state/status/playback/error DTO types, with no provider asset/upload IDs or SDK types. Shared by app and MCP; later native clients consume this contract. | Local; T03/T13/T27 |
 | Create | `lib/media/contracts.ts` | WS1/WS2b | Request schemas and allowlisted response mappers: start/restart/source/caption/takedown inputs and safe DTOs. Browser-safe; imports core types, never service clients or secrets. | Local; T04/T12/T13 |
-| Create | `lib/media/policy.ts` | WS2a/WS2b/WS3 | Typed canonical body, quota, retry, clock, duration and TTL policy from the master. Exposes calculation functions; server supplies safe browser guidance, not a second frontend limits table. | SDK; T06/T09/T12 |
+| Create | `lib/media/policy.ts` | WS2a/WS2b/WS3 | Canonical finite caps, full maximum pending reservation, six-hour preparing timeout, bounded 600–630-second token lifetime and 120-second fixture policy; no duplicate frontend policy table. | SDK; T06/T09/T12/T21 |
 | Create | `lib/media/env.ts` | WS2a/WS3 | Validate canonical flags, lazy operation credentials, exact environment and paired staging-fixture policy. Reject invalid fixture/production combinations without requiring Mux keys for disabled external-only builds. | S-client/W-env; T06/T26 |
 | Create | `lib/media/mux.ts` | WS2a | Lazy pinned SDK adapter: create/retrieve/list/cancel uploads; retrieve/delete assets; create/list/delete tracks; verify signatures and sign playback. Explicit timeouts, no automatic create retries, normalized PEM and sanitized errors. Has no authorization discretion. | S-client/W-env/SDK; T01/T08/T21/T22 |
-| Create | `lib/media/auth.ts` | WS2b/WS4 | Resolve explicit cookie/Bearer mode, reject mixed credentials and verify user identity. Return trusted actor/tenant context; validate mutation Origin with origins.ts. Operator checks never trust inbound x-user-id. | Local; T03/T04/T11 |
-| Create | `lib/media/access.ts` | WS2b/WS3 | WS2b supplies fresh active author/admin write access; WS3 extends the same service to entitled student reads. Fresh active membership plus scoped lesson/course lookup, then author/admin/entitlement+cutoff. Shared playback/status/source read gate; DB failure denies. Preserve the separate public-resource-preview contract. | S-playback/W-playback/Local; T13/T17 |
+| Create | `lib/media/auth.ts` | WS2b/WS3/WS4 | Strict media-only tenant resolver: no default-school fallback or caller identity headers; explicit cookie/Bearer verification, mixed-mode rejection, authoritative lesson/membership match and trusted mutation Origin. | Local; T03/T04/T11/T17/T23 |
+| Create | `lib/media/access.ts` | WS2b/WS3 | Fresh active author/admin write and student entitlement/cutoff checks; students require effective published lesson/course, author/admin has explicit draft preview. Missing/conflicting tenant fails closed. | S-playback/W-playback/Local; T03/T13/T17 |
 | Create | `lib/media/origins.ts` | WS2b | Pure school/platform origin construction from verified tenant/config; no request headers or invented custom-domain allowlist. | S-upload/Local; T14/T23 |
 | Create | `lib/media/http.ts` | WS2b | Bounded streamed JSON/UTF-8 body reader, strict Content-Type, no-store JSON responses and stable sanitized error/status mapping. Shared thin route glue; no provider calls. | Local; T04/T10/T13/T20 |
 | Create | `lib/media/rate-limit.ts` | WS2b/WS3 | Call the atomic Postgres user/school limiter and map exhaustion/outage correctly. No per-process fallback or per-view session ledger. | Local; T09/T20 |
@@ -94,15 +94,15 @@ The following **228 file entries** cover pilot and explicitly staged wider relea
 | Create | `lib/media/uploads.ts` | WS2b | Start/status/restart orchestration over durable reserve/bind RPCs. Enforce request fingerprint, saved-lesson ownership, caps and remove-first rule; preserve unknown create outcomes and File/URL recovery semantics. | S-upload/S-provenance/U-session; T07/T12/T21 |
 | Create | `lib/media/webhook-receipts.ts` | WS2a | Verify bounded raw callback, signature/time/environment; redact/project immutable receipt and enqueue unleased due work. Duplicate/current-next callbacks share dedupe. Acknowledge without SDK metadata calls. | S-webhook/W-webhook/SDK; T01/T02/T19/T22 |
 | Create | `lib/media/webhook-worker.ts` | WS2a | Claim due receipt leases, validate owned provenance with authoritative metadata and dispatch idempotent SQL transitions; fence completion/failure and dead letters. No payment dispatch. | S-webhook/S-provenance/Local; T01/T02/T22 |
-| Create | `lib/media/reconcile.ts` | WS2b | Bounded repair of uncertain uploads/assets/captions and expired leases. Exact nonce/environment correlation; scan exhaustion stays unknown. Late assets for deleted lessons go to retained cleanup identity, never new owner rows. | S-provenance/U-flow; T01/T21/T29 |
+| Create | `lib/media/reconcile.ts` | WS2b | Sweep bound upload expiry without events, uncertain create discovery, preparing timeout and missing ready assets; transient errors/scan exhaustion are not absence. Drive audited recovery with exact owned nonce/environment and retained cleanup identity. | S-provenance/U-flow; T01/T13/T21/T29 |
 | Create | `lib/media/cleanup.ts` | WS2b/WS4 | Lease durable owned outbox work, honor independent destructive flag, delete/not-found assets/tracks/Storage objects, retain failed inventory and release once. Handle captured waiting-upload/intent identity after parent deletion. | S-provenance/Local; T10/T28/T29 |
 | Create | `lib/media/vtt.ts` | WS4 | Pure WebVTT validation/canonicalization: fatal UTF-8, BOM/NUL/surrogates, cue/settings/size/duration limits, supported overlap and NOTE/STYLE/REGION policy. No HTML rendering. | SDK/Local; T10/T15 |
 | Create | `lib/media/captions.ts` | WS4 | Authorize and reserve caption/ingest attempts, store private VTT, sign source transiently, create uniquely named/correlated tracks, reconcile uncertain calls, swap ready association and queue all old-track/source cleanup. | SDK/S-provenance; T10/T15/T22 |
-| Create | `lib/media/playback.ts` | WS3 | Reauthorize current selection, readiness/flags and throttle; mint correct audience/expiry tokens through mux.ts. Apply server fixture TTL only for approved staging context; return renewal schedule and safe caption languages. | S-playback/W-player/SDK; T06/T13/T17 |
-| Create | `lib/media/operator.ts` | WS4 | Verified actor to fresh super_admins membership; bounded inventory/cost/stuck report, school disable and owned takedown with durable audit. No impersonation or automatic production key deletion. | Local; T11/T16 |
+| Create | `lib/media/playback.ts` | WS3 | Fresh strict tenant/access/publication/source/flags gate, bounded tokens/lead and fixture TTL. No default tenant, draft student grants or immediate-revocation promise; dependency failures mint nothing. | S-playback/W-player/SDK; T03/T06/T13/T17 |
+| Create | `lib/media/operator.ts` | WS2b recovery/WS4 report | Independent verified UUID plus fresh super_admins check; audited reconcile/abandon for uncertain/stuck media before report UI, no guessed absence/quota release; later bounded report/takedown. | Local; T11/T16/T21 |
 | Create | `lib/media/maintenance.ts` | WS2b | Strict dedicated-secret authentication, constant-time comparison, common batch/time budget and safe tick summary for reconcile/cleanup. Emit observable success/failure, including empty success. | Local; T20/T24 |
 | Create | `lib/media/resume.ts` | WS3 | Client-safe user+LMS-media local resume storage and prefix cleanup. No URL/token/provider ID; no cross-version/device promise. Pure storage operations are separately testable. | S-player/U-player; T06/T16 |
-| Create | `lib/media/plan-limits.ts` | WS5 | Media-specific fail-closed eligible-plan resolver and attribution/usage composition. Preserve generic non-media missing=unlimited; finite pilot settings already work. | Local; T18 |
+| Create | `lib/media/plan-limits.ts` | WS5 | Actual video_hosting/media_unlimited server feature gates, min finite school/plan/hard caps, explicit unlimited inventory approval and fresh effective billing state. New ingest versus retained ready playback/pending downgrade rules; generic non-media limits unchanged. | Local; T18 |
 | Create | `lib/media/history.ts` | WS6 | Supported source/snapshot/restore and replacement application orchestration over reviewed SQL; generation increases, historical deleted media stays unavailable and provider ownership is never cloned by copying IDs. | W-schema/Local; T05/T18/T28 |
 
 ## HTTP route files
@@ -124,6 +124,7 @@ Every route is a thin adapter to the services above: await Next route params, va
 | Create | `app/api/cron/mux-cleanup/route.ts` | WS2b | GET authenticated bounded outbox cleanup with destructive flag independently enforced. | Local; T20/T24/T29 |
 | Create | `app/api/platform/media/route.ts` | WS4 | GET independently authenticated operator inventory/cost/stuck summary; privileged provider identity may appear here, capabilities never do. | Local; T11/T16 |
 | Create | `app/api/platform/media/takedown/route.ts` | WS4 | POST independently verified operator action, exact platform Origin, reason/target check and durable audit/outbox. | Local; T11/T16 |
+| Create | `app/api/platform/media/recover/route.ts` | WS2b | Independently verified super-admin POST reconcile/abandon, exact platform Origin/JSON, owned tenant/media/environment, immutable reason/audit; no guessed absence or quota reset. | Local; T11/T21/T24 |
 
 ## SQL, shared variants and generated contracts
 
@@ -131,13 +132,13 @@ These are proposed ordered names, to be checked against main before implementati
 
 | Action | Proposed repository path | Package | Responsibility / expected seam | Reference / acceptance |
 | --- | --- | --- | --- | --- |
-| Create | `supabase/migrations/20261023120000_lesson_media_core.sql` | WS1 | Tables, provider-global/composite uniqueness, source generation/status triggers, server-only grants/RLS, snapshot markers and initial restore/clone guards. Outbox retains pending upload/intent correlation as well as known asset/track/path identities before cascades. | W-schema/S-schema/Local; T05/T27/T28/T29/T30 |
-| Create | `supabase/migrations/20261023121000_mux_webhook_queue.sql` | WS2a | Immutable unleased Mux enqueue, due-state/retry/dead-letter metadata and fenced lease functions on existing ledger, preserving payment RPC semantics. | S-webhook/Local; T01/T02/T22 |
+| Create | `supabase/migrations/20261023120000_lesson_media_core.sql` | WS1 | Server-only ALL/SELECT/sequence/RPC privileges, exact effective snapshot/restore replacements/trigger bindings, SQL hosted video_url change guard, source/ownership/cleanup constraints and nonce tombstones. | W-schema/S-schema/Local; T05/T27/T28/T29/T30 |
+| Create | `supabase/migrations/20261023121000_mux_webhook_queue.sql` | WS2a | Unleased immutable enqueue on existing (provider,provider_event_id) with mux:lms:<environment-id>, due/lease/backoff fencing and preserved billing semantics. | S-webhook/Local; T01/T02/T22 |
 | Create | `supabase/migrations/20261023121500_lesson_media_operations.sql` | WS2b | Atomic reservation/bind/restart/select/remove/capacity/rate/audit functions; fixed lock order, UTC counters and once-only releases. Caption-specific ingest RPCs belong to the separately mapped WS4 application migration. | Local; T07/T09/T12/T20/T28 |
 | Create | `supabase/migrations/20261023121800_lesson_caption_operations.sql` | WS4 | LMS-qualified caption reservation, provider ingest-attempt correlation, ready-association swap and cleanup RPCs; included in the application lms variant, never the global Storage file. | SDK/Local; T10/T15/T29 |
 | Create | `supabase/migrations/20261023122000_lms_caption_storage.sql` | WS4 | Global private caption bucket and restrictive browser policy only. LMS caption tables/functions belong to core/application migrations and their checked namespace variant. | SDK/Local; T10/T15/T29 |
-| Create | `supabase/migrations/20261023123000_media_plan_limits.sql` | WS5 | Media plan feature/limit backfills and media-specific resolver; no generic billing semantics change or automatic asset deletion. | Local; T18 |
-| Create | `supabase/migrations/20261023124000_media_history.sql` | WS6 | Later supported history/restore/replacement contracts and guard evolution after their tests exist. No automatic provider-copy subsystem. | W-schema/Local; T05/T18/T28 |
+| Create | `supabase/migrations/20261023123000_media_plan_limits.sql` | WS5 | Explicit media feature/limit/unlimited approval defaults and resolver; minimum cap composition, no automatic media destruction. Apply before canonical WS6 SQL, maintain checked variant/manifest. | Local; T18/T27 |
+| Create | `supabase/migrations/20261023124000_media_history.sql` | WS6 | Supported source/history/replacement and exact public/lms restore evolution; apply after WS5 canonical SQL, or review rename of unapplied migrations if order changes. | W-schema/Local; T05/T18/T27/T28 |
 | Create | `supabase/shared-db/lms-lesson-media.sql` | WS1b, maintained per package | Checked ordered lms variant of application feature SQL; no imported shared baseline and no unrelated SayThanks/auth changes. | Local; T27/T30 |
 | Create | `supabase/shared-db/lms-caption-storage.sql` | WS4/WS1b | Global Storage counterpart matching canonical caption bucket/policy statements. Any accompanying LMS-specific caption functions belong to the checked lms application variant, not an unsafe rewrite of storage.*. | Local; T10/T27 |
 | Create | `supabase/shared-db/lesson-media-manifest.json` | WS1b | Explicit ordered source-file/section/checksum/prerequisite inventory for the two variants. Small checked manifest, not a SQL generation framework. | Local; T27 |
@@ -154,8 +155,8 @@ The existing lesson editor and authenticated preview/student pages remain the pr
 | Create | `components/teacher/lesson-editor/use-hosted-video-upload.ts` | WS4 | In-tab File+handoff lifecycle, chunk uploader integration, abort/polling and lost-File recovery. Reload restores server status, never a File object or assumed retrieve URL. | U-flow/S-upload; T21 |
 | Create | `components/teacher/lesson-editor/hosted-video-status.tsx` | WS4 | Safe uploading/preparing/ready/error/deleting state and retry/remove capability display, without provider identity or invented time-to-ready guarantees. | W-editor/U-flow; T07/T15 |
 | Create | `components/teacher/lesson-editor/lesson-captions-manager.tsx` | WS4 | Per-language/label VTT add/update/remove and separate caption status, safe errors and publish warnings/required-policy feedback. | SDK/Local; T10/T15 |
-| Create | `components/lesson/hosted-video-player.tsx` | WS3/WS4 | Dynamic Mux Player with signed tokens/poster/CC, accessible state UI and existing checkpoint handle/event interface. No auto-complete on ended or unauthorized external fallback. | S-player/W-player/U-player; T06/T15/T17 |
-| Create | `components/lesson/use-hosted-playback.ts` | WS3 | Deduped authenticated grant/renewal, actual expiry scheduling, background return, generation changes, access-ended and bounded temporary retry. No provider API fetch in the browser. | S-player/W-player; T06/T13 |
+| Create | `components/lesson/hosted-video-player.tsx` | WS3/WS4 | Stable media identity and actual Mux token rotation; controlled same-media reload restores pause/playhead and scheduler continuity without bypassing genuine seek/initial-resume markers. Signed CC/errors; no ended completion. | S-player/W-player/U-player; T06/T15/T17 |
+| Create | `components/lesson/use-hosted-playback.ts` | WS3 | Authenticated bounded token renewal with normal and guarded local/CI/staging short policy; preserve scheduler continuity and user seek gates, deny expired/removed access, separate replica/old-token window. | S-player/W-player; T06/T13 |
 | Create | `components/lesson/use-video-resume.ts` | WS3 | Connect player events to user+media resume helpers; preserve pause/playhead on same-media renewal and separate a new media version. | U-player/Local; T06/T16 |
 | Create | `components/lesson/media-session-boundary.tsx` | WS3/WS4 | Global auth lifecycle listener, mounted in locale layout, clears resume prefix on logout/account switch and initial identity mismatch, even when the player is unmounted. No broad auth behavior changes. | Local; T16 |
 | Create | `app/[locale]/platform/media/page.tsx` | WS4 | Protected operator report page using existing platform layout/page-header patterns; bounded inventory, costs and stuck items. API verifies identity independently of page props. | Local; T11/T16 |
@@ -175,10 +176,11 @@ These are runnable source tools once implemented. They must fail closed on an un
 | Create | `scripts/media/check-shared-sql.ts` | WS1b | Validate ordered namespace/global variants and checksums, reject unsafe helper/schema/string substitutions; compare disposable normalized catalogs. Only its explicitly disposable fixture mode may write. | Local; T27/T30 |
 | Create | `scripts/media/verify-target.ts` | WS1b | Read-only app/project/catalog/owner/type/grant/prerequisite verifier with a redacted target receipt. No migrate/reset/repair mode. | Local; T03/T27 |
 | Create | `scripts/media/generate-fixture.ts` | Ops | Generate owned synthetic video/audio/VTT for real smoke outside Git; preflight its test-runner media generator and fail if unavailable. No third-party course content or app ffmpeg dependency. | W-seed/Local; T08 |
-| Create | `scripts/media/live-smoke.ts` | Ops | Approved staging identity checks, fixture role/data manifest, real uploads/callbacks/races and authenticated app operations; record outcomes separately, never pass skipped controls. | W-seed/S-provenance; T01/T03/T08/T21 |
+| Create | `scripts/media/live-smoke.ts` | WS2b harness/Ops | Approved target/owned fixture smoke; explicitly drive authenticated bounded ticks to ready/fail/blocked when no scheduler is installed. Later actual provider frames/callback/recovery receipts, separate skipped controls. | W-seed/S-provenance; T01/T03/T08/T20/T21/T24 |
 | Create | `scripts/media/live-cleanup.ts` | Ops | Cleanup-always handler for recorded fixture identities, using scoped app cleanup and independent deletion switch; report retained/unknown objects and never scan-delete an entire account. | S-provenance/Local; T22/T29 |
 | Create | `scripts/media/sweep-fixtures.ts` | Ops | Independent bounded orphan recovery for killed smoke runners, restricted to confirmed staging environment/owned fixture provenance and age. Separate from general production scheduling. | S-provenance/Local; T21/T24/T29 |
 | Create | `.github/workflows/media-staging-smoke.yml` | Ops | Protected manual real-provider workflow with approved staging inputs, fixture generation, browser/CLI checks, manifests, cleanup-always and explicit approval/environment requirements. No secrets for fork PRs, deployment or shared migrations. | Local; T08/T24 |
+| Create | `scripts/media/seed-fixtures.ts` | WS3/Ops | Guarded idempotent owned Auth/two-school/role/publication/cutoff setup reusing database fixture helper; private credentials outside Git/logs; no unknown/shared-real-school reset. | Local; T03/T17 |
 
 ## Shared test fixtures and reports
 
@@ -186,7 +188,7 @@ Generate keys, large bodies and media at test runtime; do not commit real keys/c
 
 | Action | Proposed repository path | Package | Responsibility / expected seam | Reference / acceptance |
 | --- | --- | --- | --- | --- |
-| Create | `tests/fixtures/media/database.ts` | WS1/WS2b | Two-school/role/lesson fixture setup and cleanup helpers with loopback/disposable target guard. User assertions do not run as service role. | Local; T03/T12/T17 |
+| Create | `tests/fixtures/media/database.ts` | WS1/WS2b/WS3 | Guarded two-school Auth/role/publication/entitlement/cutoff fixture helpers reused by seed CLI; idempotent run ownership/cleanup, user assertions never service-role only. | Local; T03/T12/T17 |
 | Create | `tests/fixtures/media/shared-prerequisites.sql` | WS1b | Minimal isolated shared lms prerequisite/sentinel fixture for parity; not a production baseline dump. | Local; T27/T30 |
 | Create | `tests/fixtures/media/provider-events.ts` | WS2a | Current SDK-shaped asset/upload/track/replay/foreign-environment events with synthetic identity and no capabilities. | SDK/S-webhook; T01/T22 |
 | Create | `tests/fixtures/media/signing-keys.ts` | WS2a/WS3 | Ephemeral synthetic RSA/signature helpers and fake-clock fixtures; never real signing keys in artifacts. | SDK; T06/T22 |
@@ -194,7 +196,7 @@ Generate keys, large bodies and media at test runtime; do not commit real keys/c
 | Create | `tests/fixtures/media/reports.ts` | WS0/WS2a | In-memory pgTAP/Playwright discovery/report fixtures for missing/empty/bad-plan/skip/flaky/shard negative controls. | Local; T25 |
 | Create | `tests/media-required-tests.json` | WS2a–WS4 | Explicit active-package/test-family/project discovery requirements for the report checker; not an arbitrary fixed number of browser specs. | Local; T25/T26 |
 | Create | `tests/playwright/utils/mux-stub.ts` | WS2a | Typed programmable Mux responses/signatures over the existing loopback server, hit capture and race controls; no second HTTP stub framework. | U-flow/Local; T01/T21/T26 |
-| Create | `tests/playwright/utils/media-fixtures.ts` | WS2b/WS4 | Authenticated app sessions and media fixture conveniences; real reserve/bind/receipt/worker path, isolated tenant flags and always-cleanup. | Local; T03/T04/T17 |
+| Create | `tests/playwright/utils/media-fixtures.ts` | WS2b/WS3/WS4 | Scoped real Auth fixtures with explicit bounded maintenance drain helper and short-token local policy; real reserve/bind/receipt/worker path, isolated settings and cleanup. | Local; T01/T03/T04/T06/T17/T20 |
 | Create | `tests/media-live/playwright.config.ts` | Ops | Separate protected staging config; absent from ordinary fork/default project discovery; require verified staging fixture inputs. | Local; T08 |
 | Create | `tests/media-live/media-provider.spec.ts` | Ops | Actual decoded frames, signed CC, token expiry/background renewal, cancellation races and cleanup with strict pass/fail/blocked accounting. | SDK/S-player; T06/T08/T10/T21/T22 |
 
@@ -227,14 +229,14 @@ These are planned behavior suites, not a prescribed test count. Keep existing Vi
 | Create | `tests/unit/media/rate-limit.test.ts` | WS2b/WS3 | RPC limits/outage mapping; true atomic concurrency remains SQL coverage. | T09/T20 |
 | Create | `tests/unit/media/source.test.ts` | WS2b/WS3 | Source resolution, generation selection, unavailable behavior and no stale external fallback. | T05/T07/T13 |
 | Create | `tests/unit/media/uploads.test.ts` | WS2b | Reserve/create/bind/status contracts, duplicate/fingerprint conflict and ready-media refusal. | T07/T12 |
-| Create | `tests/unit/media/upload-recovery.test.ts` | WS2b | Lost response, optional URL, bounded paging, cancellation/ingest, unknown state and no blind retries. | T21 |
+| Create | `tests/unit/media/upload-recovery.test.ts` | WS2b | No-event upload expiry, six-hour processing timeout, missing ready asset, uncertain create scan/cancel/ingest, audited recovery/abandon and retained accounting; no blind retry. | Local; T13/T21/T29 |
 | Create | `tests/unit/media/webhook-receipts.test.ts` | WS2a | Raw signatures/time/environment/size, immutable redacted receipt and prompt-ack orchestration. | T01/T14/T19/T22 |
 | Create | `tests/unit/media/webhook-worker.test.ts` | WS2a | Due/replay/state dispatch, stale lease, early event and foreign/deleted ownership handling. | T01/T02/T22 |
 | Create | `tests/unit/media/cleanup.test.ts` | WS2b | Paused/failed/not-found delete, late asset from deleted lesson, durable identity and once-only release. | T28/T29 |
 | Create | `tests/unit/media/captions.test.ts` | WS4 | Private storage, fresh provider ingest identity/name, same-label replacement and uncertain track retry. | T10/T15/T22 |
 | Create | `tests/unit/media/vtt.test.ts` | WS4 | Supported cues/overlap, encoding/settings/size/time limits and unsafe text. | T10 |
 | Create | `tests/unit/media/playback.test.ts` | WS3 | Gate/no tokens on denial, RS256 claims/audiences, normal/fixture TTL and renewal contract. | T03/T06/T13/T17 |
-| Create | `tests/unit/media/operator.test.ts` | WS4 | API-verified UUID, forged headers, fresh operator membership, reason/audit/environment scope. | T11/T16 |
+| Create | `tests/unit/media/operator.test.ts` | WS2b/WS4 | Verified UUID/forged headers, fresh membership and owned reconcile/abandon without guessed quota release; later reason/audit/report/takedown. | Local; T11/T16/T21 |
 | Create | `tests/unit/media/redaction.test.ts` | WS2a | Synthetic sensitive forms across Sentry, console, provider errors and stored receipt. | T19 |
 | Create | `tests/unit/media/maintenance.test.ts` | WS2b | Dedicated strict secret, budget/deadline, empty/failing heartbeat and cleanup switch. | T20/T24 |
 | Create | `tests/unit/media/shared-sql.test.ts` | WS1b | Variant/manifest drift, namespace safety and global Storage separation. | T27/T30 |
@@ -243,7 +245,7 @@ These are planned behavior suites, not a prescribed test count. Keep existing Vi
 | Create | `tests/unit/media/test-discovery.test.ts` | WS2a | Required media discovery/report skips/fixmes/flakes and valid per-shard scope. | T25/T26 |
 | Create | `tests/unit/media/resume.test.ts` | WS3 | User+media local storage, no capability persistence and logout/account-switch cleanup. | T06/T16 |
 | Create | `tests/unit/media/legacy-source-guards.test.ts` | WS4 | Hosted selection with retained URL/cache; hosted-only approved checkpoint saving versus stale URLs, source-aware list indicators, explicit unsupported extraction/client behavior and external/manual preservation. | T05/T15 |
-| Create | `tests/unit/media/plan-limits.test.ts` | WS5 | Media missing/error fail closed, eligible explicit unlimited and non-media behavior unchanged. | T18 |
+| Create | `tests/unit/media/plan-limits.test.ts` | WS5 | Both cap-min directions, approved -1 inventory only, finite pending/daily/duration, malformed/missing/error fail closed, actual server gate and manual/provider/automatic downgrade/upgrade semantics. | Local; T18 |
 | Create | `tests/unit/media/history.test.ts` | WS6 | Supported later history/replacement/client capability contracts over guarded SQL. | T05/T18/T28 |
 
 ## Local application browser specifications
@@ -256,7 +258,7 @@ Use the existing desktop-chromium project under tests/playwright, existing login
 | Create | `tests/playwright/media-upload-recovery.spec.ts` | WS4 | Chunk pause/retry, reload loses File, explicit restart and controlled create/cancel races. | T07/T21 |
 | Create | `tests/playwright/media-authorization.spec.ts` | WS2b/WS4 | Real cookie/Bearer roles, active membership, sibling Origin and cross-tenant/token denial. | T03/T04/T13/T17 |
 | Create | `tests/playwright/media-student-playback.spec.ts` | WS3/WS4 | Actual app grant/selected source/player wiring; stub is not frame proof; checkpoints stay authoritative. | T06/T13/T17 |
-| Create | `tests/playwright/media-renewal.spec.ts` | WS3 | Expiry policy/renewal calls, pause/playhead, generation change and denied/temporary recovery against local app. | T06 |
+| Create | `tests/playwright/media-renewal.spec.ts` | WS3 | Actual 120-second guarded local app route renewal/expiry, background/pause, checkpoint continuity and denied access; loopback cannot prove Mux streamed frames. | Local; T06/T15/T26 |
 | Create | `tests/playwright/media-captions.spec.ts` | WS4 | Teacher private VTT lifecycle, student CC UI, separate states, errors and en/es/keyboard. | T10/T15 |
 | Create | `tests/playwright/media-caption-transport.spec.ts` | WS4 | Production-mode proxy/ingress valid escaped payload above default buffering and oversize 413. | T10 |
 | Create | `tests/playwright/media-cleanup.spec.ts` | WS2b/WS4 | Remove/cascade, paused/failed cleanup, late callbacks and inventory release. | T22/T28/T29 |
@@ -287,7 +289,7 @@ Each path below exists at the inspected baseline. Modify only the named seam; Ve
 | Modify | `app/[locale]/dashboard/student/courses/[courseId]/lessons/[lessonId]/lesson-content.tsx` | WS3/WS4 | Choose hosted versus external rendering and preserve checkpoint pause/resume/seek callbacks and manual completion behavior. | W-player/Local; T06/T15 |
 | Modify | `app/[locale]/dashboard/teacher/courses/[courseId]/preview/lessons/[lessonId]/page.tsx` | WS3 | Existing authenticated preview becomes the early real-app playback harness; no new exposed harness route. | W-learn/S-playback; T06/T17 |
 | Modify | `app/[locale]/(public)/courses/[id]/lessons/[lessonId]/page.tsx` | WS4 | Preserve external free preview; hosted pilot requires sign-in/access and must not expose a retained external URL or mint anonymously. | Local; T13/T15 |
-| Modify | `components/lesson/checkpoint-video-player.tsx` | WS3/WS4 | Share the existing pause/resume/currentTime/marker contract with the hosted player, without treating a Mux URL as an arbitrary external/native string. | W-player/Local; T06/T15 |
+| Modify | `components/lesson/checkpoint-video-player.tsx` | WS3/WS4 | Reuse marker scheduler/adapter contract for Mux same-media token continuity; preserve fired/current marker state across internal reload while user seeks and initial resume remain gated. | W-player/Local; T06/T15 |
 | Verify | `components/lesson/video.tsx` | WS4 | External MDX video remains external; do not register an arbitrary Mux ID or persisted signed URL as an auth bypass. | E-player; T15 |
 | Verify | `components/teacher/block-editor/editors/video-block.tsx` | WS4 | Keep generic external embed editing; primary lesson hosting is separate from every MDX/Puck upload field. | Local; T15 |
 | Verify | `app/actions/teacher/lesson-media.ts` | WS4 | Retain existing authorized private audio/document upload path; do not replace it with Mux video handling. | Local; T15 |
@@ -344,7 +346,7 @@ Modify these at the indicated package only. Dependency installation, generated f
 | Modify | `package.json` | WS2a/WS3/WS4 | Pin reviewed Mux SDK/player/uploader and add actual SQL/shared/live scripts when those sources exist. No mirror/AI package or production deployment script. | SDK; T08/T25/T26 |
 | Regenerate | `package-lock.json` | WS2a/WS3/WS4 | Regenerate through normal npm workflow with intentional dependencies; never hand-edit or silently upgrade unrelated packages. | SDK; T26 |
 | Modify | `.env.example` | WS2a/WS3 | Document canonical Mux flags/secrets/stage/fixture/maintenance variables and existing build-time schema selection. No real values. | Local; T03/T06/T26 |
-| Modify | `Dockerfile` | WS1b | Propagate existing public schema/domain/host selectors at build/runtime as required; server Mux secrets remain runtime-only and are never baked into layers. | Local; T03 |
+| Modify | `Dockerfile` | WS1b | Propagate public schema selector at build/runtime; disposable public/lms image plus actual browser SDK profile proof. Do not bake Mux secrets or assume curl availability. | Local; T03/T24/T27 |
 | Modify | `.github/workflows/ci.yml` | WS0–WS4 | Actual SQL gate, report/discovery artifacts, loopback synthetic Mux config and applicable shared/transport checks while preserving verify/MCP/E2E/image jobs. | Local; T25/T26 |
 | Modify | `.github/workflows/deploy.yml` | WS1b | Wire reviewed public build selectors consistently with Dockerfile; do not add implicit migration/enablement or put runtime Mux secrets in build args. Deployment requires separate authorization. | Local; T03 |
 | Verify | `.github/workflows/cron.yml` | Ops | Existing production payment schedule is not the staging Mux scheduler; verify no duplicate staging jobs or secret fallback is introduced. | Local; T24 |
@@ -372,6 +374,16 @@ Modify these at the indicated package only. Dependency installation, generated f
 | Create | `mcp-server/src/media-widgets.test.ts` | WS4 guard/WS6 support | Exercise actual preview/viewer schema and renderer with safe source state; hosted retains content/lock state and never shows old URL/embed. Use supported renderer test tools and browser evidence for any later full player, not source-text assertions. | Local; T03/T15/T17 |
 | Create | `mcp-server/src/media.test.ts` | WS4 guard/WS6 support | Verified end-user forwarding, malformed/non-HTTPS/unapproved-target/redirect refusal, safe source response, unsupported legacy edit and no provider/URL leakage. Runs in separate MCP suite. | Local; T03/T15/T17 |
 | Create | `mcp-server/src/tools/lessons.test.ts` | WS4 guard/WS6 support | Tool-level regression for source-aware lesson read/update and guard behavior. Ownership is MCP test suite, not root media test discovery. | Local; T03/T15 |
+| Verify | `lib/supabase/tenant.ts` | WS2b/WS3 | Record legacy default-school fallback and prove new strict media boundary does not call it for authorization; no broad routing rewrite. | Local; T03/T17/T23 |
+| Verify | `lib/plans/server.ts` | WS5 | Reuse actual server plan feature gate against authoritative effective plan/override, not client feature hints or broad contract-test allowlisting. | Local; T18 |
+| Modify | `tests/unit/plan-feature-gate-contract.test.ts` | WS5 | Require real advertised media server gate and labels; no unsupported ENFORCED_ELSEWHERE exemption. | Local; T18 |
+| Verify | `lib/billing/downgrade-tenant.ts` | WS5 | Automatic downgrade remains billing-authoritative; verify fresh media policy observes changed plan without media-induced delete/unpublish or rollback. | Local; T18 |
+| Modify | `app/actions/admin/billing.ts` | WS5 | User-initiated plan-change impact/overage guidance under existing billing authority; no provider rollback when media exceeds new caps. | Local; T18 |
+| Verify | `lib/billing/platform-subscription-switch.ts` | WS5 | Provider/manual plan switches remain authoritative; verify media resolver observes effective plan after activation and does not turn overage into a fake provider failure. | Local; T18 |
+| Verify | `lib/billing/platform-webhook-dispatch.ts` | WS5 | Verify downgrade/activation access boundary with fresh media policy while preserving actual provider transaction semantics and dedupe. | Local; T18 |
+| Modify | `tests/playwright/checkpoint-access.spec.ts` | WS3 | Existing real checkpoint access cases plus same-media retoken continuity versus true seeking, pending/completed markers and initial resume clamp. | Local; T06/T15 |
+| Verify | `tests/unit/plan-limits.test.ts` | WS5 | Preserve generic course/student limit semantics while separate media caps/gates are introduced. | Local; T18 |
+| Modify | `tests/unit/plan-change-action.test.ts` | WS5 | Plan-change media-impact guidance plus effective downgrade rules, preserving existing transition/validation behavior. | Local; T18 |
 
 ## Planning and handoff documents
 
@@ -379,12 +391,16 @@ This planning update creates the map and updates the existing canonical links/co
 
 | Action | Proposed repository path | Package | Responsibility / expected seam | Reference / acceptance |
 | --- | --- | --- | --- | --- |
-| Create | `docs/MUX_VIDEO_FILE_MAP.md` | Planning | This complete per-path blueprint, source guidance, integration boundaries and package/test ownership. | All T-IDs |
+| Modify | `docs/MUX_VIDEO_FILE_MAP.md` | Planning | This complete per-path blueprint, source guidance, integration boundaries and package/test ownership. | All T-IDs |
 | Modify | `docs/MUX_VIDEO_HOSTING_PLAN.md` | Planning | Canonical contracts plus file-map index, safe GET source read boundary and pending-upload cleanup identity clarification. | T03/T07/T17/T29 |
 | Modify | `docs/MUX_VIDEO_TDD_PLAN.md` | Planning | Link file ownership and exact caption-application migration to package/test sequence; saved-draft/source-read/late-ingest controls remain explicit. | All T-IDs |
 | Modify | `docs/MUX_VIDEO_OPS_RUNBOOK.md` | Planning | Link proposed source/tool inventory without treating generated artifacts or external scheduler/secrets as created files. | All live gates |
 | Modify | `docs/MUX_VIDEO_REFERENCES.md` | Planning | Link file-to-reference blueprint; preserve original pinned source files and license/reuse restrictions. | All cited sources |
 | Modify | `docs/MUX_VIDEO_REVIEW_FINDINGS.md` | Planning | Link file ownership to existing F-ID/T-ID status; design completeness does not close implementation or live gates. | F-01–F-30 |
+| Create | `docs/MUX_VIDEO_PR28_REVIEW_RECONCILIATION.md` | Planning | All 27 supplied high/medium follow-up items, observed evidence/corrections, exact owners/T-IDs and open execution/live status; no invented raw reviews. | R28-H01–H09/R28-M01–M18 |
+| Modify | `docs/DEPLOYMENT.md` | WS1b/Ops | Mark historical Dokploy instructions/hooks/cron assumptions as legacy and point current Coolify/edge target preflight to runbook; no automatic host migration. | Local; T03/T14/T24 |
+| Modify | `docs/DOCKER_DEPLOYMENT.md` | WS1b | Document schema build/browser proof and actual host identity; runtime env echo does not validate an inlined bundle. | Local; T03/T27 |
+| Modify | `docs/CLOUDFLARE_WILDCARD_SETUP.md` | WS1b/Ops | Mark historical host/wildcard/firewall assertions unverified for current host; no firewall-disable advice for active setup, scoped operator edge preflight. | Local; T14/T24 |
 
 
 ## Generated or external artifacts: do not create these as source code

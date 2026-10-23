@@ -1,5 +1,7 @@
 # Docker Deployment Guide
 
+Current LMS hosting is user-identified as Coolify. Dokploy hook names in repository workflows are legacy configuration, not verified active-host identity. For shared `lms` mode, WS1b must add `NEXT_PUBLIC_SUPABASE_DB_SCHEMA` consistently to build args/ENV/workflow inputs, rebuild the image and verify actual browser Accept-Profile/Content-Profile traffic against distinct disposable public/lms data. A runtime-only setting cannot repair the inlined client bundle. Follow the [read-only target/edge preflight](MUX_VIDEO_OPS_RUNBOOK.md#read-only-preflight-and-sql-gate) before any hosted action; this documentation does not change deployment automation.
+
 ## Overview
 
 The application uses a multi-stage Docker build optimized for production:

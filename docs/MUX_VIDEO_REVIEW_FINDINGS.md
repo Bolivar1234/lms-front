@@ -2,6 +2,8 @@
 
 Read the [master contracts](MUX_VIDEO_HOSTING_PLAN.md), [TDD acceptance families](MUX_VIDEO_TDD_PLAN.md), [operations receipts](MUX_VIDEO_OPS_RUNBOOK.md) and [pinned evidence](MUX_VIDEO_REFERENCES.md). The [file map](MUX_VIDEO_FILE_MAP.md) adds proposed physical paths and reference/owner coverage. This file tracks decisions and remaining implementation/launch work; it does not duplicate the normative route, limits or environment tables.
 
+See the [PR #28 follow-up reconciliation](MUX_VIDEO_PR28_REVIEW_RECONCILIATION.md) for the subsequently supplied high/medium findings, corrected claims, new contracts and remaining execution gates. The earlier review verdict is bounded to its inspected snapshot; it is not a completeness certification.
+
 ## Provenance and status meanings
 
 The original Claude review covered plan commit `c221efbb` and spot-checked merged code at `d5db2bf477374d229aa6c049ffce08c7d7c4700e`. Its six read-only model passes were review, not runtime evidence. Codex's [ID-by-ID review of `dad21165`](https://github.com/Bolivar1234/lms-front/pull/26#issuecomment-6373777308) corrected facts; Claude's `0113d577f5de0f30fdb9ee476218cf324a1998af` preserved those corrections. PR #26 subsequently merged as `d4301200`, the application base of the five-document reconciliation. This revision reconciles all five documents, retaining IDs and the original restricted-code/reference boundaries.
@@ -203,7 +205,7 @@ Each ID below names its disposition, implementation status, evidence confidence/
 | D05 named tables/actors/operator | Master data model, immutable request actor, opaque attribution reference, API-verified operator identity. |
 | D06 consistent packages | TDD WS/PR alias/dependency table, distinguished from actual GitHub PR numbers. |
 | D07 quantitative gates | Master engineering limits; runbook requires actual budget/owner thresholds. Under-two-second target and five-second provider deadline are compatible. |
-| D08 token examples | Master worked pilot and later maximum TTLs, margin and short-fixture renewal lead. |
+| D08 token examples | Master bounded 600–630-second normal TTL, older-issued-token rotation margin and guarded 120-second fixture renewal lead; replaces the previous duration-based policy. |
 | D09 one canonical policy source | Master owns limits/flags/routes/env; TDD tests, ops receipts, ledger status link there. |
 | D10 deferred workflow instructions | References explicitly label later AI/workflow/search scope while preserving every requested pinned source. |
 | D11 traceability/filenames/receipt | Every F-ID maps to T-ID above; TDD ordered migration names and gate/discovery contracts; runbook receipt template. |
@@ -236,5 +238,7 @@ The original review's 34–52 engineer-day estimate is historical and unmeasured
 ## Remaining inputs and evidence
 
 See the runbook's [target record](MUX_VIDEO_OPS_RUNBOOK.md#owners-and-target-record) and [rollout receipt](MUX_VIDEO_OPS_RUNBOOK.md#rollout-receipt) for the actual database operator/baseline/role, verified staging project/service, Mux account allowance/credentials, fixture/pilot school, scheduler host, budget/abuse/privacy contacts and scoped authorizations. These are **blocked/unverified until supplied and observed**; missing access does not undo the documented engineering decisions.
+
+The PR #28 follow-up adds explicit SQL enforcement, lifecycle/tenant/checkpoint/edge and downgrade contracts. Any previous “no remaining material defect” verdict describes a limited review snapshot, not a guarantee against later findings. Implementation/live status remains open.
 
 No further scope decision is needed for lms mode, manual captions, remove-first uploads, private-media status policy, fixture expiry mechanism, shared limiter, scheduler strategy or separate production approval. An explicit later owner change updates master/TDD/ops/ledger together. No implementation or live finding is marked resolved solely by this documentation revision.

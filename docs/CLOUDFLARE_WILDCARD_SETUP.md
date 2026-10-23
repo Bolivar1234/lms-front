@@ -1,4 +1,6 @@
-# Deployment & Firewall Notes: Cloudflare Wildcards & Security
+# Historical firewall notes: Cloudflare wildcards
+
+**Historical Dokploy/Netcup incident record.** The current LMS handoff identifies Coolify; the wildcard-plan assertions and firewall-disable advice below are not validated current policy. Do not apply them to the active host. Use the Mux [edge/target preflight](MUX_VIDEO_OPS_RUNBOOK.md#read-only-preflight-and-sql-gate) to inspect exact callback and scheduler paths and prepare narrowly scoped operator-approved changes. No broad firewall/TLS bypass is authorized.
 
 This document captures the findings and architectural decisions regarding DNS, SSL (Let's Encrypt), Firewalls, and Cloudflare integration when hosting the LMS on Dokploy/Netcup.
 
