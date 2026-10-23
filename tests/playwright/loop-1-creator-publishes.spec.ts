@@ -17,7 +17,7 @@
  *   6. The checklist reports the first course as done (published course AND
  *      published lesson, #675) and hands over the join link for the first student.
  *
- * A second test walks steps 1 and 5 in Spanish.
+ * A second test preserves Spanish course content inside the English application.
  *
  * Every run owns a fresh tenant + creator (`loop1-<runId>`), so the seeded
  * tenants are never touched and the spec is safe under CI's fullyParallel
@@ -145,11 +145,10 @@ const CREATE_SCHOOL_COPY = {
  * own base so both setups reach the same assertion.
  */
 async function createSchool(page: Page, locale: 'en' | 'es', creator: Creator) {
-  const copy = CREATE_SCHOOL_COPY[locale]
-  await page.goto(`${BASE}/${locale}/create-school`, { waitUntil: 'domcontentloaded' })
+  const copy = CREATE_SCHOOL_COPY.en
+  await page.goto(`${BASE}/create-school`, { waitUntil: 'domcontentloaded' })
 
-  // The screen was hardcoded English on every string until #689; asserting the
-  // heading is what keeps the Spanish run honest rather than merely green.
+  // The application chrome stays English regardless of the course content language.
   await expect(page.getByRole('heading', { name: copy.title })).toBeVisible()
 
   await fillAllStable([
@@ -185,10 +184,10 @@ async function createSchool(page: Page, locale: 'en' | 'es', creator: Creator) {
     /\/dashboard\/admin$/,
   )
 
-  await page.goto(`${tenantBase(creator.slug)}/${locale}/dashboard/admin`, {
+  await page.goto(`${tenantBase(creator.slug)}/dashboard/admin`, {
     waitUntil: 'domcontentloaded',
   })
-  await expect(page).toHaveURL(new RegExp(`//${creator.slug}\\..*/${locale}/dashboard/admin`))
+  await expect(page).toHaveURL(new RegExp(`//${creator.slug}\\..*/dashboard/admin`))
   await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 30_000 })
   await page.evaluate(() => localStorage.setItem('tours-disabled', 'true'))
 }
@@ -413,7 +412,7 @@ test('a creator signs up, creates a school, publishes a course with a lesson and
   await test.step('3b. the checklist counts the lesson, not the course (#675)', async () => {
     // A published lesson inside a draft course: the step stays the next
     // action, with one of its two sub-steps ticked and no milestone yet.
-    await page.goto(`${base}/en/dashboard/admin`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}/dashboard/admin`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 30_000 })
     const next = page.getByTestId('onboarding-next-step')
     await expect(next).toContainText('Create your first course')
@@ -428,7 +427,7 @@ test('a creator signs up, creates a school, publishes a course with a lesson and
   })
 
   await test.step('4. publish the course from its settings', async () => {
-    await page.goto(`${base}/en/dashboard/teacher/courses/${courseId}/settings`, {
+    await page.goto(`${base}/dashboard/teacher/courses/${courseId}/settings`, {
       waitUntil: 'domcontentloaded',
     })
     const status = page.locator('#status')
@@ -449,7 +448,7 @@ test('a creator signs up, creates a school, publishes a course with a lesson and
   await test.step('5. the public course page and catalog, anonymously', async () => {
     const { context, page: anon, status } = await openAnonymously(
       browser,
-      `${base}/en/courses/${courseId}`,
+      `${base}/courses/${courseId}`,
     )
     try {
       expect(status).toBe(200)
@@ -472,7 +471,7 @@ test('a creator signs up, creates a school, publishes a course with a lesson and
         /\/auth\/login\?next=/,
       )
 
-      await anon.goto(`${base}/en/courses`, { waitUntil: 'domcontentloaded' })
+      await anon.goto(`${base}/courses`, { waitUntil: 'domcontentloaded' })
       const card = anon.getByRole('link', { name: new RegExp(courseTitle) })
       await expect(card).toBeVisible({ timeout: 20_000 })
       await expect(card).toContainText('Free')
@@ -480,7 +479,7 @@ test('a creator signs up, creates a school, publishes a course with a lesson and
 
       // Another school's subdomain never sees it. The route streams behind
       // `loading.tsx`, so the shell is a 200 and the not-found renders inside it.
-      await anon.goto(`${TENANT_BASE}/en/courses/${courseId}`, { waitUntil: 'domcontentloaded' })
+      await anon.goto(`${TENANT_BASE}/courses/${courseId}`, { waitUntil: 'domcontentloaded' })
       await expect(anon.getByRole('heading', { name: /page not found/i })).toBeVisible({
         timeout: 20_000,
       })
@@ -491,7 +490,7 @@ test('a creator signs up, creates a school, publishes a course with a lesson and
   })
 
   await test.step('6. the checklist reports the first course as done and hands over the join link', async () => {
-    await page.goto(`${base}/en/dashboard/admin`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}/dashboard/admin`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByTestId('onboarding-milestone')).toBeVisible({ timeout: 15_000 })
     const next = page.getByTestId('onboarding-next-step')
@@ -513,7 +512,7 @@ test('a creator signs up, creates a school, publishes a course with a lesson and
   })
 })
 
-test('en español: crea la escuela y la página pública del curso se ve en español', async ({
+test('a school publishes Spanish course content inside the English application', async ({
   page,
   browser,
 }, testInfo) => {
@@ -528,8 +527,8 @@ test('en español: crea la escuela y la página pública del curso se ve en espa
 
   await test.step('1. registro y creación de la escuela en /es', async () => {
     await createSchool(page, 'es', creator)
-    await expect(page.getByText('Primeros Pasos')).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByTestId('onboarding-next-step')).toContainText('Crea tu primer curso')
+    await expect(page.getByText('Getting Started')).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('onboarding-next-step')).toContainText('Create your first course')
   })
 
   await test.step('curso publicado con una lección (creación rápida + lección sembrada)', async () => {
@@ -537,13 +536,13 @@ test('en español: crea la escuela y la página pública del curso se ve en espa
     await fillStable(page.locator('#quick-title'), courseTitle)
     const onNewLesson = /\/dashboard\/teacher\/courses\/\d+\/lessons\/new\?from=new-course/
     await clickUntil(
-      page.getByRole('button', { name: /crear y publicar/i }),
+      page.getByRole('button', { name: /create (&|and) publish/i }),
       async () => onNewLesson.test(page.url()),
       { attempts: 2, settleMs: 30_000 },
     )
     await expect(page).toHaveURL(onNewLesson, { timeout: 30_000 })
     courseId = Number(page.url().match(/courses\/(\d+)/)![1])
-    await expect(page.getByTestId('first-lesson-hint')).toContainText('ya está creado', {
+    await expect(page.getByTestId('first-lesson-hint')).toContainText('is created', {
       timeout: 20_000,
     })
     const course = await readCourse(admin, courseId)
@@ -572,12 +571,12 @@ test('en español: crea la escuela y la página pública del curso se ve en espa
       await expect(anon.getByRole('heading', { level: 1, name: courseTitle })).toBeVisible({
         timeout: 20_000,
       })
-      await clickUntil(anon.getByRole('button', { name: /todas las lecciones/i }), () =>
+      await clickUntil(anon.getByRole('button', { name: /all lessons/i }), () =>
         anon.getByText(lessonTitle).isVisible(),
       )
       await expect(anon.getByText(lessonTitle)).toBeVisible()
-      await expect(anon.getByText('Gratis', { exact: true }).first()).toBeVisible()
-      const cta = anon.getByRole('link', { name: /inscribirse gratis/i })
+      await expect(anon.getByText('Free', { exact: true }).first()).toBeVisible()
+      const cta = anon.getByRole('link', { name: /enroll for free/i })
       await expect(cta).toBeVisible()
       await expect(cta).toHaveAttribute('href', /\/auth\/sign-up\?next=/)
       await expect(anon.getByTestId('course-enroll-login')).toHaveAttribute(
@@ -588,8 +587,8 @@ test('en español: crea la escuela y la página pública del curso se ve en espa
       await anon.goto(`${base}/es/courses`, { waitUntil: 'domcontentloaded' })
       const card = anon.getByRole('link', { name: new RegExp(courseTitle) })
       await expect(card).toBeVisible({ timeout: 20_000 })
-      await expect(card).toContainText('Gratis')
-      await expect(card).toContainText('1 lecciones')
+      await expect(card).toContainText('Free')
+      await expect(card).toContainText('1 lessons')
     } finally {
       await context.close()
     }
@@ -600,10 +599,10 @@ test('en español: crea la escuela y la página pública del curso se ve en espa
     await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByTestId('onboarding-milestone')).toBeVisible({ timeout: 15_000 })
     const next = page.getByTestId('onboarding-next-step')
-    await expect(next).toContainText('Invita a tu primer estudiante')
+    await expect(next).toContainText('Invite your first student')
     const share = next.getByTestId('onboarding-share-invite-users')
     await expect(share).toContainText('/join-school')
     await expect(share.getByTestId('onboarding-share-whatsapp')).toContainText('WhatsApp')
-    await expect(share.getByTestId('onboarding-share-copy')).toContainText('Copiar enlace')
+    await expect(share.getByTestId('onboarding-share-copy')).toContainText('Copy join link')
   })
 })

@@ -191,7 +191,7 @@ function StripeCheckoutInner({
         const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
-                return_url: `${window.location.origin}/${locale}/checkout/success?transactionId=${transactionId}`,
+                return_url: `${window.location.origin}/checkout/success?transactionId=${transactionId}`,
             },
         });
 

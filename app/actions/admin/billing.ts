@@ -1,5 +1,8 @@
 'use server'
 
+import { storePaymentProof } from '@/lib/storage/payment-proofs'
+import { authorizeCourseStorage } from '@/lib/storage/authorization'
+
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
@@ -956,8 +959,7 @@ export async function reactivateSubscription() {
  * Upload payment proof for a platform payment request (school admin)
  */
 export async function uploadPaymentProof(requestId: string, formData: FormData) {
-  const { tenantId } = await verifyAdminAccess()
-  const adminClient = await createAdminClient()
+  const { tenantId, admin: adminClient } = await authorizeCourseStorage(undefined, true)
 
   // Verify request belongs to tenant
   const { data: request } = await adminClient
@@ -969,33 +971,7 @@ export async function uploadPaymentProof(requestId: string, formData: FormData) 
 
   if (!request) throw new Error('Request not found')
 
-  const file = formData.get('file') as File
-  if (!file || file.size === 0) throw new Error('No file provided')
-  if (file.size > 10 * 1024 * 1024) throw new Error('File must be less than 10MB')
-
-  const ext = file.name.split('.').pop() || 'bin'
-  const path = `platform/${tenantId}/${requestId}/proof.${ext}`
-
-  const supabase = await createClient()
-  const { error: uploadError } = await supabase.storage
-    .from('payment-proofs')
-    .upload(path, file, { upsert: true })
-
-  if (uploadError) {
-    console.error('Failed to upload proof:', uploadError)
-    throw new Error('Failed to upload file')
-  }
-
-  const { data: urlData } = supabase.storage
-    .from('payment-proofs')
-    .getPublicUrl(path)
-
-  // Since bucket is private, generate a signed URL instead
-  const { data: signedUrlData } = await supabase.storage
-    .from('payment-proofs')
-    .createSignedUrl(path, 60 * 60 * 24 * 365) // 1 year
-
-  const proofUrl = signedUrlData?.signedUrl || urlData.publicUrl
+  const proofUrl = await storePaymentProof(adminClient, formData, `platform/${tenantId}/${requestId}`)
 
   // Uploading proof advances the request to `payment_received` so a super
   // admin can see the school has paid — unless it's already been
@@ -1003,7 +979,7 @@ export async function uploadPaymentProof(requestId: string, formData: FormData) 
   const advanceStatus =
     request.status === 'pending' || request.status === 'instructions_sent'
 
-  await adminClient
+  const { error: saveError } = await adminClient
     .from('platform_payment_requests')
     .update({
       proof_url: proofUrl,
@@ -1011,6 +987,7 @@ export async function uploadPaymentProof(requestId: string, formData: FormData) 
       updated_at: new Date().toISOString(),
     })
     .eq('request_id', requestId)
+  if (saveError) throw new Error('Failed to save payment proof')
 
   revalidatePath('/dashboard/admin/billing')
   return { proofUrl }

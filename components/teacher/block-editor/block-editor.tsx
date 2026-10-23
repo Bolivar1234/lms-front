@@ -25,6 +25,7 @@ import { SortableBlock } from './sortable-block'
 import { BlockRenderer } from './block-renderer'
 import { AddBlockMenu } from './add-block-menu'
 import { cn } from '@/lib/utils'
+import { LessonMediaUploadContext } from './media-upload-context'
 import type { CheckpointContext } from './editors/checkpoint-block'
 
 interface BlockEditorProps {
@@ -68,6 +69,7 @@ export function BlockEditor({ initialContent = '', onChange, className, checkpoi
       setBlocks((items) => {
         const oldIndex = items.findIndex((b) => b.id === active.id)
         const newIndex = items.findIndex((b) => b.id === over.id)
+        if (oldIndex < 0 || newIndex < 0) return items
         const newItems = arrayMove(items, oldIndex, newIndex)
         emitChange(newItems)
         return newItems
@@ -147,6 +149,7 @@ export function BlockEditor({ initialContent = '', onChange, className, checkpoi
   }
 
   return (
+    <LessonMediaUploadContext.Provider value={{ lessonId: checkpointContext?.lessonId ?? null, revision: JSON.stringify(blocks) }}>
     <div className={cn('space-y-0', className)}>
       {/* Add block at top */}
       <AddBlockMenu onSelect={(type: BlockType) => addBlockAfter(null, type)} position="top" />
@@ -195,5 +198,6 @@ export function BlockEditor({ initialContent = '', onChange, className, checkpoi
         </div>
       )}
     </div>
+    </LessonMediaUploadContext.Provider>
   )
 }

@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     const origin = req.headers.get('origin') || req.headers.get('referer')?.replace(/\/[^/]*$/, '') || ''
     const locale = resolveRequestLocale(req, bodyLocale)
-    const returnUrl = `${origin}/${locale}/dashboard/admin/billing`
+    const returnUrl = `${origin}/dashboard/admin/billing`
 
     const paymentProvider = getPaymentProvider(provider)
     if (!paymentProvider.createCustomerPortalSession) {

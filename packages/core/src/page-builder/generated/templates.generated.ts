@@ -104,11 +104,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "About",
-                "href": "#about"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
+                "href": "#features"
               }
             ],
             "ctaLabel": "Enroll Now",
@@ -285,24 +281,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#features"
                   }
                 ]
               }
@@ -454,10 +433,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                   {
                     "label": "Courses",
                     "href": "/courses"
-                  },
-                  {
-                    "label": "About",
-                    "href": "#about"
                   }
                 ]
               }
@@ -504,7 +479,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "About",
-                "href": "#about"
+                "href": "#team"
               }
             ],
             "ctaLabel": "Join Now",
@@ -627,11 +602,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
+                    "href": "#team"
                   }
                 ]
               }
@@ -929,7 +900,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "primaryCtaLabel": "Get Started",
             "primaryCtaHref": "/courses",
             "secondaryCtaLabel": "Contact Us",
-            "secondaryCtaHref": "#contact",
+            "secondaryCtaHref": "",
             "style": "gradient"
           }
         },
@@ -1233,7 +1204,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Still have questions?",
             "subtitle": "Our support team is here to help.",
             "primaryCtaLabel": "Contact Support",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "",
             "secondaryCtaHref": "",
             "style": "bordered"
@@ -1294,15 +1265,11 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "About",
-                "href": "#about"
+                "href": "#features"
               },
               {
                 "label": "FAQ",
                 "href": "#faq"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Coding",
@@ -1458,7 +1425,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "features": "Everything in Pro\nUp to 10 team seats\nTeam progress dashboard\nCustom learning paths\nDedicated account manager",
                 "highlighted": false,
                 "ctaLabel": "Contact Sales",
-                "ctaHref": "#contact"
+                "ctaHref": ""
               }
             ]
           }
@@ -1586,7 +1553,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About Us",
-                    "href": "#about"
+                    "href": "#features"
                   },
                   {
                     "label": "Blog",
@@ -1604,18 +1571,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                   {
                     "label": "FAQ",
                     "href": "#faq"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  },
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -1677,14 +1632,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Courses",
                 "href": "/courses"
-              },
-              {
-                "label": "FAQ",
-                "href": "#faq"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Coding",
@@ -1840,24 +1787,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#team"
                   }
                 ]
               }
@@ -1923,10 +1853,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Pricing",
                 "href": "/pricing"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Coding",
@@ -2099,7 +2025,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Still Have Questions?",
             "subtitle": "Our team is happy to help. Reach out anytime.",
             "primaryCtaLabel": "Contact Us",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "Browse Courses",
             "secondaryCtaHref": "/courses",
             "style": "bordered"
@@ -2130,23 +2056,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                   {
                     "label": "FAQ",
                     "href": "#faq"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -2371,11 +2280,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "About",
-                "href": "#about"
-              },
-              {
-                "label": "FAQ",
-                "href": "#faq"
+                "href": "#features"
               }
             ],
             "ctaLabel": "Start Coding",
@@ -2543,24 +2448,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#features"
                   }
                 ]
               }
@@ -2620,7 +2508,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "Levels",
-                "href": "#levels"
+                "href": "#courses"
               },
               {
                 "label": "Pricing",
@@ -2628,7 +2516,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "About",
-                "href": "#about"
+                "href": "#features"
               },
               {
                 "label": "FAQ",
@@ -2822,7 +2710,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "features": "One-on-one with a native teacher\nCustom lesson plan\nFlexible scheduling\nFocus on your goals\nRecorded lessons",
                 "highlighted": false,
                 "ctaLabel": "Book a Lesson",
-                "ctaHref": "#contact"
+                "ctaHref": ""
               }
             ]
           }
@@ -2946,28 +2834,11 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
+                    "href": "#features"
                   },
                   {
                     "label": "Our Teachers",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#features"
                   }
                 ]
               }
@@ -3029,14 +2900,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Courses",
                 "href": "/courses"
-              },
-              {
-                "label": "FAQ",
-                "href": "#faq"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Free Trial",
@@ -3164,7 +3027,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "primaryCtaLabel": "Start Free Trial",
             "primaryCtaHref": "/courses",
             "secondaryCtaLabel": "Contact Us",
-            "secondaryCtaHref": "#contact",
+            "secondaryCtaHref": "",
             "style": "gradient"
           }
         },
@@ -3196,28 +3059,11 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
+                    "href": "#team"
                   },
                   {
                     "label": "Our Teachers",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#team"
                   }
                 ]
               }
@@ -3282,10 +3128,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Pricing",
                 "href": "/pricing"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Free Trial",
@@ -3428,7 +3270,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Still Have Questions?",
             "subtitle": "Our team is happy to help you choose the right plan and level.",
             "primaryCtaLabel": "Contact Us",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "Browse Courses",
             "secondaryCtaHref": "/courses",
             "style": "bordered"
@@ -3454,36 +3296,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                   {
                     "label": "Placement Test",
                     "href": "#"
-                  }
-                ]
-              },
-              {
-                "title": "School",
-                "links": [
-                  {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Our Teachers",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -3647,29 +3459,8 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "title": "School",
                 "links": [
                   {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Our Teachers",
-                    "href": "#about"
-                  },
-                  {
                     "label": "Contact",
                     "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -3741,7 +3532,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "About",
-                "href": "#about"
+                "href": "#features"
               },
               {
                 "label": "FAQ",
@@ -3764,7 +3555,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "primaryCtaLabel": "Start Your Free Week",
             "primaryCtaHref": "/courses",
             "secondaryCtaLabel": "See Programs",
-            "secondaryCtaHref": "#programs",
+            "secondaryCtaHref": "",
             "backgroundImage": "",
             "alignment": "center",
             "overlayOpacity": 60,
@@ -3935,7 +3726,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "features": "Everything in Annual\nCustom training plan\nWeekly coach check-ins\nForm reviews\nDirect messaging",
                 "highlighted": false,
                 "ctaLabel": "Get Coaching",
-                "ctaHref": "#contact"
+                "ctaHref": ""
               }
             ]
           }
@@ -4059,28 +3850,11 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
+                    "href": "#features"
                   },
                   {
                     "label": "Our Coaches",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#features"
                   }
                 ]
               }
@@ -4142,14 +3916,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Programs",
                 "href": "/courses"
-              },
-              {
-                "label": "FAQ",
-                "href": "#faq"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Free Week",
@@ -4277,7 +4043,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "primaryCtaLabel": "Start Free Week",
             "primaryCtaHref": "/courses",
             "secondaryCtaLabel": "Contact Us",
-            "secondaryCtaHref": "#contact",
+            "secondaryCtaHref": "",
             "style": "gradient"
           }
         },
@@ -4309,28 +4075,11 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
+                    "href": "#team"
                   },
                   {
                     "label": "Our Coaches",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#team"
                   }
                 ]
               }
@@ -4395,10 +4144,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Pricing",
                 "href": "/pricing"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Free Week",
@@ -4541,7 +4286,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Still Have Questions?",
             "subtitle": "Reach out — our team is happy to help you get started.",
             "primaryCtaLabel": "Contact Us",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "Browse Programs",
             "secondaryCtaHref": "/courses",
             "style": "bordered"
@@ -4567,36 +4312,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                   {
                     "label": "Free Class",
                     "href": "#"
-                  }
-                ]
-              },
-              {
-                "title": "Studio",
-                "links": [
-                  {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Our Coaches",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -4760,29 +4475,8 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "title": "Studio",
                 "links": [
                   {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Our Coaches",
-                    "href": "#about"
-                  },
-                  {
                     "label": "Contact",
                     "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -4846,7 +4540,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "Instruments",
-                "href": "#instruments"
+                "href": "#courses"
               },
               {
                 "label": "Pricing",
@@ -4854,7 +4548,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "About",
-                "href": "#about"
+                "href": "#features"
               },
               {
                 "label": "FAQ",
@@ -4877,7 +4571,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "primaryCtaLabel": "Book a Free Lesson",
             "primaryCtaHref": "/courses",
             "secondaryCtaLabel": "Explore Instruments",
-            "secondaryCtaHref": "#instruments",
+            "secondaryCtaHref": "#courses",
             "backgroundImage": "",
             "alignment": "center",
             "overlayOpacity": 60,
@@ -5053,7 +4747,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "features": "Private lessons with a pro\nTailored to your goals\nFlexible scheduling\nRecorded sessions\nAny instrument or level",
                 "highlighted": false,
                 "ctaLabel": "Book a Lesson",
-                "ctaHref": "#contact"
+                "ctaHref": ""
               }
             ]
           }
@@ -5164,7 +4858,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                   },
                   {
                     "label": "Instruments",
-                    "href": "#instruments"
+                    "href": "#courses"
                   },
                   {
                     "label": "Pricing",
@@ -5177,28 +4871,11 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
+                    "href": "#features"
                   },
                   {
                     "label": "Our Teachers",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#features"
                   }
                 ]
               }
@@ -5260,14 +4937,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Courses",
                 "href": "/courses"
-              },
-              {
-                "label": "FAQ",
-                "href": "#faq"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Book Free Lesson",
@@ -5395,7 +5064,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "primaryCtaLabel": "Book Free Lesson",
             "primaryCtaHref": "/courses",
             "secondaryCtaLabel": "Contact Us",
-            "secondaryCtaHref": "#contact",
+            "secondaryCtaHref": "",
             "style": "gradient"
           }
         },
@@ -5414,7 +5083,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                   },
                   {
                     "label": "Instruments",
-                    "href": "#instruments"
+                    "href": "#features"
                   },
                   {
                     "label": "Pricing",
@@ -5427,28 +5096,11 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
+                    "href": "#team"
                   },
                   {
                     "label": "Our Teachers",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#team"
                   }
                 ]
               }
@@ -5513,10 +5165,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Pricing",
                 "href": "/pricing"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Book Free Lesson",
@@ -5659,7 +5307,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Still Have Questions?",
             "subtitle": "Our team is happy to help you find the right instrument and plan.",
             "primaryCtaLabel": "Contact Us",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "Browse Courses",
             "secondaryCtaHref": "/courses",
             "style": "bordered"
@@ -5679,42 +5327,8 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Instruments",
-                    "href": "#instruments"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
-                  }
-                ]
-              },
-              {
-                "title": "Academy",
-                "links": [
-                  {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Our Teachers",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -5865,10 +5479,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Instruments",
-                    "href": "#instruments"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
                   }
@@ -5878,29 +5488,8 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "title": "Academy",
                 "links": [
                   {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Our Teachers",
-                    "href": "#about"
-                  },
-                  {
                     "label": "Contact",
                     "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -5964,7 +5553,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "Results",
-                "href": "#results"
+                "href": "#testimonials"
               },
               {
                 "label": "Pricing",
@@ -5972,7 +5561,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               },
               {
                 "label": "About",
-                "href": "#about"
+                "href": "#features"
               },
               {
                 "label": "FAQ",
@@ -5980,7 +5569,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               }
             ],
             "ctaLabel": "Book a Free Call",
-            "ctaHref": "#contact",
+            "ctaHref": "",
             "showLogin": true,
             "sticky": true,
             "transparent": false
@@ -5993,7 +5582,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Build the Business You Actually Want",
             "subtitle": "Proven frameworks for getting clients, growing revenue, and reclaiming your time. Courses and 1-on-1 coaching for founders, freelancers, and creators.",
             "primaryCtaLabel": "Book a Free Strategy Call",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "See Programs",
             "secondaryCtaHref": "/courses",
             "backgroundImage": "",
@@ -6131,7 +5720,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "features": "All courses included\nWeekly group calls\nHot-seat coaching\nAccountability pods\nPrivate community",
                 "highlighted": true,
                 "ctaLabel": "Join the Group",
-                "ctaHref": "#contact"
+                "ctaHref": ""
               },
               {
                 "name": "Private 1-on-1",
@@ -6141,7 +5730,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "features": "Everything in Group\nBiweekly 1-on-1 calls\nCustom growth plan\nDirect message access\nDone-with-you strategy",
                 "highlighted": false,
                 "ctaLabel": "Apply Now",
-                "ctaHref": "#contact"
+                "ctaHref": ""
               }
             ]
           }
@@ -6231,7 +5820,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Ready to Build Momentum?",
             "subtitle": "Book a free strategy call and leave with a clear next step for your business — no pressure, no pitch.",
             "primaryCtaLabel": "Book Your Free Call",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "View Programs",
             "secondaryCtaHref": "/courses",
             "style": "gradient"
@@ -6265,28 +5854,11 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
+                    "href": "#features"
                   },
                   {
                     "label": "Results",
-                    "href": "#results"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#testimonials"
                   }
                 ]
               }
@@ -6348,18 +5920,10 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Courses",
                 "href": "/courses"
-              },
-              {
-                "label": "FAQ",
-                "href": "#faq"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Book a Free Call",
-            "ctaHref": "#contact",
+            "ctaHref": "",
             "showLogin": true,
             "sticky": true,
             "transparent": false
@@ -6481,7 +6045,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Let’s Build Something That Lasts",
             "subtitle": "Book a free strategy call and see if we are a fit.",
             "primaryCtaLabel": "Book a Free Call",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "See Programs",
             "secondaryCtaHref": "/courses",
             "style": "gradient"
@@ -6501,10 +6065,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Coaching",
-                    "href": "#pricing"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
                   }
@@ -6515,28 +6075,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Results",
-                    "href": "#results"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#team"
                   }
                 ]
               }
@@ -6601,14 +6140,10 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Pricing",
                 "href": "/pricing"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Book a Free Call",
-            "ctaHref": "#contact",
+            "ctaHref": "",
             "showLogin": true,
             "sticky": true,
             "transparent": false
@@ -6747,7 +6282,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Still Have Questions?",
             "subtitle": "Book a free call and we will answer everything — and map your next step.",
             "primaryCtaLabel": "Book a Free Call",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "Browse Courses",
             "secondaryCtaHref": "/courses",
             "style": "bordered"
@@ -6767,42 +6302,8 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Coaching",
-                    "href": "#pricing"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
-                  }
-                ]
-              },
-              {
-                "title": "Company",
-                "links": [
-                  {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Results",
-                    "href": "#results"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -6953,10 +6454,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Coaching",
-                    "href": "#pricing"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
                   }
@@ -6966,29 +6463,8 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "title": "Company",
                 "links": [
                   {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Results",
-                    "href": "#results"
-                  },
-                  {
                     "label": "Contact",
                     "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -7051,16 +6527,12 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "href": "/courses"
               },
               {
-                "label": "Paths",
-                "href": "#paths"
-              },
-              {
                 "label": "Pricing",
                 "href": "#pricing"
               },
               {
                 "label": "About",
-                "href": "#about"
+                "href": "#features"
               },
               {
                 "label": "FAQ",
@@ -7083,7 +6555,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "primaryCtaLabel": "Start Creating",
             "primaryCtaHref": "/courses",
             "secondaryCtaLabel": "Explore Paths",
-            "secondaryCtaHref": "#paths",
+            "secondaryCtaHref": "",
             "backgroundImage": "",
             "alignment": "center",
             "overlayOpacity": 55,
@@ -7259,7 +6731,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "features": "Everything in All-Access\nBiweekly 1-on-1 mentor calls\nPersonal portfolio plan\nCareer & interview prep\nDirect messaging",
                 "highlighted": false,
                 "ctaLabel": "Apply Now",
-                "ctaHref": "#contact"
+                "ctaHref": ""
               }
             ]
           }
@@ -7369,10 +6841,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Learning Paths",
-                    "href": "#paths"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
                   }
@@ -7383,28 +6851,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Student Work",
-                    "href": "#work"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#features"
                   }
                 ]
               }
@@ -7466,14 +6913,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Courses",
                 "href": "/courses"
-              },
-              {
-                "label": "FAQ",
-                "href": "#faq"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Creating",
@@ -7601,7 +7040,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "primaryCtaLabel": "Start Creating",
             "primaryCtaHref": "/courses",
             "secondaryCtaLabel": "Contact Us",
-            "secondaryCtaHref": "#contact",
+            "secondaryCtaHref": "",
             "style": "gradient"
           }
         },
@@ -7619,10 +7058,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Learning Paths",
-                    "href": "#paths"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
                   }
@@ -7633,28 +7068,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "links": [
                   {
                     "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Student Work",
-                    "href": "#work"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
+                    "href": "#team"
                   }
                 ]
               }
@@ -7719,10 +7133,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
               {
                 "label": "Pricing",
                 "href": "/pricing"
-              },
-              {
-                "label": "Contact",
-                "href": "#contact"
               }
             ],
             "ctaLabel": "Start Creating",
@@ -7865,7 +7275,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
             "title": "Still Have Questions?",
             "subtitle": "Our team is happy to help you choose the right path and plan.",
             "primaryCtaLabel": "Contact Us",
-            "primaryCtaHref": "#contact",
+            "primaryCtaHref": "",
             "secondaryCtaLabel": "Browse Courses",
             "secondaryCtaHref": "/courses",
             "style": "bordered"
@@ -7885,42 +7295,8 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Learning Paths",
-                    "href": "#paths"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
-                  }
-                ]
-              },
-              {
-                "title": "Studio",
-                "links": [
-                  {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Student Work",
-                    "href": "#work"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -8071,10 +7447,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                     "href": "/courses"
                   },
                   {
-                    "label": "Learning Paths",
-                    "href": "#paths"
-                  },
-                  {
                     "label": "Pricing",
                     "href": "/pricing"
                   }
@@ -8084,29 +7456,8 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                 "title": "Studio",
                 "links": [
                   {
-                    "label": "About",
-                    "href": "#about"
-                  },
-                  {
-                    "label": "Student Work",
-                    "href": "#work"
-                  },
-                  {
                     "label": "Contact",
                     "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }
@@ -8378,23 +7729,6 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
                   {
                     "label": "About",
                     "href": "#team"
-                  },
-                  {
-                    "label": "Contact",
-                    "href": "#contact"
-                  }
-                ]
-              },
-              {
-                "title": "Legal",
-                "links": [
-                  {
-                    "label": "Terms",
-                    "href": "/terms"
-                  },
-                  {
-                    "label": "Privacy",
-                    "href": "/privacy"
                   }
                 ]
               }

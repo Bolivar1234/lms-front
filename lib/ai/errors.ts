@@ -262,12 +262,12 @@ export interface AiErrorResponseOptions {
   /** Is the caller allowed to fix this (school admin)? Shapes the copy and the link. */
   canConfigure: boolean
   feature: AiFeature
-  /** Prefix the settings link with the locale (`/en/dashboard/...`). */
+  /** Retained for callers that also use a locale to format their copy. */
   locale?: string
 }
 
 export function aiErrorBody(err: AiError, o: AiErrorResponseOptions) {
-  const base = o.locale ? `/${o.locale}${AI_SETTINGS_PATH}` : AI_SETTINGS_PATH
+  const base = AI_SETTINGS_PATH
   return {
     error: {
       code: err.code,

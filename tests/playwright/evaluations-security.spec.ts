@@ -11,7 +11,7 @@
 import { test, expect } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { loginAsStudent, loginAsTeacher, loginAsTenantStudent } from './utils/auth'
-import { ACCOUNTS, BASE, TENANT_BASE, LOCALE } from './utils/constants'
+import { ACCOUNTS, BASE, TENANT_BASE } from './utils/constants'
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -169,7 +169,7 @@ test.describe.serial('Lesson completion with tenant_id', () => {
     // Ensure no prior completion exists
     await admin.from('lesson_completions').delete().eq('user_id', STUDENT_ID).eq('lesson_id', 1002)
 
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/1001/lessons/1002`, { timeout: 40_000 })
+    await page.goto(`${BASE}/dashboard/student/courses/1001/lessons/1002`, { timeout: 40_000 })
 
     // Lesson page should render — if redirected, student isn't enrolled
     const currentUrl = page.url()
@@ -216,7 +216,7 @@ test.describe.serial('Lesson completion with tenant_id', () => {
     }, { onConflict: 'user_id,lesson_id' })
 
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/1001/lessons/1002`, { timeout: 40_000 })
+    await page.goto(`${BASE}/dashboard/student/courses/1001/lessons/1002`, { timeout: 40_000 })
 
     // Toggle off
     const toggle = page.getByTestId('lesson-complete-toggle')
@@ -245,7 +245,7 @@ test.describe.serial('Lesson completion with tenant_id', () => {
     await admin.from('lesson_completions').delete().eq('user_id', STUDENT_ID).eq('lesson_id', 1002)
 
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/1001/lessons/1002`, { timeout: 40_000 })
+    await page.goto(`${BASE}/dashboard/student/courses/1001/lessons/1002`, { timeout: 40_000 })
 
     const toggle = page.getByTestId('lesson-complete-toggle')
     await expect(toggle).toBeVisible({ timeout: 30_000 })
@@ -287,7 +287,7 @@ test.describe('Cross-tenant isolation', () => {
     await loginAsStudent(page)
 
     // Try to access code-academy tenant
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student`)
+    await page.goto(`${TENANT_BASE}/dashboard/student`)
     await page.waitForURL(/join-school|auth\/login/)
 
     // proxy.ts redirects non-members — either to /join-school or /auth/login
@@ -303,7 +303,7 @@ test.describe('Exercise page tenant isolation', () => {
   test('student loads exercise on default tenant', async ({ page }) => {
     test.setTimeout(30_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/1001/exercises/${seededExerciseId}`)
+    await page.goto(`${BASE}/dashboard/student/courses/1001/exercises/${seededExerciseId}`)
 
     // Page should render without 404 — exercise title or instructions visible
     await expect(page.locator('body')).toContainText(/\[E2E\] Essay Exercise|essay/i)
@@ -312,7 +312,7 @@ test.describe('Exercise page tenant isolation', () => {
   test('Alice loads exercise 2001 on code-academy tenant', async ({ page }) => {
     test.setTimeout(30_000)
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/2001`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/2001/exercises/2001`)
 
     // Exercise 2001 is the seeded "FizzBuzz Challenge" on code-academy. Match its
     // title, not a generic word: the URL and the 404 page both say "exercise".
@@ -323,7 +323,7 @@ test.describe('Exercise page tenant isolation', () => {
   test('default student blocked from code-academy exercise', async ({ page }) => {
     await loginAsStudent(page)
     // Navigate to code-academy domain — should redirect (non-member)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/2001`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/2001/exercises/2001`)
     await page.waitForURL(/join-school|auth\/login/)
 
     const url = page.url()
@@ -572,7 +572,7 @@ test.describe.serial('Teacher exam creation', () => {
     const admin = getAdmin()
 
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/1001/exams/new`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/1001/exams/new`)
     // isVisible() below doesn't wait; wait for the exam builder's title input first
     await expect(page.locator('#title')).toBeVisible({ timeout: 15_000 })
 

@@ -16,7 +16,7 @@
  */
 import { test, expect, type Locator } from './utils/test'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import { BASE, TENANT_BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { BASE, TENANT_BASE, ACCOUNTS } from './utils/constants'
 import { login } from './utils/auth'
 import { getServiceRoleClient, DEFAULT_TENANT } from './utils/seed-state'
 
@@ -108,7 +108,7 @@ test('the API refuses an unauthenticated caller', async ({ request }) => {
 test('a student deletes their account from the profile page', async ({ page }) => {
   test.setTimeout(180_000)
   await login(page, STUDENT, PASSWORD, BASE)
-  await page.goto(`${BASE}/${LOCALE}/dashboard/student/profile`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${BASE}/dashboard/student/profile`, { waitUntil: 'domcontentloaded' })
 
   const trigger = page.getByRole('button', { name: /Delete account/ })
   await trigger.scrollIntoViewIfNeeded()
@@ -154,7 +154,7 @@ test('a student deletes their account from the profile page', async ({ page }) =
 test('the only admin of a school is told why they cannot delete yet', async ({ page, request }) => {
   test.setTimeout(120_000)
   await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password, TENANT_BASE)
-  await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/settings`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${TENANT_BASE}/dashboard/admin/settings`, { waitUntil: 'domcontentloaded' })
 
   const trigger = page.getByRole('button', { name: /Delete account/ })
   await trigger.scrollIntoViewIfNeeded()
@@ -190,7 +190,7 @@ test('the only admin of a school is told why they cannot delete yet', async ({ p
 })
 
 test('the public page explains deletion to a logged-out visitor', async ({ page }) => {
-  await page.goto(`${BASE}/${LOCALE}/delete-account`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${BASE}/delete-account`, { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('heading', { name: 'Delete your account', level: 1 })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'What is kept' })).toBeVisible()
 })

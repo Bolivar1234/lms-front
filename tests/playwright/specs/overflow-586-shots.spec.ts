@@ -11,9 +11,9 @@ const LABEL = process.env.SHOT_LABEL || 'before'
 const OUT = process.env.SHOT_DIR || 'docs/qa'
 
 const SHOTS = [
-  { name: 'student-dashboard', path: `/${LOCALE}/dashboard/student`, width: 768 },
-  { name: 'student-dashboard', path: `/${LOCALE}/dashboard/student`, width: 820 },
-  { name: 'student-courses', path: `/${LOCALE}/dashboard/student/courses`, width: 768 },
+  { name: 'student-dashboard', path: `/dashboard/student`, width: 768 },
+  { name: 'student-dashboard', path: `/dashboard/student`, width: 820 },
+  { name: 'student-courses', path: `/dashboard/student/courses`, width: 768 },
 ]
 
 test('capture #586 shots', async ({ page }) => {

@@ -14,14 +14,14 @@ import { BASE, LOCALE } from '../utils/constants'
 const WIDTHS = [700, 768, 800, 850, 900, 1024, 1280]
 
 const PAGES = [
-  { name: 'student-dashboard', path: `/${LOCALE}/dashboard/student` },
-  { name: 'student-courses', path: `/${LOCALE}/dashboard/student/courses` },
-  { name: 'student-browse', path: `/${LOCALE}/dashboard/student/browse` },
+  { name: 'student-dashboard', path: `/dashboard/student` },
+  { name: 'student-courses', path: `/dashboard/student/courses` },
+  { name: 'student-browse', path: `/dashboard/student/browse` },
 ]
 
 const TEACHER_PAGES = [
-  { name: 'teacher-dashboard', path: `/${LOCALE}/dashboard/teacher` },
-  { name: 'admin-dashboard', path: `/${LOCALE}/dashboard/admin` },
+  { name: 'teacher-dashboard', path: `/dashboard/teacher` },
+  { name: 'admin-dashboard', path: `/dashboard/admin` },
 ]
 
 type Measurement = {
@@ -133,7 +133,7 @@ test.describe('#586 dashboard shell horizontal overflow', () => {
 
     for (const width of [700, 768, 850, 1024, 1280]) {
       await page.setViewportSize({ width, height: 900 })
-      await page.goto(`${BASE}/${LOCALE}/dashboard/student`)
+      await page.goto(`${BASE}/dashboard/student`)
       await expect(page.getByTestId('user-nav-trigger')).toBeVisible()
       await page.waitForTimeout(800)
 

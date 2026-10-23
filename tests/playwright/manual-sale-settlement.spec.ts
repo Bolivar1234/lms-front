@@ -43,7 +43,7 @@
  * test continues the previous one's row.
  */
 import { expect, test, type Locator, type Page } from './utils/test'
-import { LOCALE, ACCOUNTS } from './utils/constants'
+import { ACCOUNTS } from './utils/constants'
 import { login } from './utils/auth'
 import {
   SEEDED,
@@ -326,7 +326,7 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
     const admin = getAdmin()
     const page = await asStudent(browser)
 
-    await page.goto(`${QA_BASE}/${LOCALE}/checkout/manual?productId=${saleProductId}`, {
+    await page.goto(`${QA_BASE}/checkout/manual?productId=${saleProductId}`, {
       waitUntil: 'domcontentloaded',
     })
     await expect(page.getByTestId('manual-checkout-title')).toBeVisible({ timeout: 60_000 })
@@ -369,7 +369,7 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
     // The page sends the student to the product's one-click enrollment before
     // any form exists (#749); `createPaymentRequest` still refuses a $0 product
     // server-side for any caller that skips the page.
-    await page.goto(`${QA_BASE}/${LOCALE}/checkout/manual?productId=${freeProductId}`, {
+    await page.goto(`${QA_BASE}/checkout/manual?productId=${freeProductId}`, {
       waitUntil: 'domcontentloaded',
     })
     await expect(page).toHaveURL(new RegExp(`/products/${freeProductId}(\\?|$)`), { timeout: 60_000 })
@@ -381,7 +381,7 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
     const admin = getAdmin()
     const page = await asAdmin(browser)
 
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/payment-requests/${requestId}`, {
+    await page.goto(`${QA_BASE}/dashboard/admin/payment-requests/${requestId}`, {
       waitUntil: 'domcontentloaded',
     })
     await domClick(page.getByTestId('payment-request-send-instructions'))
@@ -401,7 +401,7 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
     const admin = getAdmin()
     const page = await asAdmin(browser)
 
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/payment-requests/${requestId}`, {
+    await page.goto(`${QA_BASE}/dashboard/admin/payment-requests/${requestId}`, {
       waitUntil: 'domcontentloaded',
     })
     await domClick(page.getByTestId('payment-request-confirm-payment'))
@@ -425,7 +425,7 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
     // just the absence of rows. `requireCourseAccess` bounces a student with no
     // entitlement back to the dashboard.
     const student = await asStudent(browser)
-    await student.goto(`${QA_BASE}/${LOCALE}/dashboard/student/courses/${courseIds[0]}`, {
+    await student.goto(`${QA_BASE}/dashboard/student/courses/${courseIds[0]}`, {
       waitUntil: 'domcontentloaded',
     })
     await expect(student).toHaveURL(/\/dashboard\/student\/?$/, { timeout: 60_000 })
@@ -435,7 +435,7 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
     const admin = getAdmin()
     const page = await asAdmin(browser)
 
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/payment-requests/${requestId}`, {
+    await page.goto(`${QA_BASE}/dashboard/admin/payment-requests/${requestId}`, {
       waitUntil: 'domcontentloaded',
     })
     await domClick(page.getByTestId('payment-request-complete'))
@@ -497,7 +497,7 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
     // say this — `resolveCourseAccessState` reads entitlements AND the tenant's
     // access cutoff, so a grant the platform has suspended still fails here.
     const student = await asStudent(browser)
-    await student.goto(`${QA_BASE}/${LOCALE}/dashboard/student/courses/${courseIds[0]}`, {
+    await student.goto(`${QA_BASE}/dashboard/student/courses/${courseIds[0]}`, {
       waitUntil: 'domcontentloaded',
     })
     await expect(student).toHaveURL(new RegExp(`/dashboard/student/courses/${courseIds[0]}`), {
@@ -525,7 +525,7 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
       // owner is one, which would make this prove nothing).
       await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password, tenantBase('code-academy'))
       await page.goto(
-        `${tenantBase('code-academy')}/${LOCALE}/dashboard/admin/payment-requests/${requestId}`,
+        `${tenantBase('code-academy')}/dashboard/admin/payment-requests/${requestId}`,
         { waitUntil: 'domcontentloaded' },
       )
 

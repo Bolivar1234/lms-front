@@ -2,7 +2,7 @@ import { getUserRole } from '@/lib/supabase/get-user-role'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { AdminBreadcrumb } from '@/components/admin/admin-breadcrumb'
-import { getAllSettingsByCategory, getSolanaWallet, getBinancePersonalStatus } from '@/app/actions/admin/settings'
+import { getAllSettingsByCategory, getBinancePersonalStatus } from '@/app/actions/admin/settings'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import GeneralSettingsForm from '@/components/admin/general-settings-form'
@@ -53,10 +53,6 @@ export default async function SettingsPage({
   }
 
   const settings = result.data
-
-  // Fetch the tenant's Solana receiving wallet (non-blocking — empty if unset)
-  const solanaWallet = await getSolanaWallet().catch(() => null)
-  const solanaWalletAddress = solanaWallet?.data?.wallet_address || ''
 
   // Binance Pay (personal account) status — Pay ID + whether credentials are
   // stored. Secrets are never fetched (#482).
@@ -169,8 +165,8 @@ export default async function SettingsPage({
             {/* Payment Settings */}
             <TabsContent value="payment">
               {/*
-                Connect status, the Solana wallet and the Binance credentials
-                used to be a page-level banner plus two trailing cards, each
+                Connect status and Binance credentials used to be a page-level
+                banner plus trailing cards, each
                 with its own save button. The banner alarmed about Stripe even
                 when the school had Stripe switched off, and the credential
                 cards sat below the form's own Save, far from the toggles that
@@ -192,7 +188,6 @@ export default async function SettingsPage({
                       payoutsEnabled: connectStatus.payoutsEnabled,
                       detailsSubmitted: connectStatus.detailsSubmitted,
                     }}
-                    solanaWalletAddress={solanaWalletAddress}
                     binancePersonal={{
                       payId: binancePersonal?.payId ?? null,
                       hasCredentials: binancePersonal?.hasCredentials ?? false,

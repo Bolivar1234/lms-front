@@ -12,7 +12,7 @@
 import { test, expect } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { loginAsStudent } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 
 const DEFAULT_TENANT = '00000000-0000-0000-0000-000000000001'
 const TEACHER_ID = 'a1000000-0000-0000-0000-000000000002'
@@ -91,7 +91,7 @@ test.afterAll(async () => {
 test('a coding challenge opens with the teacher’s starter files (#844)', async ({ page }) => {
   test.setTimeout(90_000)
   await loginAsStudent(page)
-  await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
+  await page.goto(`${BASE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
   const codeTab = page.getByRole('button', { name: 'Code', exact: true })
   if ((page.viewportSize()?.width ?? 1280) < 1024) await codeTab.click()
 
@@ -101,7 +101,7 @@ test('a coding challenge opens with the teacher’s starter files (#844)', async
 test('the student’s edits are saved and come back after a reload (#858)', async ({ page }) => {
   test.setTimeout(120_000)
   await loginAsStudent(page)
-  await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
+  await page.goto(`${BASE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
   const codeTab = page.getByRole('button', { name: 'Code', exact: true })
   if ((page.viewportSize()?.width ?? 1280) < 1024) await codeTab.click()
 
@@ -139,7 +139,7 @@ test('a row saved by the native app restores into the primary file (#858)', asyn
   if (error) throw new Error(error.message)
 
   await loginAsStudent(page)
-  await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
+  await page.goto(`${BASE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
   const codeTab = page.getByRole('button', { name: 'Code', exact: true })
   if ((page.viewportSize()?.width ?? 1280) < 1024) await codeTab.click()
   await expect(page.locator('.cm-content').filter({ hasText: NATIVE_MARKER })).toBeVisible({ timeout: 30_000 })
@@ -148,7 +148,7 @@ test('a row saved by the native app restores into the primary file (#858)', asyn
 test('an edit made right before a reload is not lost (#858)', async ({ page }) => {
   test.setTimeout(120_000)
   await loginAsStudent(page)
-  await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
+  await page.goto(`${BASE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
   const codeTab = page.getByRole('button', { name: 'Code', exact: true })
   if ((page.viewportSize()?.width ?? 1280) < 1024) await codeTab.click()
 
@@ -169,7 +169,7 @@ test('an edit made right before a reload is not lost (#858)', async ({ page }) =
     }, { timeout: 10_000 })
     .toContain(`${EDIT_MARKER}Unload`)
 
-  await page.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
+  await page.goto(`${BASE}/dashboard/student/courses/${COURSE_ID}/exercises/${exerciseId}`)
 
   if ((page.viewportSize()?.width ?? 1280) < 1024) await codeTab.click()
   await expect(page.locator('.cm-content').filter({ hasText: `${EDIT_MARKER}Unload` })).toBeVisible({ timeout: 30_000 })

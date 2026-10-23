@@ -9,7 +9,7 @@
 import { test, expect } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { loginAsStudent, loginAsTeacher, loginAsAdmin, loginAsTenantStudent } from './utils/auth'
-import { BASE, TENANT_BASE, LOCALE } from './utils/constants'
+import { BASE, TENANT_BASE } from './utils/constants'
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -36,7 +36,7 @@ test.describe('Browse Page & Enrollment UI', () => {
   test('student sees browse page with course cards', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/browse`)
+    await page.goto(`${BASE}/dashboard/student/browse`)
 
     await expect(page.getByTestId('browse-courses-page')).toBeVisible({ timeout: 15_000 })
     await expect(page.getByTestId('browse-title')).toBeVisible()
@@ -45,7 +45,7 @@ test.describe('Browse Page & Enrollment UI', () => {
   test('browse page shows course count when courses exist', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/browse`)
+    await page.goto(`${BASE}/dashboard/student/browse`)
 
     await expect(page.getByTestId('browse-courses-page')).toBeVisible({ timeout: 15_000 })
 
@@ -62,7 +62,7 @@ test.describe('Browse Page & Enrollment UI', () => {
   test('enrolled courses show "Go to Course" button', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/browse`)
+    await page.goto(`${BASE}/dashboard/student/browse`)
 
     await expect(page.getByTestId('browse-courses-page')).toBeVisible({ timeout: 15_000 })
 
@@ -190,7 +190,7 @@ test.describe('Manual Payment Request Lifecycle', () => {
   test('student payments page loads', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/payments`)
+    await page.goto(`${BASE}/dashboard/student/payments`)
 
     await expect(page.getByTestId('payments-page')).toBeVisible({ timeout: 15_000 })
     await expect(page.getByTestId('payments-title')).toBeVisible()
@@ -199,7 +199,7 @@ test.describe('Manual Payment Request Lifecycle', () => {
   test('student payments page shows empty state or requests', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/payments`)
+    await page.goto(`${BASE}/dashboard/student/payments`)
 
     await expect(page.getByTestId('payments-page')).toBeVisible({ timeout: 15_000 })
 
@@ -239,7 +239,7 @@ test.describe('Manual Payment Request Lifecycle', () => {
 
     // Login as teacher (admin on default tenant) and check payment requests
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/payment-requests`)
+    await page.goto(`${BASE}/dashboard/admin/payment-requests`)
 
     await expect(page.getByTestId('payment-requests-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
 
@@ -252,7 +252,7 @@ test.describe('Manual Payment Request Lifecycle', () => {
   test('admin payment requests page shows stats cards', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/payment-requests`)
+    await page.goto(`${BASE}/dashboard/admin/payment-requests`)
 
     await expect(page.getByTestId('payment-requests-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
 
@@ -300,7 +300,7 @@ test.describe('Payment Requests - Tenant Scoping', () => {
   test('tenant student sees payments page scoped to tenant', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/student/payments`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/payments`)
 
     await expect(page.getByTestId('payments-page')).toBeVisible({ timeout: 15_000 })
     await expect(page.getByTestId('payments-title')).toBeVisible()
@@ -309,7 +309,7 @@ test.describe('Payment Requests - Tenant Scoping', () => {
   test('admin payment requests page loads on code-academy', async ({ page }) => {
     test.setTimeout(60_000)
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/payment-requests`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/payment-requests`)
 
     await expect(page.getByTestId('payment-requests-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
   })

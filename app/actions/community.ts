@@ -1,5 +1,8 @@
 'use server'
 
+import { validateUploadFile } from '@/lib/storage/validation'
+import { authorizeTenantStorage } from '@/lib/storage/authorization'
+
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient, type ActionResult } from '@/lib/supabase/admin'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
@@ -937,50 +940,12 @@ export async function uploadCommunityAsset(
   formData: FormData
 ): Promise<ActionResult<{ url: string }>> {
   try {
-    const { userId } = await getAuthenticatedUser()
-    const tenantId = await getCurrentTenantId()
-
-    const file = formData.get('file') as File | null
-
-    if (!file) {
-      return { success: false, error: 'No file provided' }
-    }
-
-    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-    if (file.size > MAX_FILE_SIZE) {
-      return { success: false, error: 'File size must be under 10MB' }
-    }
-
-    const ALLOWED_TYPES = [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      'video/mp4',
-      'video/quicktime',
-      'video/webm',
-      'application/pdf',
-    ]
-
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return {
-        success: false,
-        error: 'File type not allowed. Use JPEG, PNG, GIF, WebP, MP4, WebM, or PDF.',
-      }
-    }
-
-    const sanitizedName = file.name.replace(/[\/\\:*?"<>|]/g, '')
-    const ext = sanitizedName.split('.').pop()?.toLowerCase() || 'bin'
-    const fileName = `${nanoid()}.${ext}`
-    const filePath = `${tenantId}/${userId}/${fileName}`
-
-    const adminClient = createAdminClient()
-    const { error } = await adminClient.storage
-      .from('community-assets')
-      .upload(filePath, file, {
-        contentType: file.type,
-        upsert: false,
-      })
+    const actor = await authorizeTenantStorage()
+    const file = await validateUploadFile(formData.get('file'), 'community', 10 * 1024 * 1024)
+    const filePath = `${actor.tenantId}/${actor.user.id}/${nanoid()}.${file.extension}`
+    const adminClient = actor.admin
+    const { error } = await adminClient.storage.from('community-assets')
+      .upload(filePath, file.bytes, { contentType: file.mimeType, upsert: false })
 
     if (error) throw error
 

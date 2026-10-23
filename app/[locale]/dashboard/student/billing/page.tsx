@@ -6,15 +6,12 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { PageShell, PageHeader } from '@/components/dashboard/page-shell'
-import { SolanaRenewalDetails, BillingDateTime } from '@/components/student/solana-renewal-details'
-import { RevokeSolanaDelegation } from '@/components/student/revoke-solana-delegation'
 import { ManageSubscription } from '@/components/student/manage-subscription'
 import {
   IconCreditCard,
   IconPackage,
   IconAlertTriangle,
   IconBrandStripe,
-  IconWallet,
   IconCoin,
   IconDownload,
   IconInfoCircle,
@@ -132,9 +129,6 @@ function ProviderIcon({ provider }: { provider: string | null }) {
   switch (provider) {
     case 'stripe':
       return <IconBrandStripe className="w-3.5 h-3.5 shrink-0" />
-    case 'solana':
-    case 'solana_subs':
-      return <IconWallet className="w-3.5 h-3.5 shrink-0" />
     case 'lemonsqueezy':
       return <IconCoin className="w-3.5 h-3.5 shrink-0" />
     case 'paypal':
@@ -225,22 +219,8 @@ export default async function StudentBillingPage() {
     LIVE_SUBSCRIPTION_STATUSES.includes(s.subscription_status)
   ) ?? subscriptions.find((s) => ['canceled', 'expired'].includes(s.subscription_status))
   const isPastDue = activeSubscription?.subscription_status === 'past_due'
-  const isSolanaSubscription = activeSubscription?.payment_provider === 'solana_subs'
   const cancellationScheduled = !!activeSubscription?.cancel_at_period_end
   const hasEnded = !!activeSubscription && ['canceled', 'expired'].includes(activeSubscription.subscription_status)
-  const pendingRenewal = !!activeSubscription?.provider_metadata?.renewal_pending
-  // A newer funded attempt may have landed even if the previous balance error
-  // remains in older metadata. Pending confirmation must win after reload.
-  const insufficientFunds = !pendingRenewal && activeSubscription?.provider_metadata?.renewal_error?.code === 'insufficient_funds'
-  const confirmationUnresolved = isSolanaSubscription && !hasEnded && !cancellationScheduled
-    && (pendingRenewal || (!insufficientFunds && Date.parse(activeSubscription?.current_period_end ?? activeSubscription?.end_date ?? '') <= new Date().getTime()))
-  const solanaDevnet = /devnet/i.test(process.env.SOLANA_RPC_URL ?? '')
-  const lastPaidRenewal = transactions.find((tx) => tx.payment_provider === 'solana_subs' && tx.provider_subscription_id === activeSubscription?.provider_subscription_id && tx.status === 'successful' && tx.provider_metadata?.kind === 'renewal')
-  const { data: activePlan } = activeSubscription
-    ? await supabase.from('plans').select('price').eq('plan_id', activeSubscription.plan_id).maybeSingle()
-    : { data: null }
-
-
   // ── Plan-change (switch) support ────────────────────────────────────────────
   // Switchable when the provider does an in-place swap (Stripe/LS) OR is
   // self-managed (manual / one-time crypto). Native recurring providers with no
@@ -334,7 +314,7 @@ export default async function StudentBillingPage() {
               {/* Dunning notice (#545): a past_due subscription still bills and
                   still grants access during the provider's retry window, so say
                   so instead of rendering it as if nothing were wrong. */}
-              {isPastDue && !isSolanaSubscription && (
+              {isPastDue && (
                 <div className="flex items-start gap-2 rounded-md bg-warning/10 border border-warning/30 px-3 py-2 text-xs text-warning">
                   <IconAlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                   <span>{t('subscription.pastDueNotice')}</span>
@@ -351,23 +331,9 @@ export default async function StudentBillingPage() {
                         : t('subscription.renewsOn')}
                   </span>
                   <span className="font-medium tabular-nums">
-                    {isSolanaSubscription ? <BillingDateTime date={activeSubscription.current_period_end ?? activeSubscription.end_date} /> : formatDate(activeSubscription.current_period_end ?? activeSubscription.end_date)}
+                    {formatDate(activeSubscription.current_period_end ?? activeSubscription.end_date)}
                   </span>
                 </div>
-              )}
-              {isSolanaSubscription && (
-                <SolanaRenewalDetails
-                  subscriptionId={activeSubscription.subscription_id}
-                  pastDue={isPastDue}
-                  insufficientFunds={insufficientFunds}
-                  confirmationUnresolved={confirmationUnresolved}
-                  canceled={cancellationScheduled || hasEnded}
-                  ended={hasEnded}
-                  price={Number(activePlan?.price ?? 0)}
-                  wallet={activeSubscription.provider_metadata?.subscriber ?? null}
-                  devnet={solanaDevnet}
-                  lastRenewal={lastPaidRenewal ? { date: lastPaidRenewal.transaction_date, amount: Number(lastPaidRenewal.amount) } : null}
-                />
               )}
               {/* Cancel-at-period-end notice */}
               {activeSubscription.cancel_at_period_end && !hasEnded && (
@@ -380,18 +346,8 @@ export default async function StudentBillingPage() {
                   </span>
                 </div>
               )}
-              {/* Solana native subs: the student revokes the on-chain auto-pull
-                  delegation from their own wallet (the server cannot). Other
-                  providers keep the "contact us to cancel" note. */}
-              {!hasEnded && (activeSubscription.payment_provider === 'solana_subs' ? (!cancellationScheduled && (
-                <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
-                  <span className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <IconWallet className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    <span>{t('subscription.revoke.walletNote')}</span>
-                  </span>
-                  <RevokeSolanaDelegation subscriptionId={activeSubscription.subscription_id} />
-                </div>
-              )) : (
+              {/* Active providers expose plan switching and cancellation here. */}
+              {!hasEnded && (
                 <div className="flex flex-col gap-2">
                   {/* Plan switch (from #463) */}
                   {canSwitchPlan && (
@@ -422,7 +378,7 @@ export default async function StudentBillingPage() {
                     />
                   </div>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -459,8 +415,6 @@ export default async function StudentBillingPage() {
                   amount: Number(tx.amount),
                   currency: tx.currency,
                   renewal: tx.provider_metadata?.kind === 'renewal',
-                  signatures: tx.provider_metadata?.signatures ?? [],
-                  network: tx.provider_metadata?.network ?? null,
                 }))}
               />
             </CardContent>

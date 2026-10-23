@@ -13,7 +13,7 @@
  * row's latest `updated_at`; a conflict asks the admin to reload or overwrite.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { Puck, useGetPuck } from '@measured/puck'
+import { ActionBar, Puck, useGetPuck, usePuck } from '@measured/puck'
 import type { Config, Data, Overrides, PuckAction } from '@measured/puck'
 import '@measured/puck/puck.css'
 import { useLocale, useTranslations } from 'next-intl'
@@ -22,6 +22,7 @@ import { IconArrowLeft, IconDeviceFloppy, IconPalette, IconSparkles } from '@tab
 import { createPuckConfig } from '@/lib/puck/config'
 import { LandingPickerProviders } from '@/lib/puck/utils/landing-pickers-context'
 import type { LandingData } from '@/lib/puck/types'
+import { LandingPageLinksContext, type LandingPageLink } from '@/lib/puck/components/fields/page-link-field'
 import {
   getLandingPage,
   publishLandingPage,
@@ -63,6 +64,7 @@ interface Props {
   initialUpdatedAt: string
   brandingSettings: Record<string, unknown>
   landingData: LandingData
+  pages?: LandingPageLink[]
   /** The AI assistant follows the existing plan gate (paid plans). */
   aiEnabled?: boolean
   /** A first message for the AI chat ("describe your page"): the panel opens and sends it once. */
@@ -271,10 +273,37 @@ function EditorShell({ children }: { children?: ReactNode }) {
   )
 }
 
+/** The same move action as dragging, using the selected block's current id/zone. */
+function EditorActionBar({ children, label, parentAction }: { children: ReactNode; label?: string; parentAction: ReactNode }) {
+  const { selectedItem, appState, getPermissions } = usePuck()
+  const getPuck = useGetPuck()
+  const { turnActive } = usePageArchitectContext()
+  const id = selectedItem?.props.id
+  const selector = id ? getPuck().getSelectorForId(id) : undefined
+  const zone = selector?.zone ?? 'root:default-zone'
+  const count = zone === 'root:default-zone' ? appState.data.content.length : appState.data.zones?.[zone]?.length ?? 0
+  const editable = !!selectedItem && getPermissions({ item: selectedItem }).edit && getPermissions({ item: selectedItem }).drag && !turnActive
+  const move = (direction: -1 | 1) => {
+    if (!id || turnActive) return
+    const puck = getPuck()
+    const current = puck.getSelectorForId(id)
+    const item = puck.getItemById(id)
+    if (!current || !item || (!puck.getPermissions({ item }).edit || !puck.getPermissions({ item }).drag)) return
+    const destinationIndex = current.index + direction
+    const length = current.zone === 'root:default-zone' ? puck.appState.data.content.length : puck.appState.data.zones?.[current.zone]?.length ?? 0
+    if (destinationIndex < 0 || destinationIndex >= length) return
+    puck.dispatch({ type: 'move', sourceIndex: current.index, sourceZone: current.zone, destinationIndex, destinationZone: current.zone })
+    const moved = getPuck().getSelectorForId(id)
+    if (moved) getPuck().dispatch({ type: 'setUi', ui: { itemSelector: moved } })
+  }
+  return <ActionBar><ActionBar.Group>{parentAction}{label && <ActionBar.Label label={label} />}</ActionBar.Group><ActionBar.Group>{children}<span className={styles.moveActions}><button type="button" aria-label="Move up" title="Move up" disabled={!editable || !selector || selector.index === 0} onClick={() => move(-1)} className="px-2 py-1 disabled:opacity-30">↑</button><button type="button" aria-label="Move down" title="Move down" disabled={!editable || !selector || selector.index >= count - 1} onClick={() => move(1)} className="px-2 py-1 disabled:opacity-30">↓</button></span></ActionBar.Group></ActionBar>
+}
+
 const OVERRIDES: Partial<Overrides> = {
   headerActions: HeaderActions,
   puck: EditorShell,
   preview: ThemePreviewScope,
+  actionBar: EditorActionBar,
 }
 
 // ── The editor ─────────────────────────────────────────────────────────────────────────
@@ -287,6 +316,7 @@ export function PuckEditor({
   initialUpdatedAt,
   brandingSettings,
   landingData,
+  pages = [],
   aiEnabled = true,
   initialPrompt,
   onBack,
@@ -486,6 +516,7 @@ export function PuckEditor({
 
   return (
     <div className={cn(styles.editor, 'flex h-[calc(100dvh-4rem)] flex-col')}>
+      <LandingPageLinksContext.Provider value={pages}>
       <PageArchitectProvider value={architect.value}>
         <EditorChromeContext.Provider value={chrome}>
           <LandingPickerProviders metadata={metadata}>
@@ -505,6 +536,7 @@ export function PuckEditor({
           </LandingPickerProviders>
         </EditorChromeContext.Provider>
       </PageArchitectProvider>
+      </LandingPageLinksContext.Provider>
 
       <Sheet open={brandingOpen} onOpenChange={setBrandingOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">

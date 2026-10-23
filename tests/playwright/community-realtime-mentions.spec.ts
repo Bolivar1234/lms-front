@@ -29,7 +29,7 @@ import {
   type SupabaseClient,
 } from '@supabase/supabase-js'
 import { login, loginAsTenantStudent } from './utils/auth'
-import { ACCOUNTS, LOCALE, TENANT_BASE } from './utils/constants'
+import { ACCOUNTS, TENANT_BASE } from './utils/constants'
 
 const CODE_ACADEMY = '00000000-0000-0000-0000-000000000002'
 const ALICE_ID = 'a1000000-0000-0000-0000-000000000004'
@@ -43,8 +43,8 @@ const B_NAME = 'QA Live Member 876'
 const D_EMAIL = `qa-876-d-${RUN}@e2etest.com`
 const D_NAME = 'QA NoAccess 876'
 
-const COURSE_FEED = `${TENANT_BASE}/${LOCALE}/dashboard/student/courses/${COURSE_ID}/community`
-const SCHOOL_FEED = `${TENANT_BASE}/${LOCALE}/dashboard/student/community`
+const COURSE_FEED = `${TENANT_BASE}/dashboard/student/courses/${COURSE_ID}/community`
+const SCHOOL_FEED = `${TENANT_BASE}/dashboard/student/community`
 
 const RUNS_IN = ['desktop-chromium', 'human']
 

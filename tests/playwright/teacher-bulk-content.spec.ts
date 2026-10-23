@@ -1,6 +1,6 @@
 import { test, expect } from './utils/test'
 import { loginAsAdmin } from './utils/auth'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT } from './utils/seed-state'
 
 // Throwaway content: no seeded lesson, exercise or exam is changed.
@@ -52,7 +52,7 @@ test('bulk content edits affect selected rows and preserve unchanged settings', 
     await loginAsAdmin(page)
     for (const { table, key, ids } of created) {
       await page.goto(
-        `${TENANT_BASE}/${LOCALE}/dashboard/teacher/courses/2001?tab=${table}`
+        `${TENANT_BASE}/dashboard/teacher/courses/2001?tab=${table}`
       )
       const tab = page.getByRole('tabpanel')
       await tab.getByLabel('Search', { exact: true }).fill(prefix)

@@ -45,11 +45,11 @@ describe('owed buckets', () => {
 })
 
 describe('pay-now rails', () => {
-  const AUTO = ['stripe', 'paypal', 'binance', 'solana', 'manual']
+  const AUTO = ['stripe', 'paypal', 'binance', 'manual']
   it('offers automated rails only for USD at or above the minimum; Stripe only when configured', () => {
     expect(feeRailsFor('USD', 10, { cardConfigured: true })).toEqual(AUTO)
     expect(feeRailsFor('usd', 10, { cardConfigured: true })).toEqual(AUTO)
-    expect(feeRailsFor('USD', 10, { cardConfigured: false })).toEqual(['paypal', 'binance', 'solana', 'manual'])
+    expect(feeRailsFor('USD', 10, { cardConfigured: false })).toEqual(['paypal', 'binance', 'manual'])
     expect(feeRailsFor('USD', 0.49, { cardConfigured: true })).toEqual(['manual'])
     expect(feeRailsFor('EUR', 100, { cardConfigured: true })).toEqual(['manual'])
   })
@@ -83,7 +83,6 @@ describe('parsePayNowAmount', () => {
 
   it('applies the automated minimum on every rail but manual', () => {
     expect(parsePayNowAmount('0.30', 10, 'stripe')).toEqual({ ok: false, error: 'amount_below_minimum' })
-    expect(parsePayNowAmount('0.30', 10, 'solana')).toEqual({ ok: false, error: 'amount_below_minimum' })
     expect(parsePayNowAmount('0.30', 10, 'manual')).toEqual({ ok: true, amount: 0.3 })
   })
 })
@@ -178,12 +177,12 @@ describe('feeErrorKey', () => {
 })
 
 describe('payNowNavigation', () => {
-  it('routes Solana QR to the in-app checkout page, never the wallet URI', () => {
-    expect(payNowNavigation({ kind: 'qr', url: 'solana:abc', checkoutPath: '/en/dashboard/admin/billing/checkout/r1' })).toEqual({
+  it('routes QR responses to the in-app checkout page, never the wallet URI', () => {
+    expect(payNowNavigation({ kind: 'qr', url: 'qr:abc', checkoutPath: '/en/dashboard/admin/billing/checkout/r1' })).toEqual({
       type: 'push',
       to: '/en/dashboard/admin/billing/checkout/r1',
     })
-    expect(payNowNavigation({ kind: 'qr', url: 'solana:abc' })).toBeNull()
+    expect(payNowNavigation({ kind: 'qr', url: 'qr:abc' })).toBeNull()
     expect(payNowNavigation({ kind: 'qr', checkoutPath: '//evil.com' })).toBeNull()
   })
   it('navigates hosted rails to their url', () => {

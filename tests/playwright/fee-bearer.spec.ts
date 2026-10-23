@@ -19,7 +19,7 @@
  */
 import { test, expect } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT, ALICE_ID } from './utils/seed-state'
 import { loginAsAdmin, loginAsTenantStudent } from './utils/auth'
 import { chargedAmount } from '@/lib/payments/fee-bearer'
@@ -192,7 +192,7 @@ test.describe('Fee bearer (#927) — checkout and editor', () => {
     await admin.from('products').update({ fee_bearer: 'school' }).eq('product_id', productId)
 
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/checkout?courseId=${courseId}`)
+    await page.goto(`${TENANT_BASE}/checkout?courseId=${courseId}`)
     await expect(page.getByText('$100.00').first()).toBeVisible({ timeout: 30_000 })
     await expect(page.getByTestId('checkout-fee-included')).toHaveCount(0)
   })
@@ -204,7 +204,7 @@ test.describe('Fee bearer (#927) — checkout and editor', () => {
     test.skip(expected === PRICE, 'Code Academy is on a 0% fee split — nothing to pass on')
 
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/checkout?courseId=${courseId}`)
+    await page.goto(`${TENANT_BASE}/checkout?courseId=${courseId}`)
     const formatted = new Intl.NumberFormat('en', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(expected)
     await expect(page.getByText(formatted).first()).toBeVisible({ timeout: 30_000 })
     await expect(page.getByTestId('checkout-fee-included')).toBeVisible()
@@ -212,7 +212,7 @@ test.describe('Fee bearer (#927) — checkout and editor', () => {
 
   test('admin editor shows the fee breakdown', async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/${LOCALE}/dashboard/admin/products/${productId}/edit`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/products/${productId}/edit`)
     const card = page.getByTestId('fee-bearer-card')
     await expect(card).toBeVisible({ timeout: 30_000 })
     await expect(page.getByTestId('fee-bearer-breakdown')).toContainText('$100.00')

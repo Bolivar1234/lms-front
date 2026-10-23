@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test'
-import { BASE, TENANT_BASE, LOCALE, ACCOUNTS } from './constants'
+import { BASE, TENANT_BASE, ACCOUNTS } from './constants'
 
 /**
  * Disable all guided tours by setting the global kill-switch in localStorage.
@@ -88,7 +88,7 @@ export async function login(
 ) {
   // `domcontentloaded`, not the default `load`: pages here keep background
   // polls in flight, so waiting for `load` aborts on a page that has arrived.
-  await page.goto(`${baseUrl}/${LOCALE}/auth/login`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/auth/login`, { waitUntil: 'domcontentloaded' })
   await fillCredentials(page, email, password)
   await submitLogin(page, baseUrl)
   await dismissTours(page)
@@ -121,15 +121,15 @@ export async function loginAsTenantStudent(page: Page, baseUrl = TENANT_BASE) {
 
 /**
  * Login as super admin on the platform domain (default tenant).
- * After login, navigates to /en/platform (does NOT wait for dashboard/**).
+ * After login, navigates to /platform (does NOT wait for dashboard/**).
  */
 export async function loginAsSuperAdmin(page: Page, baseUrl = BASE) {
-  await page.goto(`${baseUrl}/${LOCALE}/auth/login`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/auth/login`, { waitUntil: 'domcontentloaded' })
   await fillCredentials(page, ACCOUNTS.superAdmin.email, ACCOUNTS.superAdmin.password)
   // Super admin lands on /dashboard/teacher — then navigate to platform
   await submitLogin(page, baseUrl)
   await dismissTours(page)
-  await page.goto(`${baseUrl}/${LOCALE}/platform`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/platform`, { waitUntil: 'domcontentloaded' })
   await page.waitForSelector('[data-testid="platform-overview"]', { timeout: 15_000 })
 }
 
@@ -144,7 +144,7 @@ export async function loginAsNonMember(
   password: string,
   baseUrl = BASE
 ) {
-  await page.goto(`${baseUrl}/${LOCALE}/auth/login`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/auth/login`, { waitUntil: 'domcontentloaded' })
   await fillCredentials(page, email, password)
   const button = page.getByTestId('login-submit')
   for (let attempt = 0; attempt < 3; attempt++) {

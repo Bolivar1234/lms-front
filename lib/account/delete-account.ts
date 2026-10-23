@@ -48,9 +48,9 @@ export type DeleteAccountResult =
 
 /**
  * Delete the account for good. Refuses while a blocker stands; otherwise
- * closes pending payments, removes the person's uploaded files (best effort —
- * a file left behind must not keep the account alive), and deletes the auth
- * user, which cascades through the database.
+ * closes pending payments, removes the person's uploaded files, and deletes
+ * the auth user, which cascades through the database. Authentication deletion
+ * is withheld if storage cleanup fails so a retry can complete cleanup.
  */
 export async function deleteAccount(userId: string): Promise<DeleteAccountResult> {
   const blockers = await getAccountDeletionBlockers(userId)
@@ -66,9 +66,17 @@ export async function deleteAccount(userId: string): Promise<DeleteAccountResult
   for (const file of (files ?? []) as { bucket_id: string; name: string }[]) {
     byBucket.set(file.bucket_id, [...(byBucket.get(file.bucket_id) ?? []), file.name])
   }
+  const cleanupFailures: string[] = []
   for (const [bucket, names] of byBucket) {
     const { error } = await admin.storage.from(bucket).remove(names)
-    if (error) console.error(`Account deletion: could not remove files from ${bucket}:`, error)
+    if (error) {
+      console.error(`Account deletion: could not remove files from ${bucket}:`, error)
+      cleanupFailures.push(bucket)
+    }
+  }
+
+  if (cleanupFailures.length > 0) {
+    throw new Error(`Account deletion could not remove stored files from: ${cleanupFailures.join(', ')}. Please retry.`)
   }
 
   await recordSelfDeleteIntent(admin, userId)

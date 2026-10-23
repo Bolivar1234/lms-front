@@ -17,3 +17,5 @@ export * from './bindings'
 export * from './template-i18n'
 export * from './templates'
 export { PAGE_BUILDER_MANIFEST } from './generated/manifest.generated'
+
+export * from './page-url'

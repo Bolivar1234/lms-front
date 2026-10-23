@@ -9,10 +9,10 @@
  *
  * The client branches on `session.kind`:
  *   - 'redirect'      → window.location = url  (Lemon Squeezy hosted checkout)
- *   - 'qr'            → render `url` as a QR; poll /api/payments/solana/verify
+ *   - 'qr'            → render a provider-specific QR when supported
  *   - 'client_secret' → confirm with Stripe Elements (not handled here today)
  *
- * Scope: this route owns Lemon Squeezy + Solana. Stripe keeps its dedicated
+ * Scope: this route owns hosted non-Stripe providers. Stripe keeps its dedicated
  * Connect flow (/api/stripe/create-payment-intent) for customer creation +
  * revenue split; `manual` uses the offline payment-request flow. Both are
  * rejected here so there is exactly one creation path per provider.
@@ -24,10 +24,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentTenantId } from '@/lib/supabase/tenant'
 import { getPaymentProvider } from '@/lib/payments'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
-import { safeAnalytics, track } from '@/lib/analytics/server'
+import { track } from '@/lib/analytics/server'
 import type { CreateCheckoutParams, PaymentProvider } from '@/lib/payments/types'
-import { getSolUsdPrice, usdToLamports } from '@/lib/payments/sol-price'
-import { getSolanaSettlementOptions } from '@/app/actions/admin/settings'
 import { paymentAuthLimiter } from '@/lib/rate-limit'
 import { DEFAULT_FEE_BEARER, type FeeBearer } from '@/lib/payments/fee-bearer'
 import {
@@ -39,7 +37,6 @@ import {
 } from '@/lib/payments/product-charge'
 import { checkoutExpiresAt, isHostedCheckoutProvider } from '@/lib/payments/checkout-expiry'
 import { reconcilePayPalCheckout } from '@/lib/payments/paypal-reconcile'
-import { reconcileSolanaOneTimeTransaction } from '@/lib/payments/solana-reconcile'
 import {
   findConflictingSubscription,
   PARALLEL_SUBSCRIPTION_CODE,
@@ -51,7 +48,6 @@ import {
   READINESS_MESSAGE,
 } from '@/lib/payments/tenant-payment-readiness'
 import { assertSalesOpen } from '@/lib/billing/sales-gate'
-import { netOfRefunds } from '@/lib/payments/payouts-owed'
 import {
   isSalesBlockedError,
   SALES_BLOCKED_CODE,
@@ -60,23 +56,13 @@ import {
 } from '@/lib/billing/sales-block-error'
 
 // Providers whose checkout this route owns. Stripe + manual have their own paths.
-const HANDLED: PaymentProvider[] = ['lemonsqueezy', 'solana', 'solana_subs', 'paypal', 'binance', 'binance_personal']
-
-function getSolanaNetworkLabel(): 'devnet' | 'testnet' | 'mainnet' | 'solana' {
-  const configured = process.env.SOLANA_NETWORK?.toLowerCase() ?? ''
-  const rpcUrl = process.env.SOLANA_RPC_URL?.toLowerCase() ?? ''
-  const network = `${configured} ${rpcUrl}`
-  if (network.includes('devnet')) return 'devnet'
-  if (network.includes('testnet')) return 'testnet'
-  if (network.includes('mainnet')) return 'mainnet'
-  return 'solana'
-}
+const HANDLED: PaymentProvider[] = ['lemonsqueezy', 'paypal', 'binance', 'binance_personal']
 
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   try {
-    const { planId, productId, solanaCurrency } = await req.json()
+    const { planId, productId } = await req.json()
     if (!planId && !productId) {
       return NextResponse.json({ error: 'Missing plan or product ID' }, { status: 400 })
     }
@@ -155,8 +141,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Product not found' }, { status: 404 })
       }
       // Fee bearer (#927): when the student bears the fee the amount is grossed
-      // up, and every figure derived from `amountMajor` below (Solana
-      // settlement base, the provider session, the transaction row) carries the
+      // up, and every figure derived from `amountMajor` below carries the
       // grossed-up number. Server-derived from products + revenue_splits only.
       let charge
       try {
@@ -178,6 +163,10 @@ export async function POST(req: NextRequest) {
       providerPriceId = product.provider_price_id || ''
       feeBearer = charge.feeBearer
       schoolPercentageSnapshot = charge.schoolPercentage
+    }
+
+    if (providerSlug === 'solana' || providerSlug === 'solana_subs') {
+      return NextResponse.json({ error: 'Solana payments are disabled.' }, { status: 410 })
     }
 
     // Connected-account readiness gate (#606). A no-op for every rail this
@@ -261,52 +250,6 @@ export async function POST(req: NextRequest) {
       binancePersonalPayId = wallet.wallet_address
     }
 
-    // One-time Solana: the student chooses the settlement token (SOL or USDC),
-    // both honoring the USD price. USDC is a 1:1 USD stablecoin; native SOL is
-    // converted from the USD price at the LIVE rate NOW and LOCKED — the rate
-    // moves before on-chain confirmation, so /tx and /verify must use this
-    // stored amount, never re-quote. (solana_subs is USDC-only, unchanged.)
-    let settlement:
-      | { currency: 'sol' | 'usdc'; base: number; mint: string | null; solUsd: number | null }
-      | null = null
-    let requestedSolanaCurrency: 'sol' | 'usdc' | null = null
-    if (providerSlug === 'solana') {
-      // USDC is always offered when a mint is configured (USD-stable); native
-      // SOL only when the school opted in (volatile, converted at live rate).
-      const opts = await getSolanaSettlementOptions()
-      const choice = (solanaCurrency as string) || (opts.usdc ? 'usdc' : 'sol')
-      requestedSolanaCurrency = choice === 'sol' || choice === 'usdc' ? choice : null
-      if (choice === 'usdc') {
-        if (!opts.usdc) {
-          return NextResponse.json({ error: 'USDC payments are not available' }, { status: 400 })
-        }
-        settlement = {
-          currency: 'usdc',
-          base: Math.round(amountMajor * 1e6),
-          mint: process.env.SOLANA_USDC_MINT as string,
-          solUsd: null,
-        }
-      } else if (choice === 'sol') {
-        if (!opts.sol) {
-          return NextResponse.json({ error: 'This school does not accept native SOL' }, { status: 400 })
-        }
-        let rate: number | null = null
-        try {
-          rate = await getSolUsdPrice()
-        } catch (err) {
-          console.error('[payments/checkout] SOL/USD price unavailable:', err)
-          // A pending SOL checkout already has a locked quote and can resume
-          // without a fresh price feed. If no pending row exists, the new
-          // checkout is rejected below.
-        }
-        if (rate != null && Number.isFinite(rate)) {
-          settlement = { currency: 'sol', base: usdToLamports(amountMajor, rate), mint: null, solUsd: rate }
-        }
-      } else {
-        return NextResponse.json({ error: 'Invalid Solana currency' }, { status: 400 })
-      }
-    }
-
     // Snapshot the tenant's CURRENT revenue split onto this transaction (#496)
     // so a later plan change doesn't retroactively reprice it in the payouts
     // computation. The admin client is belt-and-braces, not a requirement: this
@@ -337,14 +280,14 @@ export async function POST(req: NextRequest) {
     // just computed (pendingCheckoutMatches, the hosted-rail counterpart of
     // stripeCheckoutMatches), so an admin flipping the fee bearer or the split
     // changing mid-checkout cannot carry the old amount into a new session. A
-    // Binance / Solana / Lemon Squeezy leftover cannot be released from here —
+    // Binance / Lemon Squeezy leftover cannot be released from here —
     // we cannot prove no money is in motion (an unverified on-chain transfer
     // still settles against its pending row) — so it is reported with a 409 and
     // left to its TTL / reconciler rather than dying on the unique index.
     {
       let leftoverQuery = adminClient
         .from('transactions')
-        .select('transaction_id, provider_checkout_id, plan_id, payment_provider, amount, currency, fee_bearer, provider_subscription_id, settlement_currency, settlement_base, settlement_mint, school_percentage_snapshot, user_id, tenant_id, refunded_amount, product_id')
+        .select('transaction_id, provider_checkout_id, plan_id, payment_provider, amount, currency, fee_bearer, provider_subscription_id, school_percentage_snapshot, user_id, tenant_id, refunded_amount, product_id')
         .eq('user_id', user.id)
         .eq('tenant_id', tenantId)
         .eq('status', 'pending')
@@ -361,133 +304,6 @@ export async function POST(req: NextRequest) {
 
       if (leftover) {
         const termsMatch = pendingCheckoutMatches(leftover, { amount: amountMajor, currency, feeBearer })
-        const splitMatches = leftover.school_percentage_snapshot != null &&
-          Math.round(Number(leftover.school_percentage_snapshot) * 100) === Math.round(schoolPercentageSnapshot * 100)
-        const solanaTermsMatch = termsMatch && splitMatches &&
-          leftover.settlement_currency === requestedSolanaCurrency
-        const canResumeSolana =
-          providerSlug === 'solana' &&
-          leftover.payment_provider === 'solana' &&
-          solanaTermsMatch &&
-          leftover.settlement_base != null &&
-          !!leftover.provider_subscription_id
-
-        if (canResumeSolana) {
-          const reconcile = await reconcileSolanaOneTimeTransaction(adminClient, leftover)
-          if (reconcile.status === 'confirmed') {
-            if (!reconcile.alreadyProcessed) {
-              await safeAnalytics(async () => {
-                const gross = Number(leftover.amount ?? 0)
-                const net = netOfRefunds(gross, leftover.refunded_amount)
-                const sourceType = leftover.plan_id ? 'subscription' : 'product'
-                const sourceId = leftover.plan_id ?? leftover.product_id
-                const context = { userId: user.id, tenantId }
-                await track(
-                  ANALYTICS_EVENTS.PAYMENT_SUCCEEDED,
-                  {
-                    provider: 'solana',
-                    amount_major: net,
-                    currency: leftover.currency ?? 'usd',
-                    is_subscription: !!leftover.plan_id,
-                    platform_fee: Math.round(net * (100 - Number(leftover.school_percentage_snapshot ?? 80))) / 100,
-                    school_percentage_snapshot: leftover.school_percentage_snapshot,
-                    gross_amount: gross,
-                    transaction_id: leftover.transaction_id,
-                    settlement_currency: leftover.settlement_currency,
-                    ...(leftover.plan_id ? { plan_id: leftover.plan_id } : {}),
-                    ...(leftover.product_id ? { product_id: leftover.product_id } : {}),
-                    signature: reconcile.signature ?? null,
-                  },
-                  context,
-                )
-                if (sourceId != null) {
-                  const { count } = await adminClient
-                    .from('entitlements')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id)
-                    .eq('source_type', sourceType)
-                    .eq('source_id', sourceId)
-                    .eq('status', 'active')
-                  await track(
-                    ANALYTICS_EVENTS.ENTITLEMENT_GRANTED,
-                    { source_type: sourceType, course_count: count ?? 0, provider: 'solana', transaction_id: leftover.transaction_id },
-                    context,
-                  )
-                }
-              }, 'solana settlement analytics (checkout recovery)')
-            }
-            return NextResponse.json({ kind: 'success', transactionId: leftover.transaction_id })
-          }
-          if (reconcile.status !== 'not_found') {
-            console.error('[payments/checkout] pending Solana payment could not be safely resumed:', reconcile)
-            return NextResponse.json(
-              { error: 'We could not verify this payment yet. Your checkout is still pending; please retry shortly.', code: 'PAYMENT_REVIEW' },
-              { status: 503 },
-            )
-          }
-
-          const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? req.nextUrl.host
-          const proto = req.headers.get('x-forwarded-proto') ?? req.nextUrl.protocol.replace(':', '')
-          const appUrl = `${proto}://${host}`
-          try {
-            const provider = getPaymentProvider('solana')
-            const session = await provider.createCheckoutSession!({
-              mode,
-              providerPriceId,
-              amount: Number(leftover.amount),
-              currency: String(leftover.settlement_currency),
-              reference: String(leftover.transaction_id),
-              providerReference: String(leftover.provider_subscription_id),
-              successUrl: `${appUrl}/checkout/success?transactionId=${leftover.transaction_id}`,
-              cancelUrl: planId ? `${appUrl}/checkout?planId=${planId}` : `${appUrl}/courses`,
-              baseUrl: appUrl,
-              metadata: {
-                transactionId: String(leftover.transaction_id),
-                userId: user.id,
-                tenantId,
-                itemName,
-                ...(planId ? { planId: String(planId) } : {}),
-                ...(productId ? { productId: String(productId) } : {}),
-              },
-            })
-            if (session.kind !== 'qr' || !session.url) throw new Error('Solana provider returned no payment QR')
-            const isUsdc = leftover.settlement_currency === 'usdc'
-            return NextResponse.json({
-              kind: 'qr',
-              url: session.url,
-              clientSecret: null,
-              instructions: null,
-              paymentDetails: {
-                currency: leftover.settlement_currency,
-                amount: Number(leftover.settlement_base) / (isUsdc ? 1_000_000 : 1_000_000_000),
-                network: getSolanaNetworkLabel(),
-              },
-              reference: String(leftover.transaction_id),
-              transactionId: leftover.transaction_id,
-              resumed: true,
-            })
-          } catch (err) {
-            console.error('[payments/checkout] failed to rebuild pending Solana QR:', err)
-            return NextResponse.json(
-              { error: 'Your payment is still pending. We could not restore the payment request; please retry shortly.', code: 'PAYMENT_PROVIDER_UNAVAILABLE' },
-              { status: 503 },
-            )
-          }
-        }
-
-        if (providerSlug === 'solana' && leftover.payment_provider === 'solana') {
-          if (solanaTermsMatch) {
-            return NextResponse.json(
-              { error: 'This pending payment is missing its saved Solana payment details. It was not replaced; contact the school for help.', code: 'PAYMENT_REVIEW' },
-              { status: 503 },
-            )
-          }
-          return NextResponse.json(
-            { error: 'The terms for this pending payment no longer match. Wait for it to expire or contact the school before starting another checkout.', code: 'CHECKOUT_TERMS_CHANGED' },
-            { status: 409 },
-          )
-        }
-
         const outcome = leftover.payment_provider === 'paypal'
           ? await reconcilePayPalCheckout(adminClient, leftover)
           : null
@@ -524,30 +340,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (providerSlug === 'solana' && !settlement) {
-      return NextResponse.json({ error: 'Could not price SOL right now — try again', code: 'PAYMENT_PROVIDER_UNAVAILABLE' }, { status: 503 })
-    }
 
     // 1. Pending transaction — our correlation id (transaction_id) round-trips
-    //    back on the webhook (LS) or the verify endpoint (Solana).
+    //    back on the provider webhook or hosted return flow.
     //
-    // The ADMIN client, since #538. The settlement_* figures below are what the
-    // on-chain payment is later verified against (lib/payments/solana-reconcile.ts
-    // → verifySplitTransfer({ totalBase })), and this used to be the reason
-    // `authenticated` had to keep an INSERT grant on `transactions` — which meant a
-    // student could POST their own pending row claiming it owed 1 lamport for a $49
-    // product, pay that, and be enrolled. Writing here on the service-role client
-    // let 20260725180000 revoke the grant outright, so `amount`, `currency`,
-    // `payment_provider` and all four settlement columns are now server-owned.
-    //
-    // Per CLAUDE.md that shifts the tenant check to us, and it is already in place:
-    // `user.id` comes from the verified session, `tenantId` from the x-tenant-id
-    // header proxy.ts sets, and every field below is derived from the tenant-scoped
-    // `plans` / `products` read above on the USER-scoped client — so a caller still
-    // cannot reference another tenant's catalogue or price. The live SOL/USD quote
-    // (getSolUsdPrice) never crosses the client boundary in either direction, which
-    // is why this is an admin-client write and not a SECURITY DEFINER RPC: an RPC
-    // would have to accept that rate as a caller-supplied parameter.
+    // The ADMIN client, since #538. Writing pending rows here keeps the amount,
+    // currency and provider server-owned, so a student cannot mint a cheaper
+    // pending transaction through the authenticated insert path.
+    // The tenant check is explicit: user and tenant come from the verified
+    // session/proxy, while catalog values come from the tenant-scoped read.
     const { data: transaction, error: txError } = await adminClient
       .from('transactions')
       .insert({
@@ -568,14 +369,6 @@ export async function POST(req: NextRequest) {
         // transactions_unique_plan forever, and the buyer can never retry.
         // Null for in-band rails, which keeps them out of the reconciler queue.
         checkout_expires_at: checkoutExpiresAt(providerSlug),
-        ...(settlement
-          ? {
-              settlement_currency: settlement.currency,
-              settlement_base: settlement.base,
-              settlement_mint: settlement.mint,
-              settlement_sol_usd: settlement.solUsd,
-            }
-          : {}),
       })
       .select('transaction_id')
       .single()
@@ -586,33 +379,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (txError?.code === '23505') {
-      if (providerSlug === 'solana') {
-        // The Solana reconciler may have confirmed the existing payment after
-        // our pending-row lookup. Products intentionally keep a successful row
-        // in their unique index, so recognize that race as completed instead of
-        // leaving the buyer in an unrecoverable checkout-in-flight state.
-        let completedQuery = adminClient
-          .from('transactions')
-          .select('transaction_id')
-          .eq('user_id', user.id)
-          .eq('tenant_id', tenantId)
-          .eq('status', 'successful')
-          .limit(1)
-        completedQuery = planId
-          ? completedQuery.eq('plan_id', planId).is('product_id', null)
-          : completedQuery.eq('product_id', productId).is('plan_id', null)
-        const { data: completed } = await completedQuery.maybeSingle()
-        if (completed) {
-          return NextResponse.json({ kind: 'success', transactionId: completed.transaction_id })
-        }
-        // A concurrent first request may have inserted the unique pending row.
-        // A retry will load that row and restore its original reference; never
-        // cancel or replace an on-chain reference here.
-        return NextResponse.json(
-          { error: 'A Solana checkout was just started for this item. Retry once to restore its payment QR.', code: 'CHECKOUT_IN_FLIGHT' },
-          { status: 409 },
-        )
-      }
       // Lost a race with a concurrent checkout for the same item.
       return NextResponse.json(
         { error: 'A payment for this item is already in progress. Try again in a few minutes.', code: 'CHECKOUT_IN_FLIGHT' },
@@ -625,11 +391,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create transaction' }, { status: 500 })
     }
 
-    // Loop C. `amountMajor` is the USD-denominated price, NOT `settlement_base`
-    // — the lamport/USDC figure is what the chain is checked against and is
-    // meaningless summed across rails. `school_percentage_snapshot` rides along
-    // because it is the rate the payouts computation will later use for this
-    // exact sale, so the two can be reconciled row by row.
+    // Loop C. `amountMajor` is the USD-denominated price used for analytics and
+    // payout reconciliation; provider-specific minor units stay provider-local.
     await track(
       ANALYTICS_EVENTS.CHECKOUT_STARTED,
       {
@@ -641,17 +404,11 @@ export async function POST(req: NextRequest) {
         transaction_id: transaction.transaction_id,
         is_subscription: mode === 'subscription',
         school_percentage_snapshot: schoolPercentageSnapshot,
-        ...(settlement ? { settlement_currency: settlement.currency } : {}),
       },
       { userId: user.id, tenantId },
     )
 
     const reference = transaction.transaction_id.toString()
-    // Derive the tenant's own origin from the request rather than the single
-    // global NEXT_PUBLIC_APP_URL — this route is hit on the school's subdomain,
-    // and Solana Pay tx-request links must round-trip back to that same host
-    // (a QR built with the wrong tenant's origin fails for every other tenant).
-    //
     // req.nextUrl.origin does NOT reflect the incoming Host header in dev — it
     // resolves to the Next.js dev server's own bind address (localhost:PORT)
     // regardless of which tenant subdomain the request actually came in on.
@@ -667,7 +424,7 @@ export async function POST(req: NextRequest) {
 
     try {
       const provider = getPaymentProvider(providerSlug as PaymentProvider)
-      // Amount in the provider's expected unit (LS → cents; Solana → decimal).
+      // Amount in the provider's expected unit.
       const amount = provider.convertAmount(amountMajor, 'major')
 
       const session = await provider.createCheckoutSession!({
@@ -691,27 +448,15 @@ export async function POST(req: NextRequest) {
       })
 
       // Persist the provider's own reference where it is known at creation
-      // time. Solana: the on-chain reference pubkey the verify endpoint locates
-      // the transfer/subscribe tx by (for solana_subs it marks the SUBSCRIBE
-      // tx, findReference). PayPal: the order id (one-time) or the I-…
+      // time. PayPal: the order id (one-time) or the I-…
       // subscription id (created pre-approval — handle_new_subscription copies
       // it onto the subscription row on activation). Binance: the prepayId
       // (needed for refunds). LS stays webhook-driven; nothing to store here.
       if (
-        (providerSlug === 'solana' ||
-          providerSlug === 'solana_subs' ||
-          providerSlug === 'paypal' ||
+        (providerSlug === 'paypal' ||
           providerSlug === 'binance') &&
         session.providerRef
       ) {
-        // `provider_checkout_id` is the same value on hosted rails, stored under
-        // its own name (#624) because that is what the stale-checkout reconciler
-        // asks the provider about. It cannot read `provider_subscription_id`:
-        // for solana_subs that column marks the on-chain SUBSCRIBE reference,
-        // and handle_new_subscription copies it onto the subscription row on
-        // activation — two different meanings in one column. Splitting them
-        // keeps the reconciler from ever querying a non-checkout identifier.
-        //
         // The admin client, not the user-scoped one: since #538 `authenticated`
         // holds an UPDATE grant on only status / provider_subscription_id /
         // stripe_payment_intent_id, so a user-scoped write of the new column is
@@ -732,17 +477,6 @@ export async function POST(req: NextRequest) {
         url: session.url ?? null,
         clientSecret: session.clientSecret ?? null,
         instructions: session.instructions ?? null,
-        ...(session.kind === 'qr' && (providerSlug === 'solana' || providerSlug === 'solana_subs')
-          ? {
-              paymentDetails: {
-                currency: settlement?.currency ?? 'usdc',
-                amount: settlement
-                  ? settlement.base / (settlement.currency === 'usdc' ? 1_000_000 : 1_000_000_000)
-                  : amount,
-                network: getSolanaNetworkLabel(),
-              },
-            }
-          : {}),
         reference,
         transactionId: transaction.transaction_id,
       })

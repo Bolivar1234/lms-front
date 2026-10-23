@@ -12,6 +12,7 @@
 
 ## Status
 
+- **2026-10-22 implementation candidate**: application/browser code and development commands use Kit; legacy runtime dependencies and their Solana audit chain are removed. Pay compatibility, split-verification, first-charge recovery and default-off Phase 5 unit checks pass. **The plan remains incomplete**: public Devnet identity/program checks pass, but disposable-wallet airdrops fail (ending in HTTP 429), so payment and actual-hour renewal gates are BLOCKED. Phase 5 is dormant in normal runtime; its explicit non-production/public-Devnet experiment gate cannot enable production behavior. See `docs/verification/solana-kit-devnet-harness.md`. No merge/deployment is authorized by these partial results.
 - **Priority**: P2 (security: clears 5 high + 7 moderate runtime advisories) / tech-debt (dual-SDK consolidation)
 - **Effort**: XL (multi-day; security-critical verification rewrite)
 - **Risk**: HIGH — rewrites transaction *building* and *verification* of real fee-split payments and auto-pull subscriptions. A subtle error mis-routes funds or skips a leg.
@@ -115,9 +116,9 @@ Where Playwright env exists, also run `npx playwright test tests/playwright/paym
 ## Done criteria
 
 ALL must hold:
-- [ ] `grep -rnE "@solana/(web3\.js|pay|spl-token)" lib app` returns nothing (static AND dynamic imports)
-- [ ] `@solana/web3.js`, `@solana/pay`, `@solana/spl-token` removed from `package.json`; `@solana-program/system` + `@solana-program/token` added; lockfile regenerated with CI-matched npm
-- [ ] `npm audit --omit=dev` no longer lists `bigint-buffer`/`@solana/pay`/`@solana/spl-token`/`web3.js→jayson→uuid` advisories
+- [x] `grep -rnE "@solana/(web3\.js|pay|spl-token)" lib app` returns nothing (static AND dynamic imports)
+- [x] `@solana/web3.js`, `@solana/pay`, `@solana/spl-token` removed from `package.json`; `@solana-program/system` + `@solana-program/token` added; lockfile regenerated with current CI-matched npm 11 / Node 24 (the historical npm 10 note below is stale)
+- [x] `npm audit --omit=dev` no longer lists `bigint-buffer`/`@solana/pay`/`@solana/spl-token`/`web3.js→jayson→uuid` advisories (unrelated audit entries remain)
 - [ ] H1 (`provider_charge_id` consume), M2/M4 (tenant-scoped plan lookup, write-once metadata), and H2 (`alreadyPulledBase` resume) are all preserved through the migration
 - [ ] `npx tsc --noEmit` 0 · `npm run test:unit` green (new compat + verify tests added) · `npm run build` exit 0
 - [ ] Devnet harness scenarios 1-3 pass for Phases 2/4; scenarios 4-5 pass for Phase 5

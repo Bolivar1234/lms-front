@@ -1,3 +1,4 @@
+import { imageUploadField } from '../fields/image-upload-field'
 import type { ComponentConfig } from '@measured/puck'
 import { cn } from '@/lib/utils'
 import { type SectionSpacingProps, sectionSpacingFields, sectionSpacingDefaults, sectionOuterProps, sectionInnerProps } from '../../utils/section-spacing'
@@ -28,7 +29,7 @@ export const ImageGallery: ComponentConfig<ImageGalleryProps> = {
       type: 'array',
       label: 'Images',
       arrayFields: {
-        src: { type: 'text', label: 'Image URL' },
+        src: imageUploadField('Image URL'),
         alt: { type: 'text', label: 'Alt Text' },
         caption: { type: 'text', label: 'Caption' },
       },

@@ -14,7 +14,7 @@ test.describe('Authentication Security', () => {
   // ─── Login & Sign-Up UI ──────────────────────────────────────────────────
 
   test('login page displays correctly', async ({ page }) => {
-    await page.goto(`${BASE}/en/auth/login`)
+    await page.goto(`${BASE}/auth/login`)
     await expect(page.getByTestId('login-title')).toBeVisible()
     await expect(page.getByTestId('login-email')).toBeVisible()
     await expect(page.getByTestId('login-password')).toBeVisible()
@@ -22,7 +22,7 @@ test.describe('Authentication Security', () => {
   })
 
   test('sign-up page accessible with form fields', async ({ page }) => {
-    await page.goto(`${BASE}/en/auth/sign-up`)
+    await page.goto(`${BASE}/auth/sign-up`)
     await expect(page.getByTestId('signup-title')).toBeVisible()
     await expect(page.getByTestId('signup-name')).toBeVisible()
     await expect(page.getByTestId('signup-email')).toBeVisible()
@@ -38,7 +38,7 @@ test.describe('Authentication Security', () => {
     const email = `ada.noname.${Date.now()}@e2etest.com`
     const admin = getServiceRoleClient()
 
-    await page.goto(`${BASE}/en/auth/sign-up`)
+    await page.goto(`${BASE}/auth/sign-up`)
     await page.getByTestId('signup-email').fill(email)
     await page.getByTestId('signup-password').fill('password123')
     await page.getByTestId('signup-submit').click()
@@ -68,7 +68,7 @@ test.describe('Authentication Security', () => {
     // an email that is never sent (#797, mailer #676). BASE is the platform
     // tenant, where a fresh account with nowhere to go is a creator: the same
     // destination /auth/confirm picks for a confirmed sign-up there.
-    await page.goto(`${BASE}/en/auth/sign-up`)
+    await page.goto(`${BASE}/auth/sign-up`)
     await page.getByTestId('signup-name').fill('E2E Signup Tester')
     await page.getByTestId('signup-email').fill(`e2e-signup-${Date.now()}@e2etest.com`)
     await page.getByTestId('signup-password').fill('password123')
@@ -81,25 +81,25 @@ test.describe('Authentication Security', () => {
   test('unauthenticated user redirected from /dashboard/student to login', async ({
     page,
   }) => {
-    await page.goto(`${BASE}/en/dashboard/student`)
+    await page.goto(`${BASE}/dashboard/student`)
     await page.waitForTimeout(2000)
-    expect(page.url()).toMatch(/\/auth\/login|\/en$/)
+    expect(page.url()).toMatch(/\/auth\/login/)
   })
 
   test('unauthenticated user redirected from /dashboard/teacher to login', async ({
     page,
   }) => {
-    await page.goto(`${BASE}/en/dashboard/teacher`)
+    await page.goto(`${BASE}/dashboard/teacher`)
     await page.waitForTimeout(2000)
-    expect(page.url()).toMatch(/\/auth\/login|\/en$/)
+    expect(page.url()).toMatch(/\/auth\/login/)
   })
 
   test('unauthenticated user redirected from /dashboard/admin to login', async ({
     page,
   }) => {
-    await page.goto(`${BASE}/en/dashboard/admin`)
+    await page.goto(`${BASE}/dashboard/admin`)
     await page.waitForTimeout(2000)
-    expect(page.url()).toMatch(/\/auth\/login|\/en$/)
+    expect(page.url()).toMatch(/\/auth\/login/)
   })
 
   // ─── Route Guards — Role-Based ──────────────────────────────────────────
@@ -108,7 +108,7 @@ test.describe('Authentication Security', () => {
     page,
   }) => {
     await loginAsStudent(page)
-    await page.goto(`${BASE}/en/dashboard/teacher`)
+    await page.goto(`${BASE}/dashboard/teacher`)
     await page.waitForTimeout(3000)
     expect(page.url()).not.toMatch(/\/dashboard\/teacher$/)
   })
@@ -117,7 +117,7 @@ test.describe('Authentication Security', () => {
     page,
   }) => {
     await loginAsStudent(page)
-    await page.goto(`${BASE}/en/dashboard/admin`)
+    await page.goto(`${BASE}/dashboard/admin`)
     await page.waitForTimeout(3000)
     expect(page.url()).not.toMatch(/\/dashboard\/admin$/)
   })
@@ -128,7 +128,7 @@ test.describe('Authentication Security', () => {
     page,
   }) => {
     await loginAsStudent(page)
-    await page.goto(`${BASE}/en/dashboard`)
+    await page.goto(`${BASE}/dashboard`)
     await expect(page).toHaveURL(/\/dashboard\/student/)
   })
 
@@ -137,7 +137,7 @@ test.describe('Authentication Security', () => {
   test('invalid credentials show error and stay on login page', async ({
     page,
   }) => {
-    await page.goto(`${BASE}/en/auth/login`)
+    await page.goto(`${BASE}/auth/login`)
     await page.getByTestId('login-email').fill('nobody@test.com')
     await page.getByTestId('login-password').fill('wrongpassword')
     await page.getByTestId('login-submit').click()
@@ -162,7 +162,7 @@ test.describe('Authentication Security', () => {
   test('CSRF protection — forms use cookie-based protection', async ({
     page,
   }) => {
-    await page.goto(`${BASE}/en/auth/login`)
+    await page.goto(`${BASE}/auth/login`)
     const formHtml = await page.locator('form').first().innerHTML()
     const hasCsrfToken =
       formHtml.includes('csrf') ||
@@ -178,9 +178,9 @@ test.describe('Authentication Security', () => {
     page,
   }) => {
     const protectedRoutes = [
-      '/en/dashboard/student',
-      '/en/dashboard/teacher/courses',
-      '/en/dashboard/admin/users',
+      '/dashboard/student',
+      '/dashboard/teacher/courses',
+      '/dashboard/admin/users',
     ]
 
     for (const route of protectedRoutes) {
@@ -191,13 +191,13 @@ test.describe('Authentication Security', () => {
         url.includes('/auth/login') ||
           url.includes('/auth/sign-in') ||
           url === `${BASE}/` ||
-          url === `${BASE}/en`
+          url === `${BASE}`
       ).toBeTruthy()
     }
   })
 
   test('secure headers — security headers are present', async ({ page }) => {
-    const response = await page.goto(`${BASE}/en`)
+    const response = await page.goto(`${BASE}`)
     if (response) {
       const headers = response.headers()
       const securityHeaders = {

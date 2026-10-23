@@ -85,7 +85,7 @@ export function DeleteAccountCard() {
             }
             // The account is gone; drop the now-dead session from this browser.
             await createClient().auth.signOut({ scope: "local" }).catch(() => {});
-            window.location.assign(new URL(`/${locale}/delete-account?deleted=1`, window.location.origin).href);
+            window.location.assign(new URL(`/delete-account?deleted=1`, window.location.origin).href);
         } catch {
             toast.error(t("error"));
         } finally {

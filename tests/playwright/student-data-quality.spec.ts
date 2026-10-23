@@ -9,7 +9,7 @@ test('student screens render and subscription management is reachable', async ({
   page.on('pageerror', error => pageErrors.push(error.message))
   await loginAsStudent(page)
   for (const screen of screens) {
-    const response = await page.goto(`${BASE}/en/dashboard/student/${screen}`)
+    const response = await page.goto(`${BASE}/dashboard/student/${screen}`)
     expect(response?.status(), screen).toBe(200)
     await expect(page.locator('h1').first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Something went wrong', exact: true })).toHaveCount(0)

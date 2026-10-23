@@ -85,6 +85,13 @@ export interface VocabularyBlock extends BaseBlock {
   word: string
   translation: string
   audioUrl?: string
+  /** Legacy MDX alias, retained when parsing and re-saving old lessons. */
+  audio?: string
+  pronunciation?: string
+  example?: string
+  exampleTranslation?: string
+  image?: string
+  className?: string
 }
 
 export interface DefinitionBlock extends BaseBlock {

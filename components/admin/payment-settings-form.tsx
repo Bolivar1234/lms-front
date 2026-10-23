@@ -13,13 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
 import { setBinancePersonalCredentials, updateSettings } from '@/app/actions/admin/settings'
 import type { SettingsGroup } from '@/app/actions/admin/settings'
 import { toast } from 'sonner'
@@ -29,7 +22,6 @@ import type { BinanceAutoVerifyChange } from '@/components/admin/manual-payment-
 import { useLocale, useTranslations } from 'next-intl'
 import { SCHOOL_CURRENCIES } from '@/lib/countries'
 import PaymentProviderRow from '@/components/admin/payment-provider-row'
-import SolanaWalletForm from '@/components/admin/solana-wallet-form'
 import ManualPaymentAccountsEditor from '@/components/admin/manual-payment-accounts-editor'
 import {
   normalizeManualPaymentAccounts,
@@ -45,14 +37,12 @@ interface PaymentSettingsFormProps {
     detailsSubmitted: boolean
     payoutsEnabled: boolean
   }
-  solanaWalletAddress: string
   binancePersonal: { payId: string | null; hasCredentials: boolean }
 }
 
 export default function PaymentSettingsForm({
   settings,
   connect,
-  solanaWalletAddress,
   binancePersonal: initialBinancePersonal,
 }: PaymentSettingsFormProps) {
   const t = useTranslations('dashboard.admin.settings.form')
@@ -64,7 +54,6 @@ export default function PaymentSettingsForm({
   // offer at checkout — a row must never claim "Ready" for a rail the server
   // would refuse. Rails on a global platform account need no tenant setup.
   const stripeReady = Boolean(connect.accountId && connect.chargesEnabled)
-  const solanaReady = Boolean(solanaWalletAddress)
 
   // Toggles are controlled rather than read off FormData at submit time: the
   // status pill, the warning state and the expand-on-enable config all have to
@@ -78,17 +67,10 @@ export default function PaymentSettingsForm({
     lemonsqueezy: settings.lemonsqueezy_enabled?.value?.enabled ?? false,
     binance: settings.binance_enabled?.value?.enabled ?? false,
     binancePersonal: settings.binance_personal_enabled?.value?.enabled ?? false,
-    solana: settings.solana_enabled?.value?.enabled ?? false,
-    solanaAcceptSol: settings.solana_accept_sol?.value?.enabled ?? false,
     requireApproval: settings.require_payment_approval?.value?.enabled ?? false,
   })
   const setFlag = (key: keyof typeof flags) => (value: boolean) =>
     setFlags((prev) => ({ ...prev, [key]: value }))
-
-  // The Solana wallet editor is a real <form>, so it cannot be nested inside
-  // this one — a Sheet portals it out of the DOM tree while keeping its trigger
-  // inside the provider row that needs it.
-  const [walletSheet, setWalletSheet] = useState<null | 'solana'>(null)
 
   // Binance Pay auto-verify (the `binance_personal` rail) is configured from the
   // Binance card in the offline catalog: the Pay ID and read-only key are saved
@@ -131,8 +113,6 @@ export default function PaymentSettingsForm({
         lemonsqueezy_enabled: { enabled: flags.lemonsqueezy },
         binance_enabled: { enabled: flags.binance },
         binance_personal_enabled: { enabled: flags.binancePersonal },
-        solana_enabled: { enabled: flags.solana },
-        solana_accept_sol: { enabled: flags.solanaAcceptSol },
         currency: { value: formData.get('currency') as string },
         tax_rate: { value: parseFloat(formData.get('tax_rate') as string) },
         invoice_prefix: { value: formData.get('invoice_prefix') as string },
@@ -268,50 +248,6 @@ export default function PaymentSettingsForm({
               </p>
             )}
           </PaymentProviderRow>
-        </ProviderGroup>
-
-        {/* ── Crypto ──────────────────────────────────────────────────── */}
-        <ProviderGroup
-          title={t('payment.groups.crypto')}
-          description={t('payment.groups.cryptoDesc')}
-        >
-          <PaymentProviderRow
-            provider="solana"
-            name={t('payment.solana')}
-            description={t('payment.solanaHint')}
-            enabled={flags.solana}
-            onEnabledChange={setFlag('solana')}
-            configured={solanaReady}
-            setupHint={t('payment.setup.wallet')}
-            action={
-              <WalletButton onClick={() => setWalletSheet('solana')}>
-                {solanaReady
-                  ? t('payment.wallet.edit')
-                  : t('payment.wallet.add')}
-              </WalletButton>
-            }
-          >
-            {flags.solana && (
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor="solana_accept_sol" className="text-sm">
-                    {t('payment.solanaAcceptSol')}
-                  </Label>
-                  <p className="max-w-xl text-xs text-muted-foreground">
-                    {t('payment.solanaAcceptSolHint')}
-                  </p>
-                </div>
-                <Switch
-                  id="solana_accept_sol"
-                  checked={flags.solanaAcceptSol}
-                  onCheckedChange={setFlag('solanaAcceptSol')}
-                />
-              </div>
-            )}
-          </PaymentProviderRow>
-
-          {/* Binance Pay merchant checkout hidden for now (needs a business
-              merchant account). Personal Binance Pay ID rows are unaffected. */}
         </ProviderGroup>
 
         {/* ── Offline ─────────────────────────────────────────────────── */}
@@ -456,20 +392,6 @@ export default function PaymentSettingsForm({
         </Button>
       </div>
 
-      <Sheet
-        open={walletSheet === 'solana'}
-        onOpenChange={(open) => !open && setWalletSheet(null)}
-      >
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>{t('payment.wallet.solanaTitle')}</SheetTitle>
-            <SheetDescription>{t('payment.wallet.solanaDesc')}</SheetDescription>
-          </SheetHeader>
-          <div className="px-4 pb-4">
-            <SolanaWalletForm initialAddress={solanaWalletAddress} />
-          </div>
-        </SheetContent>
-      </Sheet>
     </form>
   )
 }
@@ -493,25 +415,6 @@ function ProviderGroup({
       </div>
       <div className="space-y-2">{children}</div>
     </div>
-  )
-}
-
-/** type="button" matters: this lives inside the settings <form>. */
-function WalletButton({
-  onClick,
-  children,
-}: {
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex h-8 items-center justify-center rounded-lg border bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
-    >
-      {children}
-    </button>
   )
 }
 

@@ -8042,19 +8042,6 @@ export const PAGE_BUILDER_MANIFEST: PageBuilderManifest = {
                 "href": "#contact"
               }
             ]
-          },
-          {
-            "title": "Legal",
-            "links": [
-              {
-                "label": "Terms",
-                "href": "/terms"
-              },
-              {
-                "label": "Privacy",
-                "href": "/privacy"
-              }
-            ]
           }
         ],
         "socialLinks": [],

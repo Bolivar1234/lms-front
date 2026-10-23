@@ -94,3 +94,12 @@
     --puck-user-right-side-bar-width: 240px;
   }
 }
+
+/* Hovered blocks share the action-bar override; moves always belong to the selected block. */
+.moveActions {
+  display: none;
+}
+
+.editor :global([data-puck-overlay][class*="--isSelected"]) .moveActions {
+  display: inline-flex;
+}

@@ -68,7 +68,7 @@
 import { createServer, type IncomingMessage, type Server } from 'node:http'
 import { expect, test, type APIRequestContext, type Locator, type Page } from './utils/test'
 import { login } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 import {
   SEEDED,
   addMember,
@@ -468,7 +468,7 @@ async function setSchoolSplit(admin: Admin, schoolPercentage: number) {
 // an expectation computed by the code under test moves with it.
 // ---------------------------------------------------------------------------
 
-const PLATFORM_PAYOUTS_URL = `${BASE}/${LOCALE}/platform/payouts`
+const PLATFORM_PAYOUTS_URL = `${BASE}/platform/payouts`
 
 const usd = (amount: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
@@ -1126,7 +1126,7 @@ test.describe('PayPal — a capture settles and grants access, from both entranc
     request,
   }) => {
     const admin = getAdmin()
-    const next = `${BASE}/en/checkout/success?transactionId=${returnTransactionId}`
+    const next = `${BASE}/checkout/success?transactionId=${returnTransactionId}`
 
     // maxRedirects: 0 — following the 307 would fetch the success PAGE, and a
     // page render is not what this asserts (it also needs a session this
@@ -1162,7 +1162,7 @@ test.describe('PayPal — a capture settles and grants access, from both entranc
   }) => {
     const admin = getAdmin()
     captureMode = 'already_captured'
-    const next = `${BASE}/en/checkout/success?transactionId=${returnTransactionId}`
+    const next = `${BASE}/checkout/success?transactionId=${returnTransactionId}`
 
     const res = await request.get(
       `${CAPTURE_URL}?token=${RETURN_ORDER_ID}&next=${encodeURIComponent(next)}`,

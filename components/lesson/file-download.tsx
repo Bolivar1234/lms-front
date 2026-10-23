@@ -1,3 +1,6 @@
+'use client'
+
+import { useLessonMediaUrl } from './use-lesson-media-url'
 import { cn } from '@/lib/utils'
 import { IconFileDownload } from '@tabler/icons-react'
 
@@ -9,6 +12,7 @@ interface FileDownloadProps {
 }
 
 export function FileDownload({ url, filename, description, className }: FileDownloadProps) {
+  const media = useLessonMediaUrl(url)
   return (
     <div
       className={cn(
@@ -23,8 +27,11 @@ export function FileDownload({ url, filename, description, className }: FileDown
           <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
         )}
       </div>
+      {media.error && <p role="alert" className="text-xs text-destructive">{media.error}</p>}
       <a
-        href={url}
+        href={media.url || undefined}
+        aria-disabled={!media.url}
+        onClick={(event) => { if (!media.url) { event.preventDefault(); media.refresh() } }}
         download={filename}
         className="inline-flex shrink-0 items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
       >

@@ -131,12 +131,12 @@ function LessonPromptItem({
   // Locale-prefixed: a locale-less path is redirected by proxy.ts, and the
   // client router drops the `#comment-` anchor on that redirect.
   const locale = useLocale()
-  const feedHref = `/${locale}${studentCourseFeedHref(courseId, prompt.id, lastAnswerId)}`
+  const feedHref = `${studentCourseFeedHref(courseId, prompt.id, lastAnswerId)}`
 
   function handleCreated(commentId: string, { isReply }: { isReply: boolean }) {
     // Functional: the thread's reload has just updated `answers`.
     if (!isReply) setAnswers((current) => withPostedAnswer(current, commentId))
-    const href = `/${locale}${studentCourseFeedHref(courseId, prompt.id, commentId)}`
+    const href = `${studentCourseFeedHref(courseId, prompt.id, commentId)}`
     toast.success(isReply ? tCommunity('replyPosted') : t('answerPosted'), {
       action: { label: t('view'), onClick: () => router.push(href) },
     })

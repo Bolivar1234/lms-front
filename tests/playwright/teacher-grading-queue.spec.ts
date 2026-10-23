@@ -32,7 +32,7 @@
  */
 import { test, expect, type Page, type BrowserContext } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { TENANT_BASE as BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { TENANT_BASE as BASE, ACCOUNTS } from './utils/constants'
 import { login } from './utils/auth'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT, ALICE_ID } from './utils/seed-state'
 
@@ -340,8 +340,8 @@ async function goNext(page: Page, expectedHeading: string) {
     .toContain(expectedHeading)
 }
 
-const submissionsUrl = () => `${BASE}/${LOCALE}/dashboard/teacher/courses/${courseId}/exams/${examId}/submissions`
-const resultUrl = (exam: number) => `${BASE}/${LOCALE}/dashboard/student/courses/${courseId}/exams/${exam}/result`
+const submissionsUrl = () => `${BASE}/dashboard/teacher/courses/${courseId}/exams/${examId}/submissions`
+const resultUrl = (exam: number) => `${BASE}/dashboard/student/courses/${courseId}/exams/${exam}/result`
 
 /* ------------------------------------------------------------------ */
 /*  The journey                                                        */
@@ -375,7 +375,7 @@ test.describe('Teacher grading queue (#674)', () => {
     test.setTimeout(300_000)
     await login(student, ACCOUNTS.tenantStudent.email, ACCOUNTS.tenantStudent.password, BASE)
 
-    await student.goto(`${BASE}/${LOCALE}/dashboard/student/courses/${courseId}/exams/${examId}`, {
+    await student.goto(`${BASE}/dashboard/student/courses/${courseId}/exams/${examId}`, {
       waitUntil: 'domcontentloaded',
     })
     const submit = student.getByTestId('exam-finish-submit')
@@ -532,7 +532,7 @@ test.describe('Teacher grading queue (#674)', () => {
 
     // Teacher list: both score cells are a dash.
     await teacher.goto(
-      `${BASE}/${LOCALE}/dashboard/teacher/courses/${courseId}/exams/${ungradedExamId}/submissions`,
+      `${BASE}/dashboard/teacher/courses/${courseId}/exams/${ungradedExamId}/submissions`,
       { waitUntil: 'domcontentloaded' }
     )
     const row = teacher.getByRole('row').filter({ hasText: 'Alice' })
@@ -542,7 +542,7 @@ test.describe('Teacher grading queue (#674)', () => {
 
     // Teacher detail header: no score is not a zero score.
     await teacher.goto(
-      `${BASE}/${LOCALE}/dashboard/teacher/courses/${courseId}/exams/${ungradedExamId}/submissions/${ungradedSubmissionId}`,
+      `${BASE}/dashboard/teacher/courses/${courseId}/exams/${ungradedExamId}/submissions/${ungradedSubmissionId}`,
       { waitUntil: 'domcontentloaded' }
     )
     const header = teacher.locator('body')

@@ -25,7 +25,7 @@ export async function CourseCommunityLinks({ courses }: { courses: CommunityCour
       {items.map((course) => (
         <li key={course.courseId} className="max-w-full">
           <Link
-            href={`/${locale}/dashboard/student/courses/${course.courseId}/community`}
+            href={`/dashboard/student/courses/${course.courseId}/community`}
             title={course.title}
             className="inline-flex h-8 max-w-full items-center rounded-full bg-muted/50 px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >

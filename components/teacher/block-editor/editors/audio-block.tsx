@@ -6,6 +6,8 @@ import type { AudioBlock } from '../types'
 import { Input } from '@/components/ui/input'
 import { IconVolume } from '@tabler/icons-react'
 import { ExpiringUrlWarning } from './expiring-url-warning'
+import { LessonMediaUploadField } from './lesson-media-upload-field'
+import { Audio } from '@/components/lesson/audio'
 
 interface AudioBlockEditorProps {
   block: AudioBlock
@@ -20,11 +22,7 @@ export function AudioBlockEditor({ block, onChange }: AudioBlockEditorProps) {
         <IconVolume className="h-4 w-4 text-primary" />
         {t('blocks.audio.label')}
       </div>
-      <Input
-        value={block.src}
-        onChange={(e) => onChange({ src: e.target.value })}
-        placeholder={t('audio.urlPlaceholder')}
-      />
+      <LessonMediaUploadField blockId={block.id} label="Audio file" purpose="lesson-audio" value={block.src} onChange={(src) => onChange({ src })} />
       <ExpiringUrlWarning
         url={block.src}
         hint={t('audio.uploadHint')}
@@ -37,9 +35,7 @@ export function AudioBlockEditor({ block, onChange }: AudioBlockEditorProps) {
       />
       {block.src && (
         <div className="mt-2 overflow-hidden rounded-md border p-2">
-          <audio controls className="w-full" src={block.src}>
-            {t('audio.unsupported')}
-          </audio>
+          <Audio src={block.src} />
         </div>
       )}
     </div>

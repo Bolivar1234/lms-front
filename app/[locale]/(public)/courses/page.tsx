@@ -158,7 +158,7 @@ export default async function CoursesPage({
     const catalogStructuredData = !hasActiveFilters && enrichedCourses.length > 0
         ? itemListJsonLd(enrichedCourses.map((course) => ({
             name: course.title,
-            url: `${baseUrl}/${locale}/courses/${course.course_id}`,
+            url: `${baseUrl}/courses/${course.course_id}`,
         })))
         : null;
 

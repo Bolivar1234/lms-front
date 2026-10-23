@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { useLessonMediaUrl } from './use-lesson-media-url'
 import { IconVolume, IconPlayerPause } from '@tabler/icons-react'
 
 interface VocabularyProps {
@@ -31,6 +32,7 @@ export function Vocabulary({
 }: VocabularyProps) {
   const t = useTranslations('lessonContent.vocabulary')
   const audio = audioProp || audioUrl
+  const media = useLessonMediaUrl(audio)
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
@@ -40,7 +42,7 @@ export function Vocabulary({
         audioRef.current.pause()
         audioRef.current.currentTime = 0
       } else {
-        audioRef.current.play()
+        void audioRef.current.play().catch(() => setIsPlaying(false))
       }
     }
   }
@@ -82,7 +84,7 @@ export function Vocabulary({
             <>
               <audio
                 ref={audioRef}
-                src={audio}
+                src={media.url}
                 onEnded={handleAudioEnd}
                 onPlay={handleAudioPlay}
                 onPause={handleAudioPause}
@@ -91,6 +93,7 @@ export function Vocabulary({
               <button
                 type="button"
                 onClick={handlePlayAudio}
+                disabled={!media.url}
                 className="flex size-8 items-center justify-center rounded-full bg-brand-tint text-brand-text hover:bg-primary hover:text-primary-foreground transition-colors"
                 aria-label={isPlaying ? t('pause') : t('play')}
               >
@@ -103,6 +106,7 @@ export function Vocabulary({
             </>
           )}
           
+          {media.error && <p role="alert" className="text-xs text-destructive">{media.error}</p>}
           {pronunciation && (
             <span className="text-sm text-muted-foreground">
               /{pronunciation}/

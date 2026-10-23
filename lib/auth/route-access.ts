@@ -1,4 +1,3 @@
-import { locales } from '@/i18n'
 import { getSafeNextPath } from './safe-next-path'
 
 /**
@@ -31,14 +30,23 @@ export function isProtectedPath(path: string): boolean {
 }
 
 /**
- * Prefix `path` with `/<locale>` unless it already carries a supported locale.
- * Producers pass locale-less `next` values (`/products/1`); a redirect built
- * from one must not bounce through the locale redirect a second time.
+ * Keep existing redirect producers compatible with locale-free English URLs.
+ * The locale argument is retained while callers transition from localized links.
+ *
+ * Stripping the prefix can turn a same-origin path into a protocol-relative one
+ * (`/en//evil.example` → `//evil.example`), so the result is re-checked and an
+ * unsafe one falls back to `/`.
  */
-export function localizePath(path: string, locale: string): string {
-  const [first] = path.slice(1).split(/[/?#]/, 1)
-  if ((locales as readonly string[]).includes(first)) return path
-  return `/${locale}${path}`
+export function localizePath(path: string, _locale: string): string {
+  const stripped = path.replace(/^\/(en|es)(?=\/|$)/, '') || '/'
+  let decoded = stripped
+  try {
+    decoded = decodeURIComponent(stripped)
+  } catch {
+    // Not decodable, so the raw form is the only one a browser will act on.
+  }
+  const crossOrigin = /^\/[/\\]/
+  return crossOrigin.test(stripped) || crossOrigin.test(decoded) ? '/' : stripped
 }
 
 /** Locale-less login URL that returns to `returnTo` after sign-in. */

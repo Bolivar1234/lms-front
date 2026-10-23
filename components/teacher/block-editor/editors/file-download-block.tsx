@@ -6,6 +6,7 @@ import type { FileDownloadBlock } from '../types'
 import { Input } from '@/components/ui/input'
 import { IconFileDownload } from '@tabler/icons-react'
 import { ExpiringUrlWarning } from './expiring-url-warning'
+import { LessonMediaUploadField } from './lesson-media-upload-field'
 
 interface FileDownloadBlockEditorProps {
   block: FileDownloadBlock
@@ -20,11 +21,7 @@ export function FileDownloadBlockEditor({ block, onChange }: FileDownloadBlockEd
         <IconFileDownload className="h-4 w-4 text-primary" />
         {t('blocks.file-download.label')}
       </div>
-      <Input
-        value={block.url}
-        onChange={(e) => onChange({ url: e.target.value })}
-        placeholder={t('fileDownload.urlPlaceholder')}
-      />
+      <LessonMediaUploadField blockId={block.id} label="Lesson file" purpose="lesson-file" value={block.url} onChange={(url) => onChange({ url })} onFileName={(filename) => onChange({ filename })} />
       <ExpiringUrlWarning
         url={block.url}
         hint={t('fileDownload.uploadHint')}

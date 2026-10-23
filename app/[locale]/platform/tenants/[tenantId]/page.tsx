@@ -114,7 +114,7 @@ export default async function TenantDetailPage({
       <PlatformPageHeader
         meta={
           <Link
-            href={`/${locale}/platform/tenants`}
+            href={`/platform/tenants`}
             className="inline-flex items-center gap-1 hover:text-foreground"
           >
             <IconArrowLeft className="size-3.5" aria-hidden="true" />

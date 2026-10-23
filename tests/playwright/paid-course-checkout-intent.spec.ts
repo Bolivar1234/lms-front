@@ -20,7 +20,7 @@
  */
 import { test, expect, type Page } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT } from './utils/seed-state'
 import { login } from './utils/auth'
 
@@ -149,7 +149,7 @@ test.describe('Paid course CTA keeps checkout intent for a new visitor (#684)', 
     const checkoutPath = `/checkout?courseId=${courseId}`
 
     await test.step('anonymous course page sends the visitor to sign-up with the checkout as next', async () => {
-      await page.goto(`${BASE}/${LOCALE}/courses/${courseId}`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${BASE}/courses/${courseId}`, { waitUntil: 'domcontentloaded' })
       const cta = page.getByTestId('course-enroll-cta')
       await expect(cta).toBeVisible({ timeout: 30_000 })
       await expect(cta).toHaveText(/enroll now/i)
@@ -206,7 +206,7 @@ test.describe('Paid course CTA keeps checkout intent for a new visitor (#684)', 
     expect(page.url(), 'login landed inside the school').toMatch(/\/dashboard\//)
     expect(new URL(page.url()).hostname).toBe(new URL(BASE).hostname)
 
-    await page.goto(`${BASE}/${LOCALE}/join-school?next=${encodeURIComponent('https://evil.example/phish')}`, {
+    await page.goto(`${BASE}/join-school?next=${encodeURIComponent('https://evil.example/phish')}`, {
       waitUntil: 'domcontentloaded',
     })
     const continueLink = page.getByTestId('join-school-continue')

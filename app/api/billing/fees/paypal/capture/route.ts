@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
   const target = safeTarget(
     req.nextUrl.searchParams.get('next'),
     origin,
-    `${origin}/en/dashboard/admin/earnings`,
+    `${origin}/dashboard/admin/earnings`,
   )
   const fail = (code: string) => {
     target.searchParams.set('paypal', code)

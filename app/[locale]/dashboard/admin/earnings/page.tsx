@@ -174,7 +174,7 @@ export default async function AdminEarningsPage({
     }
     for (const [k, v] of Object.entries(cur)) if (v != null && v !== '') q.set(k, String(v))
     const s = q.toString()
-    return `/${locale}/dashboard/admin/earnings${s ? `?${s}` : ''}`
+    return `/dashboard/admin/earnings${s ? `?${s}` : ''}`
   }
 
   const statusBadge = (s: string, refunded: boolean) =>
@@ -273,7 +273,7 @@ export default async function AdminEarningsPage({
                   </p>
                   <p className="mt-1 text-[11px] text-muted-foreground">{t('stats.openRequestsDesc')}</p>
                   <Link
-                    href={`/${locale}/dashboard/admin/payment-requests?tab=open`}
+                    href={`/dashboard/admin/payment-requests?tab=open`}
                     className="mt-1 inline-block text-[11px] text-brand-text underline-offset-2 hover:underline"
                     data-testid="earnings-open-requests-link"
                   >

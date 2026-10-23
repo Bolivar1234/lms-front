@@ -1,3 +1,5 @@
+import { pageLinkField } from '../fields/page-link-field'
+import { imageUploadField } from '../fields/image-upload-field'
 import { ButtonLink } from '../../utils/button-link'
 import type { ComponentConfig } from '@measured/puck'
 import { cn } from '@/lib/utils'
@@ -43,10 +45,10 @@ export const HeroBlock: ComponentConfig<HeroBlockProps> = {
     title: { type: 'text', label: 'Title' },
     subtitle: { type: 'textarea', label: 'Subtitle' },
     primaryCtaLabel: { type: 'text', label: 'Primary Button Label' },
-    primaryCtaHref: { type: 'text', label: 'Primary Button URL' },
+    primaryCtaHref: pageLinkField('Primary Button URL'),
     secondaryCtaLabel: { type: 'text', label: 'Secondary Button Label' },
-    secondaryCtaHref: { type: 'text', label: 'Secondary Button URL' },
-    backgroundImage: { type: 'text', label: 'Background Image URL' },
+    secondaryCtaHref: pageLinkField('Secondary Button URL'),
+    backgroundImage: imageUploadField('Background Image URL'),
     backgroundColor: { ...accentColorField, label: 'Background Color' },
     alignment: {
       type: 'radio',

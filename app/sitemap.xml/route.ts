@@ -5,9 +5,7 @@ import { isFreePreviewEnabled } from '@/lib/settings/free-preview'
 export const dynamic = 'force-dynamic'
 
 const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000001'
-const LOCALES = ['en', 'es'] as const
-
-// Locale-less public paths; each is emitted once per locale with hreflang alternates.
+// Public English URLs, emitted once without a locale prefix.
 const STATIC_PATHS = [
   '',
   '/courses',
@@ -81,18 +79,10 @@ export async function GET(request: NextRequest) {
   ]
 
   const entries = paths
-    .flatMap((path) =>
-      LOCALES.map((locale) => {
-        const alternates = LOCALES.map(
-          (alt) =>
-            `    <xhtml:link rel="alternate" hreflang="${alt}" href="${baseUrl}/${alt}${path}"/>`
-        ).join('\n')
-        return `  <url>\n    <loc>${baseUrl}/${locale}${path}</loc>\n${alternates}\n  </url>`
-      })
-    )
+    .map((path) => `  <url>\n    <loc>${baseUrl}${path || '/'}</loc>\n  </url>`)
     .join('\n')
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries}\n</urlset>\n`
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`
 
   return new NextResponse(xml, {
     headers: {

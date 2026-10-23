@@ -20,7 +20,7 @@ import { PROVIDER_CAPABILITIES, type PaymentProvider } from './types'
 /** Providers an admin can switch on in Settings → Payments. */
 export type ConfigurableProvider = Extract<
   PaymentProvider,
-  'stripe' | 'paypal' | 'lemonsqueezy' | 'binance' | 'binance_personal' | 'solana' | 'manual'
+  'stripe' | 'paypal' | 'lemonsqueezy' | 'binance' | 'binance_personal' | 'manual'
 >
 
 /**
@@ -55,20 +55,8 @@ export interface ProviderFact {
   tone: 'neutral' | 'caveat' | 'good'
 }
 
-/**
- * The one-time rail is what an admin toggles; `solana_subs` rides along on the
- * same wallet and the same switch, so Solana's advertised capabilities are the
- * UNION of the two rows. Without this, the Solana row would claim "one-time
- * only" while `getEnabledProviders()` quietly enables recurring crypto too.
- */
-const CAPABILITY_ALIASES: Partial<Record<ConfigurableProvider, PaymentProvider[]>> = {
-  solana: ['solana', 'solana_subs'],
-}
-
 function capabilitiesFor(provider: ConfigurableProvider) {
-  const rows = (CAPABILITY_ALIASES[provider] ?? [provider]).map(
-    (p) => PROVIDER_CAPABILITIES[p]
-  )
+  const rows = [PROVIDER_CAPABILITIES[provider]]
   return {
     supportsSubscriptions: rows.some((r) => r.supportsNativeSubscriptions),
     supportsRefunds: rows.some((r) => r.supportsRefunds),
@@ -136,7 +124,7 @@ export type SetupKind = 'connect' | 'wallet' | 'catalog' | 'none'
 
 export function setupKind(provider: ConfigurableProvider): SetupKind {
   if (capabilitiesFor(provider).requiresConnectedAccount) return 'connect'
-  if (provider === 'solana' || provider === 'binance_personal') return 'wallet'
+  if (provider === 'binance_personal') return 'wallet'
   if (provider === 'lemonsqueezy') return 'catalog'
   return 'none'
 }

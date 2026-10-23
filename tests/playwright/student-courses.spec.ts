@@ -43,7 +43,7 @@ test.describe('Student Course Flows', () => {
     test('lists enrolled courses with progress indicators', async ({
       page,
     }) => {
-      await page.goto(`${BASE}/en/dashboard/student/courses`)
+      await page.goto(`${BASE}/dashboard/student/courses`)
       await expect(page.getByTestId('student-courses-page')).toBeVisible()
       await expect(page.getByTestId('my-courses-title')).toBeVisible()
 
@@ -71,7 +71,7 @@ test.describe('Student Course Flows', () => {
       page,
     }) => {
       test.setTimeout(60_000)
-      await page.goto(`${BASE}/en/dashboard/student/courses/1001`, {
+      await page.goto(`${BASE}/dashboard/student/courses/1001`, {
         timeout: 30_000,
       })
 
@@ -96,7 +96,7 @@ test.describe('Student Course Flows', () => {
       page,
     }) => {
       test.setTimeout(60_000)
-      await page.goto(`${BASE}/en/dashboard/student/courses/1001`, {
+      await page.goto(`${BASE}/dashboard/student/courses/1001`, {
         timeout: 30_000,
       })
 
@@ -116,7 +116,7 @@ test.describe('Student Course Flows', () => {
 
     test('loads lesson content with complete toggle', async ({ page }) => {
       test.setTimeout(60_000)
-      await page.goto(`${BASE}/en/dashboard/student/courses/1001/lessons/1001`, {
+      await page.goto(`${BASE}/dashboard/student/courses/1001/lessons/1001`, {
         timeout: 40_000,
       })
 
@@ -134,7 +134,7 @@ test.describe('Student Course Flows', () => {
       page,
     }) => {
       test.setTimeout(60_000)
-      await page.goto(`${BASE}/en/dashboard/student/courses/1001/lessons/1001`, {
+      await page.goto(`${BASE}/dashboard/student/courses/1001/lessons/1001`, {
         timeout: 40_000,
       })
 
@@ -153,7 +153,7 @@ test.describe('Student Course Flows', () => {
     test('sidebar navigation is visible on desktop', async ({ page, isMobile }) => {
       test.skip(isMobile, 'Desktop sidebar is replaced by a lesson menu on mobile')
       test.setTimeout(60_000)
-      await page.goto(`${BASE}/en/dashboard/student/courses/1001/lessons/1001`, {
+      await page.goto(`${BASE}/dashboard/student/courses/1001/lessons/1001`, {
         timeout: 40_000,
       })
 
@@ -171,7 +171,7 @@ test.describe('Student Course Flows', () => {
     test('shows available courses with enrollment status buttons', async ({
       page,
     }) => {
-      await page.goto(`${BASE}/en/dashboard/student/browse`)
+      await page.goto(`${BASE}/dashboard/student/browse`)
 
       // Page structure
       await expect(page.getByTestId('browse-courses-page')).toBeVisible()
@@ -195,7 +195,7 @@ test.describe('Student Course Flows', () => {
     test('enrolled courses show "Go to Course" or enrolled badge', async ({
       page,
     }) => {
-      await page.goto(`${BASE}/en/dashboard/student/browse`)
+      await page.goto(`${BASE}/dashboard/student/browse`)
       await expect(page.getByTestId('browse-courses-page')).toBeVisible()
 
       // If student has enrolled courses, at least one card should show enrolled status
@@ -215,13 +215,13 @@ test.describe('Student Course Flows', () => {
     test('tenant student sees tenant-specific courses on browse page', async ({
       page,
     }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/student/browse`)
+      await page.goto(`${TENANT_BASE}/dashboard/student/browse`)
       await expect(page.getByTestId('browse-title')).toBeVisible()
       await expect(page.getByText(/Python for Beginners/i)).toBeVisible()
     })
 
     test('tenant student courses page loads correctly', async ({ page }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/student/courses`)
+      await page.goto(`${TENANT_BASE}/dashboard/student/courses`)
       await expect(page.getByTestId('student-courses-page')).toBeVisible()
     })
   })

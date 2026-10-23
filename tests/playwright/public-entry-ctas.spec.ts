@@ -8,7 +8,7 @@
  * student on a secondary link with the *same* `next`.
  *
  * The product page was also hardcoded English (a #678/#689 leftover), so the
- * Spanish pass asserts the copy actually switches language.
+ * Legacy Spanish URLs resolve to the same English purchase flow.
  *
  * Reaching the product page anonymously at all is part of the fix: it lives in
  * the `(public)` route group and carries SEO metadata, but `proxy.ts` never
@@ -94,7 +94,7 @@ test.describe('Public entry CTAs lead with sign-up (#719)', () => {
   test('the product page offers sign-up first and keeps the product as the destination', async ({ page }) => {
     const next = encodeURIComponent(`/products/${manualProductId}`)
 
-    await page.goto(`${BASE}/en/products/${manualProductId}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/products/${manualProductId}`, { waitUntil: 'domcontentloaded' })
 
     const cta = page.getByTestId('product-request-cta')
     await expect(cta).toBeVisible({ timeout: 30_000 })
@@ -108,19 +108,18 @@ test.describe('Public entry CTAs lead with sign-up (#719)', () => {
     expect(await loginLink.getAttribute('href')).toBe(`/auth/login?next=${next}`)
   })
 
-  test('the product page reads Spanish in /es', async ({ page }) => {
+  test('an old Spanish product URL shows the English purchase flow', async ({ page }) => {
     await page.goto(`${BASE}/es/products/${manualProductId}`, { waitUntil: 'domcontentloaded' })
 
-    await expect(page.getByTestId('product-request-cta')).toHaveText(/solicitar información de pago/i)
-    await expect(page.getByText(/cómo funciona el pago manual/i)).toBeVisible()
-    await expect(page.getByText(/método de pago/i)).toBeVisible()
+    await expect(page.getByTestId('product-request-cta')).toHaveText(/request payment info/i)
+    await expect(page.getByText(/how manual payment works/i)).toBeVisible()
+    await expect(page.getByText(/payment method/i)).toBeVisible()
     // #727: a COP price is formatted as COP, never guessed as euros or `$120000`.
     await expect(page.getByTestId('product-price')).toContainText(/COP|\$\s?120\.000/)
     await expect(page.getByTestId('product-price')).not.toContainText('€')
-    // The English strings this page used to hardcode are gone, not merely
-    // pushed down the page.
+    // Legacy bookmarks keep the purchase intent on the English page.
     await expect(page.getByText(/please login/i)).toHaveCount(0)
-    await expect(page.getByText(/how manual payment works/i)).toHaveCount(0)
+    await expect(page).toHaveURL(`${BASE}/products/${manualProductId}`)
   })
 
   test('a $0 product takes the free path, not the manual-payment flow (#727)', async ({ page }) => {
@@ -129,17 +128,17 @@ test.describe('Public entry CTAs lead with sign-up (#719)', () => {
     await page.goto(`${BASE}/es/products/${SEEDED_FREE_PRODUCT}`, { waitUntil: 'domcontentloaded' })
 
     const cta = page.getByTestId('product-request-cta')
-    await expect(cta).toHaveText(/inscribirme gratis/i, { timeout: 30_000 })
+    await expect(cta).toHaveText(/enroll for free/i, { timeout: 30_000 })
     expect(await cta.getAttribute('href')).toBe(`/auth/sign-up?next=${next}`)
-    await expect(page.getByTestId('product-price')).toHaveText(/gratis/i)
-    await expect(page.getByText(/cómo funciona el pago manual/i)).toHaveCount(0)
-    await expect(page.getByText(/método de pago/i)).toHaveCount(0)
+    await expect(page.getByTestId('product-price')).toHaveText(/free/i)
+    await expect(page.getByText(/how manual payment works/i)).toHaveCount(0)
+    await expect(page.getByText(/payment method/i)).toHaveCount(0)
   })
 
   test('another school cannot read this one\u2019s product anonymously', async ({ page }) => {
     // Product 1002 belongs to the Default School; Code Academy must not serve
     // it now that the route answers anonymous requests.
-    await page.goto(`${TENANT_BASE}/en/products/${SEEDED_FREE_PRODUCT}`, {
+    await page.goto(`${TENANT_BASE}/products/${SEEDED_FREE_PRODUCT}`, {
       waitUntil: 'domcontentloaded',
     })
     await expect(page).toHaveURL(/\/products\/?$/)
@@ -149,7 +148,7 @@ test.describe('Public entry CTAs lead with sign-up (#719)', () => {
   test('the free-plan CTA offers sign-up first and keeps the subscribe intent', async ({ page }) => {
     const next = encodeURIComponent(`/pricing?subscribe=${freePlanId}`)
 
-    await page.goto(`${BASE}/en/pricing`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/pricing`, { waitUntil: 'domcontentloaded' })
 
     const cta = page.getByTestId(`subscribe-free-${freePlanId}`)
     await expect(cta).toBeVisible({ timeout: 30_000 })

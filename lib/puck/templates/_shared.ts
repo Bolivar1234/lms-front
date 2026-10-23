@@ -6,6 +6,7 @@ import {
   type TemplateBindings,
 } from '@lms/core/src/page-builder/bindings'
 import type { PageData } from '@lms/core/src/page-builder/types'
+import { withDefaultAnchors } from '../utils/section-style'
 import { sectionSpacingDefaults } from '../utils/section-spacing'
 
 export type { TemplateBindings }
@@ -88,4 +89,31 @@ export function templateBindingNeeds(data: Data): TemplateBindingNeeds {
     course: /\{\{\s*courseId\s*\}\}/.test(json),
     product: /\{\{\s*productId\s*\}\}/.test(json),
   }
+}
+
+/** Keep local template links on real sections. Cross-page links are selected from actual school pages. */
+export function prepareTemplateLinks(templates: PuckTemplate[]): PuckTemplate[] {
+  const aliases: Record<string, string[]> = { about: ['team', 'features'], results: ['testimonials'], instruments: ['courses', 'features'], levels: ['courses', 'features'], courses: ['catalog'], catalog: ['courses'] }
+  const anchors = (template: PuckTemplate) => {
+    const data = withDefaultAnchors(template.puck_data)
+    return new Set([...data.content, ...Object.values(data.zones ?? {}).flat()].map((item) => item.props.anchorId).filter((id): id is string => typeof id === 'string' && !!id))
+  }
+  return templates.map((template) => {
+    const local = anchors(template)
+    const target = (href: string): string | undefined => {
+      if (href === '/terms' || href === '/privacy') return undefined
+      if (!href.startsWith('#') || href === '#') return href
+      const requested = href.slice(1)
+      const candidates = [requested, ...(aliases[requested] ?? [])]
+      const samePage = candidates.find((candidate) => local.has(candidate))
+      if (samePage) return `#${samePage}`
+      return undefined
+    }
+    const visit = (value: unknown): unknown => {
+      if (Array.isArray(value)) return value.filter((item) => !(item && typeof item === 'object' && 'href' in item && typeof item.href === 'string' && target(item.href) === undefined)).map(visit).filter((item) => !(item && typeof item === 'object' && 'links' in item && Array.isArray(item.links) && item.links.length === 0))
+      if (!value || typeof value !== 'object') return value
+      return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, typeof item === 'string' && /(?:href|url)$/i.test(key) && item.startsWith('#') ? target(item) ?? '' : visit(item)]))
+    }
+    return { ...template, puck_data: visit(template.puck_data) as Data }
+  })
 }

@@ -15,7 +15,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
-import { BASE, LOCALE } from './constants'
+import { BASE } from './constants'
 
 export const SEEDED = {
   /** owner@e2etest.com — default-tenant admin + super admin. */
@@ -189,7 +189,7 @@ export async function runEnforceSweep(request: import('@playwright/test').APIReq
  * only the arrival check differs.
  */
 export async function loginExpectingJoinSchool(page: Page, base: string, email: string, password: string) {
-  await page.goto(`${base}/${LOCALE}/auth/login`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${base}/auth/login`, { waitUntil: 'domcontentloaded' })
   const emailField = page.getByTestId('login-email')
   await emailField.waitFor({ state: 'visible', timeout: 30_000 })
   await expect

@@ -64,30 +64,30 @@ test.describe('Admin Pages', () => {
     // Code Academy has school details configured, so this validates that a
     // checked row remains a real navigation link.
     await checklist.locator('a[href="/dashboard/admin/settings"]').first().click()
-    await expect(page).toHaveURL(/\/en\/dashboard\/admin\/settings$/)
+    await expect(page).toHaveURL(/\/dashboard\/admin\/settings$/)
   })
 
-  test('getting started checklist copy is localized in Spanish', async ({ page }) => {
+  test('an old Spanish URL shows the English getting started checklist', async ({ page }) => {
     await page.goto(`${TENANT_BASE}/es/dashboard/admin`)
     const checklist = await expandChecklist(page)
 
     for (const label of [
-      /Crea tu primer curso/,
-      /Configura cómo recibir pagos/,
-      /Invita a tu primer estudiante/,
+      /Create your first course/,
+      /Set up how you get paid/,
+      /Invite your first student/,
     ]) {
       await expect(checklist.locator('a').filter({ hasText: label }).first()).toBeAttached()
     }
   })
 
   test('admin users page loads with user list', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/users`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/users`)
     await expect(page.getByTestId('users-page').filter({ visible: true })).toBeVisible()
   })
 
   test('admin can view individual user detail', async ({ page }) => {
     test.setTimeout(60_000)
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/users`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/users`)
     await expect(page.getByTestId('users-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
     // Look for a user link in the table
     const userLink = page.locator('a[href*="/admin/users/"]').first()
@@ -99,7 +99,7 @@ test.describe('Admin Pages', () => {
   })
 
   test('admin courses page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/courses`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/courses`)
     await expect(page.getByTestId('admin-courses-page')).toBeVisible()
     // Admins create courses through the teacher editor — the page must expose
     // that entry point or admins cannot find it (#665, Sentry LMS-FRONT-9N).
@@ -109,32 +109,32 @@ test.describe('Admin Pages', () => {
   })
 
   test('admin enrollments page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/enrollments`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/enrollments`)
     await expect(page.getByTestId('enrollments-page').filter({ visible: true })).toBeVisible()
   })
 
   test('admin transactions page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/transactions`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/transactions`)
     await expect(page.getByTestId('transactions-page')).toBeVisible()
   })
 
   test('admin products page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/products`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/products`)
     await expect(page.getByTestId('products-page')).toBeVisible()
   })
 
   test('admin plans page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/plans`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/plans`)
     await expect(page.getByTestId('plans-page')).toBeVisible()
   })
 
   test('admin categories page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/categories`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/categories`)
     await expect(page.getByTestId('categories-page')).toBeVisible()
   })
 
   test('admin settings page loads', async ({ page }) => {
-    await page.goto(`${TENANT_BASE}/en/dashboard/admin/settings`)
+    await page.goto(`${TENANT_BASE}/dashboard/admin/settings`)
     await expect(page.getByTestId('settings-page').filter({ visible: true })).toBeVisible()
   })
 })

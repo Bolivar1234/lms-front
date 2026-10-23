@@ -1,3 +1,4 @@
+import { pageLinkField } from '../fields/page-link-field'
 import { safeHref } from '../../utils/safe-href'
 import type { ComponentConfig } from '@measured/puck'
 import { useTranslations } from 'next-intl'
@@ -20,7 +21,7 @@ export const BreadcrumbBlock: ComponentConfig<BreadcrumbBlockProps> = {
       label: 'Items',
       arrayFields: {
         label: { type: 'text', label: 'Label' },
-        href: { type: 'text', label: 'URL' },
+        href: pageLinkField('URL'),
       },
       defaultItemProps: { label: 'Page', href: '#' },
     },

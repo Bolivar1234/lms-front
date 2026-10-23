@@ -322,7 +322,7 @@ export async function runPlatformFeeEnforcement(store: FeeStore, opts: Enforceme
           schoolName: tenant.name || 'your school',
           amountLabel: amountLabel(amounts, localeCache),
           dueLabel: due ? dueLabel(due, localeCache) : null,
-          billingUrl: `${opts.tenantUrl(tenant.slug)}/${localeCache}/dashboard/admin/earnings`,
+          billingUrl: `${opts.tenantUrl(tenant.slug)}/dashboard/admin/earnings`,
           locale: localeCache,
           statementNumber,
         })

@@ -23,6 +23,7 @@ import type { LandingData } from '@/lib/puck/types'
 import { deepCloneWithFreshIds, type PuckTemplate, type TemplateBindings } from '@/lib/puck/templates'
 import { translateTemplateString } from '@lms/core/src/page-builder/template-i18n'
 import { schoolBindingsFromSettings } from '@/lib/puck/templates/school-bindings'
+import { landingPageUrl } from '@/lib/puck/utils/page-url'
 import { LandingPickerProviders } from '@/lib/puck/utils/landing-pickers-context'
 import dynamic from 'next/dynamic'
 
@@ -91,10 +92,6 @@ function timeAgo(dateStr: string): string {
   const days = Math.floor(hours / 24)
   if (days < 30) return `${days}d ago`
   return new Date(dateStr).toLocaleDateString()
-}
-
-function pageUrl(slug: string): string {
-  return slug === 'home' ? '/' : `/p/${slug}`
 }
 
 export function LandingPagesClient({ pages: initialPages, plan, aiConfigured = false, templates, brandingSettings, landingData }: Props) {
@@ -243,6 +240,7 @@ export function LandingPagesClient({ pages: initialPages, plan, aiConfigured = f
         initialUpdatedAt={editingPage.updated_at}
         brandingSettings={brandingSettings}
         landingData={landingData}
+        pages={pages}
         aiEnabled={plan !== 'free'}
         initialPrompt={initialPrompt}
         // The editor guards unsaved work itself; it hands back the row it last saved so
@@ -352,7 +350,7 @@ export function LandingPagesClient({ pages: initialPages, plan, aiConfigured = f
                                 )}
                                 {/* URL inline on mobile */}
                                 <p className="text-xs text-muted-foreground font-mono truncate md:hidden">
-                                  {pageUrl(page.slug)}
+                                  {landingPageUrl(page.slug)}
                                 </p>
                               </div>
                             </div>
@@ -362,11 +360,11 @@ export function LandingPagesClient({ pages: initialPages, plan, aiConfigured = f
                           <td className="py-4 hidden md:table-cell">
                             <div className="flex items-center gap-1.5">
                               <span className="font-mono text-xs text-muted-foreground truncate">
-                                {pageUrl(page.slug)}
+                                {landingPageUrl(page.slug)}
                               </span>
                               {page.status === 'published' && (
                                 <a
-                                  href={pageUrl(page.slug)}
+                                  href={landingPageUrl(page.slug)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={(e) => e.stopPropagation()}

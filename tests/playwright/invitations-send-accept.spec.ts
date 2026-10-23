@@ -27,7 +27,7 @@
  */
 import { test, expect, type Browser, type BrowserContext, type Locator, type Page } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { TENANT_BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { TENANT_BASE, ACCOUNTS } from './utils/constants'
 import { login } from './utils/auth'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT } from './utils/seed-state'
 
@@ -124,7 +124,7 @@ async function clickUntil(target: Locator, done: () => Promise<boolean>, attempt
 
 /** Open the invite dialog on the users page and set role + email. */
 async function openInviteDialog(page: Page, role: Role, email: string) {
-  await page.goto(`${BASE}/${LOCALE}/dashboard/admin/users`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${BASE}/dashboard/admin/users`, { waitUntil: 'domcontentloaded' })
   await expect(page.getByTestId('users-page').filter({ visible: true })).toBeVisible({ timeout: 60_000 })
   await domClick(page, 'invite-user-trigger')
   await expect(page.getByTestId('invite-user-dialog')).toBeVisible({ timeout: 30_000 })
@@ -337,7 +337,7 @@ test.describe('Invitations — admin invites, invitee joins with the invited rol
       })
 
       await test.step('the new teacher creates a course', async () => {
-        await inviteePage.goto(`${BASE}/${LOCALE}/dashboard/teacher/courses/new`, { waitUntil: 'domcontentloaded' })
+        await inviteePage.goto(`${BASE}/dashboard/teacher/courses/new`, { waitUntil: 'domcontentloaded' })
         const title = inviteePage.locator('#title')
         await expect(title).toBeVisible({ timeout: 60_000 })
         await fillSettled(inviteePage, title, COURSE_TITLE)
@@ -362,7 +362,7 @@ test.describe('Invitations — admin invites, invitee joins with the invited rol
     expect(inviteeIds.student && inviteeIds.teacher, 'previous tests created both invitees').toBeTruthy()
 
     await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password, BASE)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/users`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/dashboard/admin/users`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('users-page').filter({ visible: true })).toBeVisible({ timeout: 60_000 })
 
     const studentRow = page.getByRole('row', { name: INVITEES.student.email })

@@ -14,7 +14,6 @@
  */
 import { test, expect } from './utils/test'
 import { login } from './utils/auth'
-import { LOCALE } from './utils/constants'
 import {
   SEEDED,
   addMember,
@@ -76,7 +75,7 @@ test.describe('plan limits — every surface at the cap (#296)', () => {
   test('the course form refuses before it renders a field', async ({ page }) => {
     test.setTimeout(120_000)
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/teacher/courses/new`)
+    await page.goto(`${QA_BASE}/dashboard/teacher/courses/new`)
 
     await expect(page.getByText('Course Limit Reached')).toBeVisible({ timeout: 20_000 })
     await expect(page.getByText(/limited to 1 courses/)).toBeVisible()
@@ -86,7 +85,7 @@ test.describe('plan limits — every surface at the cap (#296)', () => {
   test('the AI course wizard is disabled at the cap', async ({ page }) => {
     test.setTimeout(120_000)
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/courses/new`)
+    await page.goto(`${QA_BASE}/dashboard/admin/courses/new`)
 
     await expect(page.getByText('Course limit reached')).toBeVisible({ timeout: 20_000 })
     await expect(page.getByRole('button', { name: 'Generate draft' })).toBeDisabled()

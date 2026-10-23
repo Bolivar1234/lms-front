@@ -28,7 +28,7 @@
  */
 import { createHmac } from 'node:crypto'
 import { expect, test, type APIRequestContext, type Frame, type Page } from './utils/test'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 import { login } from './utils/auth'
 import {
   SEEDED,
@@ -277,7 +277,7 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
 
   test('the admin publishes a Stripe-priced product for the course', async ({ page }) => {
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/products/new`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/products/new`, { waitUntil: 'domcontentloaded' })
 
     const next = page.getByTestId('product-creation-next')
 
@@ -331,7 +331,7 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
 
   test('the student pays with the 4242 test card and Stripe takes the platform fee', async ({ page, request }) => {
     await login(page, SEEDED.student.email, SEEDED.student.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/checkout?courseId=${courseId}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/checkout?courseId=${courseId}`, { waitUntil: 'domcontentloaded' })
 
     await payWithTestCard(page)
     const { transactionId, paymentIntentId, redirectStatus } = parseSuccessUrl(page.url())
@@ -410,7 +410,7 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
 
     // The order confirmation shows a readable receipt before linking to the course.
     await login(page, SEEDED.student.email, SEEDED.student.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/checkout/success?transactionId=${productTransactionId}`, {
+    await page.goto(`${QA_BASE}/checkout/success?transactionId=${productTransactionId}`, {
       waitUntil: 'domcontentloaded',
     })
     await expect(page).toHaveURL(new RegExp(`/checkout/success\\?transactionId=${productTransactionId}$`))
@@ -445,13 +445,13 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
 
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
 
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/transactions`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/transactions`, { waitUntil: 'domcontentloaded' })
     const transactions = page.getByTestId('transactions-page')
     await expect(transactions).toBeVisible({ timeout: 60_000 })
     await expect(transactions.getByText(usd(gross)).first()).toBeVisible({ timeout: 15_000 })
     await expect(transactions.getByText(/^successful$/i).first()).toBeVisible()
 
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/revenue`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/revenue`, { waitUntil: 'domcontentloaded' })
     const revenue = page.getByTestId('revenue-page')
     await expect(revenue).toBeVisible({ timeout: 60_000 })
     await expect(revenue.getByText(usd(gross)).first()).toBeVisible({ timeout: 15_000 })
@@ -491,7 +491,7 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
     expect(payout?.status).toBe('paid')
     expect(payout?.paid_at).toBeTruthy()
 
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/payouts`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/payouts`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('payouts-page')).toBeVisible({ timeout: 60_000 })
     await expect(page.getByTestId('total-paid-value')).toHaveText(usd(Number(payout!.amount)), { timeout: 15_000 })
     await expect(page.getByTestId('payouts-page').getByText(usd(Number(payout!.amount))).nth(1)).toBeVisible()
@@ -500,7 +500,7 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
   test('the platform payouts page renders and owes the school nothing for a Connect sale', async ({ page }) => {
     // Cookies are per host, so the super admin signs in on the platform domain.
     await login(page, SEEDED.owner.email, SEEDED.owner.password, BASE)
-    await page.goto(`${BASE}/${LOCALE}/platform/payouts`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/platform/payouts`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('platform-payouts')).toBeVisible({ timeout: 60_000 })
     await expect(page.getByTestId('payouts-metrics')).toBeVisible()
 
@@ -514,7 +514,7 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
 
   test('the admin creates a Stripe plan that covers the course', async ({ page }) => {
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/admin/plans/new`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/admin/plans/new`, { waitUntil: 'domcontentloaded' })
 
     // Stripe is the form's default provider once the rail is enabled (it is, by
     // default); monthly and USD are the defaults too.
@@ -551,7 +551,7 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
     await admin.from('entitlements').delete().eq('tenant_id', QA.id).eq('user_id', SEEDED.student.id)
 
     await login(page, SEEDED.student.email, SEEDED.student.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/checkout?planId=${planId}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/checkout?planId=${planId}`, { waitUntil: 'domcontentloaded' })
 
     await payWithTestCard(page)
     const { transactionId, redirectStatus } = parseSuccessUrl(page.url())
@@ -627,7 +627,7 @@ test.describe('Loop 3 — a student pays the school with Stripe and the school s
     // Subscriptions grant access, not enrollment: the student picks the course
     // up from Browse and it opens.
     await login(page, SEEDED.student.email, SEEDED.student.password, QA_BASE)
-    await page.goto(`${QA_BASE}/${LOCALE}/dashboard/student/browse`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${QA_BASE}/dashboard/student/browse`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('browse-courses-page')).toBeVisible({ timeout: 60_000 })
     const courseLink = page.locator(`a[href*="/dashboard/student/courses/${courseId}"]`).first()
     await expect(courseLink).toBeVisible({ timeout: 15_000 })

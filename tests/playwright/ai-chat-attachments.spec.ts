@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test, expect, type Page, type Request } from './utils/test'
 import { loginAsTenantStudent } from './utils/auth'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 import { noisePng, tinyPdf } from './utils/images'
 import { reactivateTenantAi, seedTenantAi } from './utils/ai-fixtures'
 
@@ -34,7 +34,7 @@ const dataUrlBytes = (url: string): number => {
 
 const WIRE_LIMIT_BYTES = 5 * 1024 * 1024
 const PICKER_LIMIT_BYTES = 25 * 1024 * 1024
-const EXERCISE_URL = `${TENANT_BASE}/${LOCALE}/dashboard/student/courses/2001/exercises/2004`
+const EXERCISE_URL = `${TENANT_BASE}/dashboard/student/courses/2001/exercises/2004`
 
 /**
  * One sign-in for the whole file. Four password grants in a row is enough for
@@ -202,6 +202,12 @@ test.describe('AI chat image attachments', () => {
     test.afterAll(() => {
         rmSync(fixtureDir, { recursive: true, force: true })
         rmSync(AUTH_STATE, { force: true })
+    })
+    // Every sent turn ends with the provider refusing the synthetic key, which
+    // marks the school's key invalid, sometimes after the test has finished. The
+    // next test would open a chat that says AI is off, so re-arm it first.
+    test.beforeEach(async () => {
+        await reactivateTenantAi('code-academy')
     })
 
     test('an ordinary phone-sized photo is accepted and downscaled onto the wire', async ({ page }) => {

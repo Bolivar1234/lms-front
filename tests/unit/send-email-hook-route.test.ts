@@ -137,7 +137,7 @@ describe('POST /api/auth/send-email-hook', () => {
     await POST(makeReq(payload))
     expect(state.sent[0].idempotencyKey).toMatch(/^auth\/[a-f0-9]{64}$/)
     expect(state.sent[1].idempotencyKey).toBe(state.sent[0].idempotencyKey)
-    expect(state.sent[0].html).toContain('/es/auth/confirm')
+    expect(state.sent[0].html).toContain('/auth/confirm')
     expect(state.sent[0].subject).toContain('Restablece')
     await POST(makeReq({ ...payload, email_data: { ...payload.email_data, token_hash: 'new-token' } }))
     expect(state.sent[2].idempotencyKey).not.toBe(state.sent[0].idempotencyKey)

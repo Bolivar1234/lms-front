@@ -1,6 +1,6 @@
 import { test, expect, type Page } from './utils/test'
 import { loginAsTeacher } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 import { getAdmin } from './utils/plan-gate-fixtures'
 
 /**
@@ -13,7 +13,7 @@ import { getAdmin } from './utils/plan-gate-fixtures'
  */
 
 const COURSE_ID = 1001
-const NEW_URL = `${BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}/exercises/new`
+const NEW_URL = `${BASE}/dashboard/teacher/courses/${COURSE_ID}/exercises/new`
 const PREFIX = 'E2E #796 draft'
 
 async function rowsTitled(title: string) {

@@ -1,4 +1,4 @@
-import { c, deepCloneWithFreshIds, type PuckTemplate } from './_shared'
+import { c, prepareTemplateLinks, deepCloneWithFreshIds, type PuckTemplate } from './_shared'
 import { languageSchoolTemplates } from './language-school'
 import { fitnessStudioTemplates } from './fitness-studio'
 import { musicAcademyTemplates } from './music-academy'
@@ -1084,7 +1084,7 @@ const codeSchoolCatalogTemplate: PuckTemplate = {
 
 // ─── Export all templates ─────────────────────────────────────────────────────
 
-export const PUCK_TEMPLATES: PuckTemplate[] = [
+export const PUCK_TEMPLATES: PuckTemplate[] = prepareTemplateLinks([
   blankTemplate,
   modernAcademyTemplate,
   minimalTemplate,
@@ -1109,4 +1109,4 @@ export const PUCK_TEMPLATES: PuckTemplate[] = [
   ...courseTemplates,
   ...productTemplates,
   ...pricingTemplates,
-]
+])

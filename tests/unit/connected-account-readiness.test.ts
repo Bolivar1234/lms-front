@@ -182,10 +182,7 @@ describe('the capability table', () => {
       .sort()
 
     // Stripe Connect Express is the only rail today with an onboarding session a
-    // school can walk away from half-finished. Both Solana rails also settle
-    // outside the platform account, but their "account" is a wallet address
-    // pasted into Settings — live the moment it is saved. Adding a rail here is
-    // a deliberate act, so this list is pinned rather than derived.
+    // school can walk away from half-finished. Adding a rail here is deliberate.
     expect(requiring).toEqual(['stripe'])
   })
 
@@ -197,13 +194,14 @@ describe('the capability table', () => {
       stripe: 'stripe-provider.ts',
       paypal: 'paypal-provider.ts',
       lemonsqueezy: 'lemonsqueezy-provider.ts',
-      solana: 'solana-provider.ts',
-      solana_subs: 'solana-subscriptions-provider.ts',
       manual: 'manual-provider.ts',
       binance: 'binance-provider.ts',
       binance_personal: 'binance-personal-provider.ts',
     }
-    expect(Object.keys(files).sort()).toEqual(Object.keys(PROVIDER_CAPABILITIES).sort())
+    const activeCapabilities = Object.keys(PROVIDER_CAPABILITIES)
+      .filter((slug) => slug !== 'solana' && slug !== 'solana_subs')
+      .sort()
+    expect(Object.keys(files).sort()).toEqual(activeCapabilities)
 
     for (const [slug, file] of Object.entries(files)) {
       const source = readFileSync(join(process.cwd(), 'lib/payments', file), 'utf8')

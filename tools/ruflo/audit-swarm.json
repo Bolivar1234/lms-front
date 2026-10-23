@@ -1,0 +1,426 @@
+{
+  "createdAt": "2026-10-22T20:28:12.384Z",
+  "execution": "native collaboration tools; RuFlo stores coordination only",
+  "coordinator": {
+    "agent": "/root/remediation_coordinator",
+    "model": "gpt-6-astra",
+    "reasoning": "ultra"
+  },
+  "workers": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "ultra"
+  },
+  "tasks": {
+    "environment": {
+      "taskId": "task-1792702528748-5jgr1i",
+      "owner": "/root",
+      "status": "completed",
+      "description": "Verify actual environment identity, HTTPS responses, variables, Docker and storage. Evidence environment-probe.json; URL/SQL variables absent.",
+      "workspaceTaskId": "task-1792700892547-kmfity",
+      "progress": 100,
+      "result": {
+        "outcome": "Actual container and managed-environment identity verified; real Google CSS/font responses and devnet version/health passed; Docker/storage and variable presence recorded without values.",
+        "evidence": [
+          "environment-probe.json",
+          "cloud-environment-status.json",
+          "local-stack-provenance.txt",
+          "local-host-routing-probe.json"
+        ]
+      }
+    },
+    "archive": {
+      "taskId": "task-1792702529089-yats9a",
+      "owner": "/root",
+      "status": "cancelled",
+      "description": "Recover and reconcile missing lms-audit-review-20261022.tar.gz against cff63f96 without overwriting newer work. Depends on user supplying archive access.",
+      "progress": 0,
+      "resolution": "Archive unavailable; user authorized reconstruction instead.",
+      "workspaceTaskId": "task-1792700892886-4eyke2",
+      "result": {
+        "outcome": "Original archive and prior remediation tree were unavailable. User explicitly authorized reconstruction instead; no newer checkout work was reset or overwritten."
+      }
+    },
+    "build": {
+      "taskId": "task-1792702529418-baesk7",
+      "owner": "/root/remediation_coordinator/build_e2e_baseline",
+      "status": "completed",
+      "description": "Install immutable dependencies and run normal baseline production build. Remediated build depends on archive restoration.",
+      "progress": 100,
+      "workspaceTaskId": "task-1792700893220-peimfe",
+      "result": {
+        "outcome": "PASS: normal npm run build exited 0 in 43.714seconds with real font fetching and 244 static pages.",
+        "evidence": [
+          "final-production-build-receipt.json",
+          "final-production-build.log"
+        ],
+        "standaloneTypecheck": {
+          "command": "npm run typecheck",
+          "configuredHeapMiB": 8192,
+          "allSourceAndGeneratedInputsIncluded": true,
+          "coldSeconds": 28.85,
+          "warmSeconds": 4.51,
+          "previousIncrementalCachePreserved": true,
+          "finalWarmForAdditionalTests": "certificate-final-source-checks.json",
+          "finalWarmSeconds": 4.655
+        },
+        "sourceFreeze": "verification-source-freeze-receipt.json confirms no runtime/dependency changes after normal production build."
+      },
+      "finalScope": "Real normal production build after reconstructed source changes. Standalone compiler is tracked separately in status evidence."
+    },
+    "e2e": {
+      "taskId": "task-1792702529758-3v0kpc",
+      "owner": "/root/remediation_coordinator/build_e2e_baseline",
+      "status": "completed",
+      "description": "Provision complete disposable Supabase and verify authenticated student, teacher and admin remediation journeys, then applicable E2E. Depends on archive, build and full stack.",
+      "progress": 100,
+      "workspaceTaskId": "task-1792700893539-4hjbqj",
+      "result": {
+        "outcome": "108 unique selected Chromium scenarios passed: 94 broader, 7 actual-role upload/media/avatar, 6 Puck, and 1 strict signed certificate. No final failures, skips or flaky cases; retries 0. All 16 audited upload fields exercised through the app. Original test-helper/expectation/cleanup failures preserved with successful reruns.",
+        "evidence": [
+          "browser-aggregate-receipt.json",
+          "browser-case-inventory.json",
+          "browser-authenticated-uploads.receipt.json",
+          "browser-puck-final.receipt.json",
+          "browser-broader-initial.receipt.json",
+          "browser-locale-navigation-rerun.receipt.json",
+          "browser-certificate-final.receipt.json"
+        ],
+        "limitations": [
+          "Selected desktop Chromium scope only; full repository/browser/device matrix not run.",
+          "Provider settings synthetic; no live payment provider, MCP OAuth or model-provider integration.",
+          "Strict certificate storage case uses supported admin issuance after student completion; separate baseline student issuer-key signing fallback remains.",
+          "Audio renewal used accelerated browser clocks and real signer/Storage responses with cache-busting queries; wall-clock signed-token expiration was not tested."
+        ]
+      },
+      "finalScope": "Selected changed-flow application verification on disposable core local Supabase; not the entire repository browser matrix."
+    },
+    "production": {
+      "taskId": "task-1792702530093-3akdd3",
+      "owner": "/root/remediation_coordinator/production_readonly_baseline",
+      "status": "blocked",
+      "description": "Identify intended production target and available scoped read-only access; compare actual migration/storage/function/app deployment state. No writes.",
+      "progress": 0,
+      "workspaceTaskId": "task-1792700893855-dujc8k",
+      "result": {
+        "outcome": "Candidate Supabase returned 401 invalid key; public app returned 403 Cloudflare 1010. Deployed catalog and commit identity are unavailable. Automatic approval rejected an additional GET; user chose to leave production blocked. No further requests.",
+        "requiredInputs": [
+          "Intended Supabase URL",
+          "Scoped read-only catalog export or connection",
+          "Deployed commit or image identity"
+        ],
+        "evidence": [
+          "production-readonly-preflight.json",
+          "docs/ruflo/production-readonly-catalog.sql"
+        ]
+      }
+    },
+    "solana": {
+      "taskId": "task-1792702530434-gtg4oo",
+      "owner": "/root/remediation_coordinator/solana_baseline",
+      "status": "blocked",
+      "description": "Inspect current plan 012 modules and strict devnet harness requirements; implementation depends on archive reconciliation. Devnet only.",
+      "progress": 0,
+      "workspaceTaskId": "task-1792700894189-92c4o9",
+      "result": {
+        "outcome": "142 focused units and local SQL/concurrency checks passed. Full canonical devnet genesis and intended executable program confirmed. Faucet internal errors and 429 responses blocked real transactions/timing; Phase 5 remains off by default.",
+        "requiredInputs": [
+          "Approximately 0.1 free DEVNET SOL at generated public payer, then actual split/subscription/recovery/period timing execution"
+        ],
+        "evidence": [
+          "solana-unit-gated.log",
+          "solana-initial-concurrency.log",
+          "solana-program-preflight.json",
+          "solana-strict-devnet-initial.log",
+          "solana-strict-devnet-funding-retries.log"
+        ]
+      },
+      "finalScope": "Kit migration and local initial-settlement recovery implemented; real devnet gates required by plan 012 remain open."
+    },
+    "review": {
+      "taskId": "task-1792702530754-ar3cqg",
+      "owner": "/root/remediation_coordinator/independent_review",
+      "status": "completed",
+      "description": "Independent gpt-6.1-sol ultra review of final changes and evidence; reviewer must not implement those changes. Depends on implementation.",
+      "workspaceTaskId": "task-1792700894518-prl2lj",
+      "progress": 100,
+      "result": {
+        "outcome": "One fresh source-only independent review found 2 confirmed P 2 defects. Both were corrected and regression tested. Actual 7/7 browser upload/media journeys confirm distinct signed URL playback renewal. No second review cycle.",
+        "evidence": [
+          "independent-review-summary.json",
+          "browser-authenticated-uploads.receipt.json"
+        ]
+      }
+    },
+    "deliverable": {
+      "taskId": "task-1792702531072-izzhvl",
+      "owner": "/root",
+      "status": "completed",
+      "description": "Update remediation status, final actual RuFlo task results and create reviewable patch/archive excluding secrets and runtime databases. Depends on completed independent work and honest blocker reports.",
+      "workspaceTaskId": "task-1792700894848-8jmga5",
+      "result": {
+        "outcome": "Consolidated status, reconstruction addendum, actual RuFlo task outcomes, and review archive prepared. Archive source/evidence hashes, tracked patch on original base, runtime/key exclusions and inherited-credential absence verified. Production and live devnet gates remain explicitly blocked. Final regenerated archive has a separate integrity receipt.",
+        "archive": "/workspace/scratch/lms-audit-reconstruction-review-20261022.tar.gz",
+        "evidence": [
+          "docs/AUDIT_REMEDIATION_STATUS.md",
+          "EVIDENCE_INDEX.md",
+          "archive-integrity.json",
+          "browser-aggregate-receipt.json",
+          "verification-source-freeze-receipt.json"
+        ]
+      },
+      "progress": 100
+    },
+    "storage": {
+      "taskId": "task-1792702531401-5bsclp",
+      "owner": "/root/remediation_coordinator/production_readonly_baseline",
+      "description": "Reconstruct audited storage hardening, durable authorized lesson media, avatar backend and compatibility checks. Independent pre-patch investigator completed. No production writes.",
+      "status": "completed",
+      "progress": 100,
+      "workspaceTaskId": "task-1792701263923-5jdqrh",
+      "result": {
+        "outcome": "Storage reconstruction implemented and local authorization/API/SQL gates passed:76/76 Storage HTTP controls,27/27 normal cleanup HTTP controls, and 2 storage SQL suites. Production drift remains blocked.",
+        "evidence": [
+          "storage-runtime-verification-summary.json",
+          "storage-http-controls.json",
+          "storage-account-http-cleanup.json"
+        ]
+      }
+    },
+    "frontend": {
+      "taskId": "task-1792702531726-mrhcx8",
+      "owner": "/root/remediation_coordinator/frontend_uploads_editor",
+      "description": "Reconstruct all16 audited upload fields, avatar UI, page selectors and shared links, template links, editor move and delayed-upload lifecycle. Depends on backend contracts.",
+      "status": "completed",
+      "progress": 100,
+      "workspaceTaskId": "task-1792701264266-2cdwuo",
+      "result": {
+        "outcome": "All 16 audited upload fields, avatars, private-media reference/viewer integration, page selectors/shared mapping/templates, move controls and delayed-upload lifecycle reconstructed. All requested fields exercised in actual browser app; focused review regressions and full application unit suite passed.",
+        "evidence": [
+          "browser-puck-final.receipt.json",
+          "browser-authenticated-uploads.receipt.json",
+          "frontend-verification/final-cycle/app-unit-final.json",
+          "independent-review-summary.json"
+        ]
+      }
+    },
+    "locale": {
+      "taskId": "task-1792702532048-tyrc15",
+      "owner": "/root/remediation_coordinator/build_e2e_baseline",
+      "description": "Reconstruct English URL presentation without locale prefixes; preserve auth/tenant checks and do not investigate excluded routing-normalization follow-up.",
+      "status": "completed",
+      "progress": 100,
+      "workspaceTaskId": "task-1792701264581-0yftb7",
+      "result": {
+        "outcome": "English unprefixed browser URLs and URL producers reconstructed, with internal locale folders retained. Locale/navigation rerun passed all 13 cases including four locale scenarios; broader selected auth/tenant checks passed. Excluded routing-normalization investigation remains unresolved and was not resumed.",
+        "evidence": [
+          "browser-locale-navigation-rerun.receipt.json",
+          "docs/LOCALE_REMOVAL_ANALYSIS.md"
+        ]
+      }
+    }
+  },
+  "snapshot": {
+    "tasks": [
+      {
+        "taskId": "task-1792702532048-tyrc15",
+        "type": "bugfix",
+        "description": "Reconstruct English URL presentation without locale prefixes; preserve auth/tenant checks and do not investigate excluded routing-normalization follow-up.",
+        "status": "completed",
+        "progress": 100,
+        "priority": "high",
+        "assignedTo": [
+          "/root/remediation_coordinator/build_e2e_baseline"
+        ],
+        "createdAt": "2026-10-22T20:55:32.048Z"
+      },
+      {
+        "taskId": "task-1792702531726-mrhcx8",
+        "type": "bugfix",
+        "description": "Reconstruct all16 audited upload fields, avatar UI, page selectors and shared links, template links, editor move and delayed-upload lifecycle. Depends on backend contracts.",
+        "status": "completed",
+        "progress": 100,
+        "priority": "high",
+        "assignedTo": [
+          "/root/remediation_coordinator/frontend_uploads_editor"
+        ],
+        "createdAt": "2026-10-22T20:55:31.726Z"
+      },
+      {
+        "taskId": "task-1792702531401-5bsclp",
+        "type": "bugfix",
+        "description": "Reconstruct audited storage hardening, durable authorized lesson media, avatar backend and compatibility checks. Independent pre-patch investigator completed. No production writes.",
+        "status": "completed",
+        "progress": 100,
+        "priority": "high",
+        "assignedTo": [
+          "/root/remediation_coordinator/production_readonly_baseline"
+        ],
+        "createdAt": "2026-10-22T20:55:31.401Z"
+      },
+      {
+        "taskId": "task-1792702531072-izzhvl",
+        "type": "bugfix",
+        "description": "Update remediation status, final actual RuFlo task results and create reviewable patch/archive excluding secrets and runtime databases. Depends on completed independent work and honest blocker reports.",
+        "status": "completed",
+        "progress": 100,
+        "priority": "high",
+        "assignedTo": [
+          "/root"
+        ],
+        "createdAt": "2026-10-22T20:55:31.072Z"
+      },
+      {
+        "taskId": "task-1792702530754-ar3cqg",
+        "type": "research",
+        "description": "Independent gpt-6.1-sol ultra review of final changes and evidence; reviewer must not implement those changes. Depends on implementation.",
+        "status": "completed",
+        "progress": 100,
+        "priority": "high",
+        "assignedTo": [
+          "/root/remediation_coordinator/independent_review"
+        ],
+        "createdAt": "2026-10-22T20:55:30.754Z"
+      },
+      {
+        "taskId": "task-1792702530434-gtg4oo",
+        "type": "bugfix",
+        "description": "Inspect current plan 012 modules and strict devnet harness requirements; implementation depends on archive reconciliation. Devnet only.",
+        "status": "blocked",
+        "progress": 0,
+        "priority": "high",
+        "assignedTo": [
+          "/root/remediation_coordinator/solana_baseline"
+        ],
+        "createdAt": "2026-10-22T20:55:30.434Z"
+      },
+      {
+        "taskId": "task-1792702530093-3akdd3",
+        "type": "research",
+        "description": "Identify intended production target and available scoped read-only access; compare actual migration/storage/function/app deployment state. No writes.",
+        "status": "blocked",
+        "progress": 0,
+        "priority": "high",
+        "assignedTo": [
+          "/root/remediation_coordinator/production_readonly_baseline"
+        ],
+        "createdAt": "2026-10-22T20:55:30.093Z"
+      },
+      {
+        "taskId": "task-1792702529758-3v0kpc",
+        "type": "bugfix",
+        "description": "Provision complete disposable Supabase and verify authenticated student, teacher and admin remediation journeys, then applicable E2E. Depends on archive, build and full stack.",
+        "status": "completed",
+        "progress": 100,
+        "priority": "high",
+        "assignedTo": [
+          "/root/remediation_coordinator/build_e2e_baseline"
+        ],
+        "createdAt": "2026-10-22T20:55:29.758Z"
+      },
+      {
+        "taskId": "task-1792702529418-baesk7",
+        "type": "bugfix",
+        "description": "Install immutable dependencies and run normal baseline production build. Remediated build depends on archive restoration.",
+        "status": "completed",
+        "progress": 100,
+        "priority": "high",
+        "assignedTo": [
+          "/root/remediation_coordinator/build_e2e_baseline"
+        ],
+        "createdAt": "2026-10-22T20:55:29.418Z"
+      },
+      {
+        "taskId": "task-1792702529089-yats9a",
+        "type": "bugfix",
+        "description": "Recover and reconcile missing lms-audit-review-20261022.tar.gz against cff63f96 without overwriting newer work. Depends on user supplying archive access. Archive unavailable; user authorized reconstruction instead.",
+        "status": "cancelled",
+        "progress": 0,
+        "priority": "high",
+        "assignedTo": [
+          "/root"
+        ],
+        "createdAt": "2026-10-22T20:55:29.089Z"
+      },
+      {
+        "taskId": "task-1792702528748-5jgr1i",
+        "type": "research",
+        "description": "Verify actual environment identity, HTTPS responses, variables, Docker and storage. Evidence environment-probe.json; URL/SQL variables absent.",
+        "status": "completed",
+        "progress": 100,
+        "priority": "high",
+        "assignedTo": [
+          "/root"
+        ],
+        "createdAt": "2026-10-22T20:55:28.748Z"
+      }
+    ],
+    "total": 11,
+    "filters": {}
+  },
+  "updatedAt": "2026-10-22T21:38:45.892673+00:00",
+  "activeTeamLimit": 6,
+  "archiveRecovery": "Cancelled: unavailable. User explicitly chose to reconstruct missing fixes.",
+  "scopeExclusions": [
+    "production writes, pushes, merges, deployments",
+    "mainnet and real funds",
+    "previously blocked routing-normalization investigation"
+  ],
+  "previousRuntime": {
+    "root": "/workspace/tools/ruflo",
+    "state": "/workspace/tools/ruflo/state",
+    "records": "/workspace/scratch/lms-handoff-20261022/ruflo-workspace-task-registry.json"
+  },
+  "runtimeRoot": "/workspace/lms-front/tools/ruflo",
+  "stateRoot": "/workspace/lms-front/tools/ruflo/state",
+  "reviewCandidate": {
+    "archive": "/workspace/scratch/lms-handoff-20261022/candidate-review.tar.gz",
+    "sha256": "570d7091817e8372e05b3bf556b2e27998da656262598f048563421b12af85dc",
+    "evidenceIncluded": false,
+    "scope": "Immutable source snapshot; no prior investigator reports or test result claims supplied."
+  },
+  "dependencies": {
+    "storage": [
+      "environment"
+    ],
+    "frontend": [
+      "storage"
+    ],
+    "locale": [
+      "environment"
+    ],
+    "solana": [
+      "environment"
+    ],
+    "review": [
+      "storage",
+      "frontend",
+      "locale",
+      "solana"
+    ],
+    "build": [
+      "storage",
+      "frontend",
+      "locale",
+      "solana",
+      "review"
+    ],
+    "e2e": [
+      "storage",
+      "frontend",
+      "locale",
+      "build"
+    ],
+    "deliverable": [
+      "build",
+      "e2e",
+      "review",
+      "solana"
+    ],
+    "production": []
+  },
+  "scopeDecisions": {
+    "archive": "User authorized reconstruction because the original archive was unavailable.",
+    "production": "User explicitly chose to leave production blocked after an automatic review rejected the additional GET.",
+    "devnetFunding": "User does not have a funding path; live checks remain blocked on free test tokens."
+  }
+}

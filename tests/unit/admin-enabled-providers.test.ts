@@ -152,12 +152,13 @@ describe('getEnabledPaymentProviders', () => {
     expect(r.data).not.toContain('stripe')
   })
 
-  it('solana on + wallet configured → both solana and solana_subs included', async () => {
+  it('solana on + wallet configured → still not offered (rail retired)', async () => {
     state.settingsRows = [off('stripe_enabled'), on('solana_enabled')]
     state.wallets = [SOLANA_WALLET]
     const r = await getEnabledPaymentProviders()
-    expect(r.data).toContain('solana')
-    expect(r.data).toContain('solana_subs')
+    expect(r.data).not.toContain('solana')
+    expect(r.data).not.toContain('solana_subs')
+    expect(r.data).toContain('manual')
   })
 
   it('solana on + no wallet configured → both solana providers excluded', async () => {
@@ -209,7 +210,7 @@ describe('getEnabledPaymentProviders', () => {
     state.wallets = [SOLANA_WALLET]
     const r = await getEnabledPaymentProviders()
     expect(r.data.sort()).toEqual(
-      ['lemonsqueezy', 'manual', 'paypal', 'solana', 'solana_subs', 'stripe']
+      ['lemonsqueezy', 'manual', 'paypal', 'stripe']
     )
   })
 

@@ -21,7 +21,7 @@ beforeEach(() => {
 describe('password recovery callback', () => {
   it('verifies the token and opens the localized form even if a next param points elsewhere', async () => {
     await expect(GET(new NextRequest('http://school.example.com/es/auth/confirm?token_hash=valid-token&type=recovery&next=/create-school'), context))
-      .rejects.toThrow('redirect:/es/auth/update-password')
+      .rejects.toThrow('redirect:/auth/update-password')
     expect(state.verifyOtp).toHaveBeenCalledWith({ type: 'recovery', token_hash: 'valid-token' })
     expect(state.tenant).not.toHaveBeenCalled()
     expect(state.getUser).not.toHaveBeenCalled()
@@ -30,13 +30,13 @@ describe('password recovery callback', () => {
   it('returns to the recovery screen with a clear invalid-link state on expired or used tokens', async () => {
     state.verifyOtp.mockResolvedValue({ error: { code: 'otp_expired', message: 'token used' } })
     await expect(GET(new NextRequest('http://school.example.com/es/auth/confirm?token_hash=used-token&type=recovery'), context))
-      .rejects.toThrow('redirect:/es/auth/update-password?error=invalid_link')
+      .rejects.toThrow('redirect:/auth/update-password?error=invalid_link')
     expect(state.tenant).not.toHaveBeenCalled()
   })
 
   it('does not attempt verification when a recovery link has no token', async () => {
     await expect(GET(new NextRequest('http://school.example.com/es/auth/confirm?type=recovery'), context))
-      .rejects.toThrow('redirect:/es/auth/update-password?error=invalid_link')
+      .rejects.toThrow('redirect:/auth/update-password?error=invalid_link')
     expect(state.createClient).not.toHaveBeenCalled()
   })
 })

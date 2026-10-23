@@ -21,7 +21,7 @@
  */
 import { test, expect, type Locator, type Page } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { TENANT_BASE, LOCALE } from './utils/constants'
+import { TENANT_BASE } from './utils/constants'
 import { login } from './utils/auth'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT } from './utils/seed-state'
 
@@ -118,7 +118,7 @@ async function publishLesson(page: Page) {
   await expect(page).toHaveURL(backOnCourse, { timeout: 30_000 })
 }
 
-const courseUrl = `${TENANT_BASE}/${LOCALE}/dashboard/teacher/courses/${COURSE_ID}`
+const courseUrl = `${TENANT_BASE}/dashboard/teacher/courses/${COURSE_ID}`
 
 test.beforeAll(async () => {
   admin = getServiceRoleClient()

@@ -67,7 +67,7 @@ export function SortableBlock({
   const TypeIcon = iconData?.icon
 
   return (
-    <div className="relative">
+    <div className="relative" data-block-id={id}>
       {/* The block itself */}
       <div
         ref={setNodeRef}
@@ -83,12 +83,12 @@ export function SortableBlock({
         {/* Block type indicator strip */}
         <div className={cn('absolute left-0 top-3 bottom-3 w-1 rounded-full', iconData ? 'bg-primary/40' : 'bg-muted')} />
 
-        {/* Header bar — visible on hover */}
-        <div className="flex items-center gap-1 px-4 pt-2 pb-0 opacity-0 group-hover/block:opacity-100 transition-opacity duration-150">
+        {/* Keep move controls visible for touch and keyboard users. */}
+        <div className="flex items-center gap-1 px-4 pt-2 pb-0 opacity-100 transition-opacity duration-150">
           {/* Drag handle */}
           <button
             type="button"
-            className="cursor-grab rounded p-0.5 text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted active:cursor-grabbing"
+            className="cursor-grab rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 active:cursor-grabbing"
             {...attributes}
             {...listeners}
             aria-label={t('dragBlock')}
@@ -109,31 +109,29 @@ export function SortableBlock({
 
           {/* Quick actions */}
           <div className="flex items-center gap-0.5">
-            {!isFirst && (
-              <button
+            <button
                 type="button"
                 onClick={onMoveUp}
-                className="rounded p-0.5 text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
+                disabled={isFirst}
+                className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30"
                 aria-label={t('moveUp')}
               >
                 <IconChevronUp className="h-3.5 w-3.5" />
               </button>
-            )}
-            {!isLast && (
-              <button
+            <button
                 type="button"
                 onClick={onMoveDown}
-                className="rounded p-0.5 text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
+                disabled={isLast}
+                className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30"
                 aria-label={t('moveDown')}
               >
                 <IconChevronDown className="h-3.5 w-3.5" />
               </button>
-            )}
 
             {/* More menu */}
             <DropdownMenu>
               <DropdownMenuTrigger
-                className="rounded p-0.5 text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
+                className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30"
                 aria-label={t('moreOptions')}
               >
                 <IconDotsVertical className="h-3.5 w-3.5" />

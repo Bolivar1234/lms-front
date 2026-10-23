@@ -20,7 +20,7 @@ test.describe('Teacher Course Management', () => {
     test.beforeEach(async ({ page }) => {
       await loginAsTeacher(page)
       // Teacher account lands on /dashboard/admin — navigate explicitly
-      await page.goto(`${BASE}/en/dashboard/teacher`)
+      await page.goto(`${BASE}/dashboard/teacher`)
     })
 
     // ── 1. Dashboard ──────────────────────────────────────────────────────
@@ -33,21 +33,21 @@ test.describe('Teacher Course Management', () => {
     // ── 2. Courses List ───────────────────────────────────────────────────
 
     test('teacher courses list page loads', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/teacher/courses`)
+      await page.goto(`${BASE}/dashboard/teacher/courses`)
       await expect(page.getByTestId('teacher-courses-list')).toBeVisible()
     })
 
     // ── 3. Course Creation Form ───────────────────────────────────────────
 
     test('create course form has all required fields', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/teacher/courses/new`)
+      await page.goto(`${BASE}/dashboard/teacher/courses/new`)
       await expect(page.getByLabel(/title/i)).toBeVisible()
       await expect(page.getByLabel(/description/i)).toBeVisible()
       await expect(page.getByLabel(/status/i)).toBeVisible()
     })
 
     test('course creation form validates required fields', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/teacher/courses/new`)
+      await page.goto(`${BASE}/dashboard/teacher/courses/new`)
       // Try to submit without filling required fields
       const submitButton = page.locator('button[type="submit"]')
       if (await submitButton.isVisible()) {
@@ -63,7 +63,7 @@ test.describe('Teacher Course Management', () => {
     test('teacher can navigate to course detail/edit page', async ({
       page,
     }) => {
-      await page.goto(`${BASE}/en/dashboard/teacher/courses`)
+      await page.goto(`${BASE}/dashboard/teacher/courses`)
       await expect(page.getByTestId('teacher-courses-list')).toBeVisible()
       // Click the "Edit" link on the first course card
       const editLink = page.locator('a[href*="/teacher/courses/1001"]').first()
@@ -76,14 +76,14 @@ test.describe('Teacher Course Management', () => {
     // ── 5. Revenue Page ───────────────────────────────────────────────────
 
     test('teacher revenue page loads', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/teacher/revenue`)
+      await page.goto(`${BASE}/dashboard/teacher/revenue`)
       await expect(page.getByTestId('revenue-page')).toBeVisible()
     })
 
     // ── 6. Certificate Templates Page ─────────────────────────────────────
 
     test('teacher certificate templates page loads', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/teacher/templates`)
+      await page.goto(`${BASE}/dashboard/teacher/templates`)
       await expect(page.getByTestId('templates-page')).toBeVisible()
     })
 
@@ -103,20 +103,20 @@ test.describe('Teacher Course Management', () => {
       await expect(page.getByTestId('teacher-welcome')).toBeVisible()
 
       // Courses list
-      await page.goto(`${BASE}/en/dashboard/teacher/courses`)
+      await page.goto(`${BASE}/dashboard/teacher/courses`)
       await expect(page.getByTestId('teacher-courses-list')).toBeVisible()
 
       // Create course form
-      await page.goto(`${BASE}/en/dashboard/teacher/courses/new`)
+      await page.goto(`${BASE}/dashboard/teacher/courses/new`)
       await expect(page.getByLabel(/title/i)).toBeVisible()
       await expect(page.getByLabel(/description/i)).toBeVisible()
 
       // Revenue
-      await page.goto(`${BASE}/en/dashboard/teacher/revenue`)
+      await page.goto(`${BASE}/dashboard/teacher/revenue`)
       await expect(page.getByTestId('revenue-page')).toBeVisible()
 
       // Templates
-      await page.goto(`${BASE}/en/dashboard/teacher/templates`)
+      await page.goto(`${BASE}/dashboard/teacher/templates`)
       await expect(page.getByTestId('templates-page')).toBeVisible()
 
       // No console errors
@@ -129,7 +129,7 @@ test.describe('Teacher Course Management', () => {
   test.describe('Code Academy Tenant', () => {
     test('admin can access teacher course creation', async ({ page }) => {
       await loginAsAdmin(page)
-      await page.goto(`${TENANT_BASE}/en/dashboard/teacher/courses/new`, {
+      await page.goto(`${TENANT_BASE}/dashboard/teacher/courses/new`, {
         timeout: 40_000,
       })
       await expect(page.getByLabel(/title/i)).toBeVisible()

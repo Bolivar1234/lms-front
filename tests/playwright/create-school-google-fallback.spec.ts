@@ -15,7 +15,7 @@
  * later expect on "waiting for navigation to finish".
  */
 import { test, expect } from './utils/test'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 
 const GOOGLE_BUTTON = 'create-school-google'
 const STALLED_HINT = 'create-school-google-stalled'
@@ -28,7 +28,7 @@ test.describe('create-school Google button', () => {
       return route.abort('aborted')
     })
 
-    await page.goto(`${BASE}/${LOCALE}/create-school`)
+    await page.goto(`${BASE}/create-school`)
     const button = page.getByTestId(GOOGLE_BUTTON)
     await expect(button).toBeEnabled()
 

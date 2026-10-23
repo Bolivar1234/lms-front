@@ -27,13 +27,13 @@ test.describe('Gamification', () => {
     })
 
     test('store page loads with container and heading', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/store`)
+      await page.goto(`${BASE}/dashboard/student/store`)
       await expect(page.getByTestId('store-page')).toBeVisible({ timeout: 15_000 })
       await expect(page.locator('h1').first()).toBeVisible()
     })
 
     test('store section renders items, empty state, or locked state', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/store`)
+      await page.goto(`${BASE}/dashboard/student/store`)
       await expect(page.getByTestId('store-page')).toBeVisible({ timeout: 15_000 })
 
       // Store should show one of: items grid, empty message, or locked upgrade prompt
@@ -46,7 +46,7 @@ test.describe('Gamification', () => {
     })
 
     test('store shows balance when available', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/store`)
+      await page.goto(`${BASE}/dashboard/student/store`)
       await expect(page.getByTestId('store-page')).toBeVisible({ timeout: 15_000 })
 
       // If store is unlocked, a balance/coin indicator should be visible
@@ -118,7 +118,7 @@ test.describe('Gamification', () => {
     test('profile page shows XP progress circle', async ({ page }) => {
       test.setTimeout(60_000)
 
-      await page.goto(`${BASE}/en/dashboard/student/profile`)
+      await page.goto(`${BASE}/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
 
       // XPProgressCircle renders an SVG with circles or a loading placeholder
@@ -131,7 +131,7 @@ test.describe('Gamification', () => {
     test('profile page shows gamification stats (coins and streak)', async ({ page }) => {
       test.setTimeout(60_000)
 
-      await page.goto(`${BASE}/en/dashboard/student/profile`)
+      await page.goto(`${BASE}/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
 
       // ProfileGamificationStats shows coins and streak labels
@@ -149,7 +149,7 @@ test.describe('Gamification', () => {
     test('profile page shows streak calendar', async ({ page }) => {
       test.setTimeout(60_000)
 
-      await page.goto(`${BASE}/en/dashboard/student/profile`)
+      await page.goto(`${BASE}/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
 
       // StreakCalendar renders 7 day columns with abbreviated day labels
@@ -166,7 +166,7 @@ test.describe('Gamification', () => {
     test('profile page shows achievement section or gamification elements', async ({ page }) => {
       test.setTimeout(60_000)
 
-      await page.goto(`${BASE}/en/dashboard/student/profile`)
+      await page.goto(`${BASE}/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible({ timeout: 15_000 })
 
       // The profile page should render — gamification elements may or may not be visible
@@ -179,7 +179,7 @@ test.describe('Gamification', () => {
   test.describe('Cross-Tenant Gamification', () => {
     test('tenant student store page loads', async ({ page }) => {
       await loginAsTenantStudent(page)
-      await page.goto(`${TENANT_BASE}/en/dashboard/student/store`)
+      await page.goto(`${TENANT_BASE}/dashboard/student/store`)
       await expect(page.getByTestId('store-page')).toBeVisible({ timeout: 15_000 })
       await expect(page.locator('h1').first()).toBeVisible()
     })

@@ -266,7 +266,7 @@ export function PostCard({ post, userId, userRole, focused = false, focusComment
                 {/* #871: the opt-out, where the automatic post appears. Locale-prefixed:
                     proxy.ts redirects a locale-less path and the fragment is lost. */}
                 {post.post_type === 'milestone' && userRole === 'student' && (
-                  <DropdownMenuItem render={<Link href={`/${locale}/dashboard/student/profile#share-milestones`} />}>
+                  <DropdownMenuItem render={<Link href={`/dashboard/student/profile#share-milestones`} />}>
                     <IconAdjustments size={12} />
                     {t('milestones.share.settingsLink')}
                   </DropdownMenuItem>

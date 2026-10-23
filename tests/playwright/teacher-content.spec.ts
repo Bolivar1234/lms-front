@@ -1,6 +1,6 @@
 import { test, expect } from './utils/test'
 import { loginAsTeacher } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 import { SEEDED, getAdmin } from './utils/plan-gate-fixtures'
 
 /**
@@ -21,7 +21,7 @@ import { SEEDED, getAdmin } from './utils/plan-gate-fixtures'
  *   - Teacher: owner@e2etest.com / password123
  */
 
-const COURSE_URL = `${BASE}/${LOCALE}/dashboard/teacher/courses/1001`
+const COURSE_URL = `${BASE}/dashboard/teacher/courses/1001`
 
 /** Course 1001's lessons, per the seed. */
 const COURSE_LESSON_IDS = [1001, 1002]
@@ -326,7 +326,7 @@ test.describe('Teacher Content — Lesson Editor', () => {
   // #687 — the starter template used to go through next-intl, which rejected its
   // <Callout> tag (INVALID_MESSAGE: INVALID_TAG) and seeded the editor with the
   // bare translation key. The template is a plain constant now, per locale.
-  for (const locale of ['en', 'es'] as const) {
+  for (const locale of ['en'] as const) {
     test(`new lesson opens on the starter blocks, not a translation key (${locale})`, async ({ page }) => {
       test.setTimeout(90_000)
       const intlErrors: string[] = []
@@ -336,7 +336,7 @@ test.describe('Teacher Content — Lesson Editor', () => {
         }
       })
 
-      await page.goto(`${BASE}/${locale}/dashboard/teacher/courses/1001/lessons/new`)
+      await page.goto(`${BASE}/dashboard/teacher/courses/1001/lessons/new`)
       await expect(page.locator('[data-tour="lesson-header"]')).toBeVisible({ timeout: 15_000 })
 
       // Content is the 2nd step. base-ui buttons need a DOM click from Playwright.
@@ -348,7 +348,7 @@ test.describe('Teacher Content — Lesson Editor', () => {
 
       // Visual mode: the heading block (an input) carries the starter title, and
       // nothing on the page is the raw message key.
-      const expectedHeading = locale === 'es' ? 'Nuevo tema' : 'New topic'
+      const expectedHeading = 'New topic'
       const fieldValues = () =>
         page
           .locator('input, textarea')
@@ -537,14 +537,14 @@ test.describe('Teacher Content — Revenue & Templates Pages', () => {
   })
 
   test('revenue dashboard loads', async ({ page }) => {
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/revenue`)
+    await page.goto(`${BASE}/dashboard/teacher/revenue`)
     await expect(page.getByTestId('revenue-page')).toBeVisible()
     // Use h1 to avoid matching multiple "revenue" elements on the page
     await expect(page.locator('h1').first()).toBeVisible()
   })
 
   test('templates page loads', async ({ page }) => {
-    await page.goto(`${BASE}/${LOCALE}/dashboard/teacher/templates`)
+    await page.goto(`${BASE}/dashboard/teacher/templates`)
     await expect(page.getByTestId('templates-page')).toBeVisible()
   })
 })

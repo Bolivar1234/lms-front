@@ -12,13 +12,16 @@ import { cn } from '@/lib/utils';
 import type { Database } from '@/lib/database.types';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { useRouter } from 'next/navigation';
+import { ImageUploadField } from '@/components/shared/image-upload-field';
+import { uploadUserAvatar } from '@/app/actions/profile/avatar';
 
 interface ProfileFormProps {
-    profile: Pick<Database['public']['Tables']['profiles']['Row'], 'full_name' | 'username' | 'website' | 'bio'> | null;
+    profile: Pick<Database['public']['Tables']['profiles']['Row'], 'full_name' | 'username' | 'website' | 'bio' | 'avatar_url'> | null;
 }
 
 export function ProfileForm({ profile }: ProfileFormProps) {
     const router = useRouter();
+    const [avatar, setAvatar] = useState(profile?.avatar_url ?? '');
     const [isPending, startTransition] = useTransition();
     // Constraint failures on `username` (too short, already taken) are expected
     // input errors, so they render next to the field instead of being thrown out
@@ -59,6 +62,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6" aria-busy={isPending}>
+            <ImageUploadField label="Profile photo" value={avatar} onChange={setAvatar} maxBytes={2 * 1024 * 1024} urlReadOnly
+                uploadAction={async (data) => {
+                    const result = await uploadUserAvatar(data);
+                    if (result.success) router.refresh();
+                    return result;
+                }} hint="Your photo is saved when the upload finishes." />
             <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Field className="gap-2">
                     <FieldLabel htmlFor="full_name" className="text-xs font-black uppercase tracking-widest text-muted-foreground">

@@ -1,5 +1,49 @@
 # Audit: image uploads, storage security, page links and the locale prefix
 
+## Reconstruction update — 2026-10-22
+
+The findings below describe the starting checkout and are retained as historical
+context. The missing earlier remediation archive could not be recovered; the
+owner authorized reconstruction against `cff63f96`. The current working tree
+implements the 16 audited upload surfaces:
+
+| Surfaces | Current implementation |
+| --- | --- |
+| Branding logo and favicon (2) | Shared upload/preview field with URL input and server-side file validation |
+| Puck header logo, image, section/hero backgrounds, feature image, gallery, logo cloud, logo marquee, team avatar, page social image (10) | Upload-aware custom fields with page-editor lifecycle tracking |
+| Product wizard course thumbnail (1) | Authorized course-image upload with URL input |
+| Lesson audio, vocabulary audio, downloadable file (3) | Authorized private lesson resources persisted as durable references; signed access resolved and renewed when viewed |
+
+Additional reconstruction includes own-user avatar editing, page selectors, a
+shared home/page URL mapper used by the app and MCP package, template link
+repairs, selected-block move controls, and cancellation/cleanup of delayed editor
+uploads. Vocabulary serialization retains supported properties and multiline
+elements. Audio renewal preserves playback position while a new source loads.
+
+Migrations `20261022120000_storage_security_hardening.sql` and
+`20261022121000_private_lesson_media_and_avatars.sql` remove the exact surviving
+open storage policies, track bucket settings, restrict public image types, and
+provide private-media/avatar/account-cleanup support. Authorized privileged
+uploads retain their application checks; payment-proof prefixes and public
+certificate paths remain compatible. Community mobile media MIME variants are
+included. Lesson audio/downloads use private `lesson-resources`; public SVG
+uploads are rejected. A general media library, onboarding redesign, and removal
+of the unused product form are outside this reconstruction.
+
+English browser URLs are unprefixed; internal `[locale]` routes remain. See
+[LOCALE_REMOVAL_ANALYSIS.md](LOCALE_REMOVAL_ANALYSIS.md) for the presentation
+contract. The separate previously blocked routing-normalization investigation
+was not resumed.
+
+The current verification outcomes and remaining production/devnet/TypeScript
+boundaries are recorded in
+[AUDIT_REMEDIATION_STATUS.md](AUDIT_REMEDIATION_STATUS.md). Authenticated browser
+assertions, Storage API controls, isolated unit tests, and production deployment
+state are reported separately there. Nothing in the historical findings below
+establishes current production drift.
+
+## Original audit
+
 Date: 2026-10-22. Status: findings only, no code changed. Findings come from reading the code and
 migrations plus one local Playwright run; production was not inspected (no sign-in to the live
 site, Supabase MCP offline).

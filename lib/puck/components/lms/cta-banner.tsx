@@ -1,3 +1,4 @@
+import { pageLinkField } from '../fields/page-link-field'
 import { ButtonLink } from '../../utils/button-link'
 import type { ComponentConfig } from '@measured/puck'
 import {
@@ -32,9 +33,9 @@ export const CtaBanner: ComponentConfig<CtaBannerProps> = {
     heading: { type: 'text', label: 'Heading' },
     subtitle: { type: 'textarea', label: 'Subtitle' },
     primaryLabel: { type: 'text', label: 'Primary Button Label' },
-    primaryHref: { type: 'text', label: 'Primary Button URL' },
+    primaryHref: pageLinkField('Primary Button URL'),
     secondaryLabel: { type: 'text', label: 'Secondary Button Label' },
-    secondaryHref: { type: 'text', label: 'Secondary Button URL' },
+    secondaryHref: pageLinkField('Secondary Button URL'),
     ...sectionSpacingFields,
   },
   defaultProps: {

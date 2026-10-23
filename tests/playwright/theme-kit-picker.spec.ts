@@ -1,6 +1,6 @@
 import { test, expect, type Locator, type Page } from './utils/test'
 import { loginAsStudent, loginAsTeacher } from './utils/auth'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 import { DEFAULT_TENANT, getServiceRoleClient } from './utils/seed-state'
 
 /**
@@ -18,10 +18,10 @@ import { DEFAULT_TENANT, getServiceRoleClient } from './utils/seed-state'
  * Coral).
  */
 
-const APPEARANCE = `${BASE}/${LOCALE}/dashboard/admin/appearance`
-const ONBOARDING = `${BASE}/${LOCALE}/onboarding`
+const APPEARANCE = `${BASE}/dashboard/admin/appearance`
+const ONBOARDING = `${BASE}/onboarding`
 // Seeded: student@e2etest.com is entitled to course 1001, whose first lesson is 1001.
-const LESSON = `${BASE}/${LOCALE}/dashboard/student/courses/1001/lessons/1001`
+const LESSON = `${BASE}/dashboard/student/courses/1001/lessons/1001`
 const LESSON_TITLE = 'What is Software Testing?'
 const THEME_SETTING_KEY = 'theme_preset'
 

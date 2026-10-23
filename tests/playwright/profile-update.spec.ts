@@ -2,16 +2,14 @@ import { test, expect } from '@playwright/test'
 import { loginAsStudent } from './utils/auth'
 import { BASE } from './utils/constants'
 import en from '../../messages/en.json'
-import es from '../../messages/es.json'
 
 for (const { locale, labels } of [
   { locale: 'en', labels: en.components.profileForm },
-  { locale: 'es', labels: es.components.profileForm },
 ]) {
   test(`profile edits survive failed saves, successful saves and reload (${locale})`, async ({ page }, testInfo) => {
     test.setTimeout(120_000)
     await loginAsStudent(page)
-    await page.goto(`${BASE}/${locale}/dashboard/student/profile`)
+    await page.goto(`${BASE}/dashboard/student/profile`)
     const name = page.getByLabel(labels.fullName, { exact: true })
     const username = page.getByLabel(labels.username, { exact: true })
     const website = page.getByLabel(labels.website, { exact: true })
@@ -24,7 +22,7 @@ for (const { locale, labels } of [
     }
     const suffix = Date.now()
     const updatedName = `Profile QA ${suffix}`
-    const actionUrl = `**/${locale}/dashboard/student/profile`
+    const actionUrl = `**/dashboard/student/profile`
     let saved = false
     try {
       await name.fill(updatedName)

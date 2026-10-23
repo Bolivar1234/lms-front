@@ -160,7 +160,7 @@ test('create-school pre-selects the detected country and stores it with its curr
   test.setTimeout(300_000)
   const admin = getServiceRoleClient()
 
-  await page.goto(`${BASE}/en/create-school`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${BASE}/create-school`, { waitUntil: 'domcontentloaded' })
   await fillAllStable([
     [page.locator('#owner-name'), 'Country Creator'],
     [page.locator('#email'), email],
@@ -194,7 +194,7 @@ test('a new school saves General settings untouched (#890)', async ({ page }) =>
   test.setTimeout(180_000)
   const admin = getServiceRoleClient()
   await login(page, email, PASSWORD, tenantBase(slug))
-  await page.goto(`${tenantBase(slug)}/en/dashboard/admin/settings`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${tenantBase(slug)}/dashboard/admin/settings`, { waitUntil: 'domcontentloaded' })
 
   const form = page.locator('form', { has: page.getByTestId('settings-country') })
   await expect(form.locator('#site_name')).toHaveValue(schoolName, { timeout: 30_000 })
@@ -219,7 +219,7 @@ test('a new school saves General settings untouched (#890)', async ({ page }) =>
 test('an admin changes the country; a set currency is kept, an empty one is filled', async ({ page }) => {
   test.setTimeout(300_000)
   const admin = getServiceRoleClient()
-  const settingsUrl = `${tenantBase(slug)}/en/dashboard/admin/settings`
+  const settingsUrl = `${tenantBase(slug)}/dashboard/admin/settings`
 
   // Each test gets a fresh context: sign in on the school's own subdomain.
   await login(page, email, PASSWORD, tenantBase(slug))

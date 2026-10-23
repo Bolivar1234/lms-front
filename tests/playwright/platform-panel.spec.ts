@@ -1,7 +1,7 @@
 import { openSidebar } from './utils/sidebar'
 import { test, expect } from './utils/test'
 import { login, loginAsSuperAdmin, loginAsStudent } from './utils/auth'
-import { BASE, TENANT_BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { BASE, TENANT_BASE, ACCOUNTS } from './utils/constants'
 
 /**
  * P0 — Super Admin Platform Panel Tests
@@ -19,7 +19,7 @@ import { BASE, TENANT_BASE, LOCALE, ACCOUNTS } from './utils/constants'
  * use direct URL navigation or SQL-level verification instead.
  */
 
-const PLATFORM_BASE = `${BASE}/${LOCALE}/platform`
+const PLATFORM_BASE = `${BASE}/platform`
 
 // ─────────────────────────────────────────────────────────────
 // Security Guards
@@ -35,7 +35,7 @@ test.describe('Platform Security Guard', () => {
     await loginAsStudent(page)
     await page.goto(`${PLATFORM_BASE}`)
     // Should NOT stay on /platform
-    await page.waitForURL((url) => !url.pathname.startsWith(`/${LOCALE}/platform`), { timeout: 10_000 })
+    await page.waitForURL((url) => !url.pathname.startsWith(`/platform`), { timeout: 10_000 })
     await expect(page).not.toHaveURL(/\/platform/, { timeout: 5_000 })
   })
 
@@ -45,7 +45,7 @@ test.describe('Platform Security Guard', () => {
     await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password, TENANT_BASE)
     // Try to access /platform on the main domain
     await page.goto(`${PLATFORM_BASE}`)
-    await page.waitForURL((url) => !url.pathname.startsWith(`/${LOCALE}/platform`), { timeout: 10_000 })
+    await page.waitForURL((url) => !url.pathname.startsWith(`/platform`), { timeout: 10_000 })
     await expect(page).not.toHaveURL(/\/platform/, { timeout: 5_000 })
   })
 
@@ -104,7 +104,7 @@ test.describe('Platform Overview', () => {
   })
 
   test('"Back to School" navigates to admin dashboard', async ({ page }) => {
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin`)
+    await page.goto(`${BASE}/dashboard/admin`)
     await expect(page).toHaveURL(/\/dashboard\/admin/)
   })
 })

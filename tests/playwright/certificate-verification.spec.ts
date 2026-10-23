@@ -8,7 +8,7 @@
  */
 import { test, expect } from './utils/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { BASE, LOCALE } from './utils/constants'
+import { BASE } from './utils/constants'
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -116,7 +116,7 @@ test.describe('Invalid Certificate Verification', () => {
     test.setTimeout(30_000)
 
     // Navigate to verification page with invalid code — public page, no login needed
-    await page.goto(`${BASE}/${LOCALE}/verify/INVALID-CODE-12345`)
+    await page.goto(`${BASE}/verify/INVALID-CODE-12345`)
     // Both the verified and not-found views render an h1
     await expect(page.locator('h1').first()).toBeVisible()
 
@@ -129,7 +129,7 @@ test.describe('Invalid Certificate Verification', () => {
   test('invalid code page has return home button', async ({ page }) => {
     test.setTimeout(30_000)
 
-    await page.goto(`${BASE}/${LOCALE}/verify/INVALID-CODE-12345`)
+    await page.goto(`${BASE}/verify/INVALID-CODE-12345`)
     // Both the verified and not-found views render an h1
     await expect(page.locator('h1').first()).toBeVisible()
 
@@ -147,7 +147,7 @@ test.describe('Valid Certificate Verification', () => {
   test('valid code shows verified credential page', async ({ page }) => {
     test.setTimeout(30_000)
 
-    await page.goto(`${BASE}/${LOCALE}/verify/${existingVerificationCode}`)
+    await page.goto(`${BASE}/verify/${existingVerificationCode}`)
     // Both the verified and not-found views render an h1
     await expect(page.locator('h1').first()).toBeVisible()
 
@@ -166,7 +166,7 @@ test.describe('Valid Certificate Verification', () => {
   test('valid certificate shows student name', async ({ page }) => {
     test.setTimeout(30_000)
 
-    await page.goto(`${BASE}/${LOCALE}/verify/${existingVerificationCode}`)
+    await page.goto(`${BASE}/verify/${existingVerificationCode}`)
 
     // The page renders the student name as h1 heading
     const heading = page.locator('h1').first()
@@ -180,7 +180,7 @@ test.describe('Valid Certificate Verification', () => {
   test('valid certificate shows verification code on page', async ({ page }) => {
     test.setTimeout(30_000)
 
-    await page.goto(`${BASE}/${LOCALE}/verify/${existingVerificationCode}`)
+    await page.goto(`${BASE}/verify/${existingVerificationCode}`)
     // Both the verified and not-found views render an h1
     await expect(page.locator('h1').first()).toBeVisible()
 

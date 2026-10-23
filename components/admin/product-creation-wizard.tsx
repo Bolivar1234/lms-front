@@ -1,5 +1,8 @@
 'use client'
 
+import { ImageUploadField } from '@/components/shared/image-upload-field'
+import { uploadCourseImage } from '@/app/actions/teacher/course-images'
+
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -198,6 +201,7 @@ export function ProductCreationWizard({
   )
   const [currentStep, setCurrentStep] = useState(0)
   const [isSaving, setIsSaving] = useState(false)
+  const [thumbnailUploading, setThumbnailUploading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   // Steps the user has tried to leave (or submit from). Inline errors only show
   // once a step is "attempted", so blank required fields aren't flagged before
@@ -242,6 +246,7 @@ export function ProductCreationWizard({
   // Free backward navigation; forward navigation is gated on every prior step
   // being valid, landing the user on the first one that still has blockers.
   function goToStep(target: number) {
+    if (thumbnailUploading) return
     setSubmitError(null)
     if (target <= currentStep) {
       setCurrentStep(target)
@@ -596,13 +601,18 @@ export function ProductCreationWizard({
 
               <Field>
                 <FieldLabel htmlFor="offering-thumbnail">{tProductForm('image')}</FieldLabel>
-                <Input
+                <ImageUploadField
                   id="offering-thumbnail"
-                  type="url"
+                  label="Course thumbnail"
+                  onUploadingChange={setThumbnailUploading}
+                  uploadAction={async (data) => {
+                    const result = await uploadCourseImage(data)
+                    return result.success ? { success: true, data: { url: result.url } } : result
+                  }}
                   value={input.course.thumbnailUrl || ''}
                   disabled={isSaving}
                   placeholder={tProductForm('imagePlaceholder')}
-                  onChange={(event) => updateCourse({ thumbnailUrl: event.target.value })}
+                  onChange={(url) => updateCourse({ thumbnailUrl: url })}
                 />
               </Field>
             </div>
@@ -831,7 +841,7 @@ export function ProductCreationWizard({
             <Button
               type="button"
               variant="outline"
-              disabled={currentStep === 0 || isSaving}
+              disabled={currentStep === 0 || isSaving || thumbnailUploading}
               onClick={() => setCurrentStep((step) => Math.max(step - 1, 0))}
             >
               <IconChevronLeft data-icon="inline-start" />
@@ -841,7 +851,7 @@ export function ProductCreationWizard({
               type="button"
               variant="outline"
               data-testid="product-creation-next"
-              disabled={currentStep === wizardSteps.length - 1 || isSaving}
+              disabled={currentStep === wizardSteps.length - 1 || isSaving || thumbnailUploading}
               onClick={() => goToStep(currentStep + 1)}
             >
               {tWizard('nextButton')}
@@ -854,7 +864,7 @@ export function ProductCreationWizard({
               type="button"
               data-testid="product-creation-save-draft"
               variant="outline"
-              disabled={isSaving || !readiness.canSaveDraft}
+              disabled={isSaving || thumbnailUploading || !readiness.canSaveDraft}
               onClick={() => submit('draft')}
             >
               {isSaving ? tProductForm('saving') : tWizard('saveDraftButton')}
@@ -862,7 +872,7 @@ export function ProductCreationWizard({
             <Button
               type="button"
               data-testid="product-creation-publish"
-              disabled={isSaving || !readiness.canPublish}
+              disabled={isSaving || thumbnailUploading || !readiness.canPublish}
               onClick={() => submit('publish')}
             >
               {isSaving ? tProductForm('saving') : tWizard('publishButton')}

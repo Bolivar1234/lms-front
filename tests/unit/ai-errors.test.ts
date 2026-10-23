@@ -229,7 +229,7 @@ describe('aiErrorResponse', () => {
       feature: 'aristotle',
       locale: 'es',
     }).json()
-    expect(admin.error.settingsUrl).toBe('/es/dashboard/admin/settings/ai')
+    expect(admin.error.settingsUrl).toBe('/dashboard/admin/settings/ai')
   })
 
   it('classifies raw provider errors and never echoes their body', async () => {

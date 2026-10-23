@@ -22,7 +22,7 @@ test.describe('Community Spaces', () => {
     })
 
     test('student community page loads with header', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/community`)
+      await page.goto(`${BASE}/dashboard/student/community`)
 
       // Page should load — either the community feed or an upgrade nudge
       const heading = page.locator('h1').first()
@@ -30,7 +30,7 @@ test.describe('Community Spaces', () => {
     })
 
     test('student community shows feed structure or upgrade nudge', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/community`)
+      await page.goto(`${BASE}/dashboard/student/community`)
 
       // Either the community feed renders (with tour anchors) or an upgrade nudge is shown
       const communityHeader = page.locator('[data-tour="community-header"]')
@@ -41,7 +41,7 @@ test.describe('Community Spaces', () => {
     })
 
     test('student community shows composer and filters when available', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/community`)
+      await page.goto(`${BASE}/dashboard/student/community`)
 
       const communityHeader = page.locator('[data-tour="community-header"]')
       // The page renders one or the other; wait for it before branching.
@@ -63,7 +63,7 @@ test.describe('Community Spaces', () => {
     })
 
     test('student community shows feed or empty state', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/community`)
+      await page.goto(`${BASE}/dashboard/student/community`)
 
       const communityHeader = page.locator('[data-tour="community-header"]')
       // The page renders one or the other; wait for it before branching.
@@ -86,14 +86,14 @@ test.describe('Community Spaces', () => {
     })
 
     test('teacher community page loads with header', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/teacher/community`)
+      await page.goto(`${BASE}/dashboard/teacher/community`)
 
       const heading = page.locator('h1').first()
       await expect(heading).toBeVisible({ timeout: 15_000 })
     })
 
     test('teacher community shows feed structure or upgrade nudge', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/teacher/community`)
+      await page.goto(`${BASE}/dashboard/teacher/community`)
 
       const communityHeader = page.locator('[data-tour="community-header"]')
       const upgradeNudge = page.getByTestId('upgrade-nudge')
@@ -108,14 +108,14 @@ test.describe('Community Spaces', () => {
     })
 
     test('admin community page loads with header', async ({ page }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/community`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/community`)
 
       const heading = page.locator('h1').first()
       await expect(heading).toBeVisible({ timeout: 15_000 })
     })
 
     test('admin community shows moderation button when community is available', async ({ page }) => {
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/community`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/community`)
 
       const communityHeader = page.locator('[data-tour="community-header"]')
       // The page renders one or the other; wait for it before branching.
@@ -158,7 +158,7 @@ test.describe('Community Spaces', () => {
       test.setTimeout(60_000)
 
       await loginAsAdmin(page)
-      await page.goto(`${TENANT_BASE}/en/dashboard/admin/community`)
+      await page.goto(`${TENANT_BASE}/dashboard/admin/community`)
 
       const heading = page.locator('h1').first()
       await expect(heading).toBeVisible({ timeout: 15_000 })
@@ -280,7 +280,7 @@ test.describe('Course community entry points (#868)', () => {
 
   test('student opens a course, clicks Community and lands on that course feed', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/courses/${PYTHON}`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/${PYTHON}`)
 
     const entry = page.getByTestId('course-community-entry')
     await expect(entry).toBeVisible({ timeout: 20_000 })
@@ -294,7 +294,7 @@ test.describe('Course community entry points (#868)', () => {
 
   test('an empty course feed invites the first post instead of hiding the link', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/courses/${fixture.open}`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/${fixture.open}`)
 
     const hint = page.getByTestId('course-community-hint')
     await expect(hint).toBeVisible({ timeout: 20_000 })
@@ -316,7 +316,7 @@ test.describe('Course community entry points (#868)', () => {
     if (error) throw new Error(`could not create the #868 post: ${error.message}`)
 
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/courses/${fixture.open}`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/${fixture.open}`)
 
     const hint = page.getByTestId('course-community-hint')
     await expect(hint).toBeVisible({ timeout: 20_000 })
@@ -326,7 +326,7 @@ test.describe('Course community entry points (#868)', () => {
 
   test('the lesson sidebar links to the course community', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/courses/${PYTHON}/lessons/${PYTHON_LESSON}`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/${PYTHON}/lessons/${PYTHON_LESSON}`)
 
     // Below `md` the lesson sidebar lives in a sheet behind the "Course Content" button.
     if ((page.viewportSize()?.width ?? 1280) < 768) {
@@ -340,7 +340,7 @@ test.describe('Course community entry points (#868)', () => {
 
   test('the school feed links to every course feed the student can open, and no other', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/community`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/community`)
 
     const links = page.getByTestId('course-community-links').filter({ visible: true })
     await expect(links).toBeVisible({ timeout: 20_000 })
@@ -357,20 +357,20 @@ test.describe('Course community entry points (#868)', () => {
 
   test('a course feed without access still redirects', async ({ page }) => {
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/courses/${fixture.noAccess}/community`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/${fixture.noAccess}/community`)
     await page.waitForURL(/\/dashboard\/student\/?$/, { timeout: 20_000 })
   })
 
   test('no student entry point when the school has no community (free plan)', async ({ page }) => {
     await loginAsStudent(page)
 
-    await page.goto(`${BASE}/en/dashboard/student/courses/1001`)
+    await page.goto(`${BASE}/dashboard/student/courses/1001`)
     await expect(page.getByRole('heading', { level: 1, name: 'Introduction to Testing' })).toBeVisible({
       timeout: 20_000,
     })
     await expect(page.getByTestId('course-community-entry')).toHaveCount(0)
 
-    await page.goto(`${BASE}/en/dashboard/student/courses/1001/lessons/1001`)
+    await page.goto(`${BASE}/dashboard/student/courses/1001/lessons/1001`)
     // The seeded lesson body opens with its own `# What is Software Testing?`,
     // so the title is an h1 twice (lesson header + content): take the header's.
     await expect(page.getByRole('heading', { level: 1, name: 'What is Software Testing?' }).first()).toBeVisible({
@@ -378,14 +378,14 @@ test.describe('Course community entry points (#868)', () => {
     })
     await expect(page.getByTestId('lesson-sidebar-community-link')).toHaveCount(0)
 
-    await page.goto(`${BASE}/en/dashboard/student/community`)
+    await page.goto(`${BASE}/dashboard/student/community`)
     await expect(page.getByTestId('upgrade-nudge')).toBeVisible({ timeout: 20_000 })
     await expect(page.getByTestId('course-community-links')).toHaveCount(0)
   })
 
   test('no teacher entry point or welcome offer when the school has no community', async ({ page }) => {
     await loginAsTeacher(page)
-    await page.goto(`${BASE}/en/dashboard/teacher/courses/1001`)
+    await page.goto(`${BASE}/dashboard/teacher/courses/1001`)
 
     await expect(page.getByRole('heading', { level: 1, name: 'Introduction to Testing' })).toBeVisible({
       timeout: 20_000,
@@ -396,7 +396,7 @@ test.describe('Course community entry points (#868)', () => {
 
   test('the teacher course page links to its course feed', async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/teacher/courses/${PYTHON}`)
+    await page.goto(`${TENANT_BASE}/dashboard/teacher/courses/${PYTHON}`)
 
     const link = page.getByTestId('teacher-course-community-link')
     await expect(link).toBeVisible({ timeout: 20_000 })
@@ -407,7 +407,7 @@ test.describe('Course community entry points (#868)', () => {
 
   test('the author of a published, empty course pins a welcome prompt', async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/teacher/courses/${fixture.welcome}`)
+    await page.goto(`${TENANT_BASE}/dashboard/teacher/courses/${fixture.welcome}`)
 
     const prompt = page.getByTestId('course-welcome-prompt')
     await expect(prompt).toBeVisible({ timeout: 20_000 })
@@ -453,14 +453,14 @@ test.describe('Course community entry points (#868)', () => {
       },
     ])
 
-    await page.goto(`${TENANT_BASE}/en/dashboard/teacher/courses/${fixture.welcome}`)
+    await page.goto(`${TENANT_BASE}/dashboard/teacher/courses/${fixture.welcome}`)
     await expect(page.getByTestId('teacher-course-community-link')).toBeVisible({ timeout: 20_000 })
     await expect(page.getByTestId('course-welcome-prompt')).toHaveCount(0)
   })
 
   test('"Not now" dismisses the welcome offer for good', async ({ page }) => {
     await loginAsAdmin(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/teacher/courses/${fixture.noAccess}`)
+    await page.goto(`${TENANT_BASE}/dashboard/teacher/courses/${fixture.noAccess}`)
 
     const prompt = page.getByTestId('course-welcome-prompt')
     await expect(prompt).toBeVisible({ timeout: 20_000 })

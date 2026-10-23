@@ -21,7 +21,7 @@
  */
 import { test, expect, type Locator, type Page } from './utils/test'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { TENANT_BASE, LOCALE, ACCOUNTS } from './utils/constants'
+import { TENANT_BASE, ACCOUNTS } from './utils/constants'
 import { login, loginAsNonMember as loginNonMember } from './utils/auth'
 import { getServiceRoleClient, CODE_ACADEMY_TENANT } from './utils/seed-state'
 
@@ -100,7 +100,7 @@ test.describe.serial('Tenant ban (#892)', () => {
     const admin = getServiceRoleClient()
     await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password, BASE)
 
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/users/${memberId}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/dashboard/admin/users/${memberId}`, { waitUntil: 'domcontentloaded' })
     await openMenuItem(page, 'ban-action')
     const dialog = page.getByTestId('ban-dialog')
     await expect(dialog).toBeVisible({ timeout: 15_000 })
@@ -117,7 +117,7 @@ test.describe.serial('Tenant ban (#892)', () => {
     expect(row.banned_by).not.toBeNull()
 
     // The list keeps the member visible, flagged.
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/users`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/dashboard/admin/users`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('users-page').filter({ visible: true })).toBeVisible({ timeout: 60_000 })
     await expect(page.getByRole('row', { name: new RegExp(MEMBER.email, 'i') }).getByTestId('user-status-banned')).toBeVisible()
   })
@@ -143,7 +143,7 @@ test.describe.serial('Tenant ban (#892)', () => {
 
     await loginNonMember(page, MEMBER.email, MEMBER.password, BASE)
     // Wherever login lands (dashboard -> proxy), the destination is the notice.
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/dashboard/student`, { waitUntil: 'domcontentloaded' })
     await page.waitForURL(/\/join-school/, { timeout: 30_000 })
     await expect(page.getByTestId('join-school-banned')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByTestId('join-school-title')).toHaveCount(0)
@@ -164,7 +164,7 @@ test.describe.serial('Tenant ban (#892)', () => {
     expect(invitation?.status).toBe('pending')
 
     // Deep links bounce to the same notice.
-    await page.goto(`${BASE}/${LOCALE}/dashboard/student/browse`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/dashboard/student/browse`, { waitUntil: 'domcontentloaded' })
     await page.waitForURL(/\/join-school/, { timeout: 30_000 })
     await expect(page.getByTestId('join-school-banned')).toBeVisible()
   })
@@ -221,7 +221,7 @@ test.describe.serial('Tenant ban (#892)', () => {
     test.setTimeout(120_000)
     const admin = getServiceRoleClient()
     await login(page, ACCOUNTS.admin.email, ACCOUNTS.admin.password, BASE)
-    await page.goto(`${BASE}/${LOCALE}/dashboard/admin/users/${memberId}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/dashboard/admin/users/${memberId}`, { waitUntil: 'domcontentloaded' })
     await openMenuItem(page, 'lift-ban-action')
     await domClick(page.getByRole('alertdialog').getByRole('button', { name: /lift ban/i }))
 
@@ -236,7 +236,7 @@ test.describe.serial('Tenant ban (#892)', () => {
     const memberPage = await context.newPage()
     try {
       await loginNonMember(memberPage, MEMBER.email, MEMBER.password, BASE)
-      await memberPage.goto(`${BASE}/${LOCALE}/join-school`, { waitUntil: 'domcontentloaded' })
+      await memberPage.goto(`${BASE}/join-school`, { waitUntil: 'domcontentloaded' })
       await memberPage.waitForURL(/\/dashboard\//, { timeout: 60_000 })
       await expect(memberPage.getByTestId('join-school-banned')).toHaveCount(0)
       await expect.poll(async () => (await membership(admin)).status, { timeout: 30_000 }).toBe('active')

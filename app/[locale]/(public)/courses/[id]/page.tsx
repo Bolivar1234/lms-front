@@ -233,7 +233,7 @@ export default async function CourseDetailsPage(props: {
 
     // schema.org Course rich-result markup. Offer mirrors the deterministic
     // product pick above so the structured price always matches the page.
-    const courseUrl = `${seo.baseUrl}/${params.locale}/courses/${course.course_id}`;
+    const courseUrl = `${seo.baseUrl}/courses/${course.course_id}`;
     const structuredData = courseJsonLd({
         name: course.title,
         description: course.description,

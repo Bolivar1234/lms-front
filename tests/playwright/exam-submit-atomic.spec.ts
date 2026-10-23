@@ -236,7 +236,7 @@ test.describe('Atomic exam submit (#847)', () => {
     expect(pending!.review_status).toBe('pending')
 
     await loginAsTenantStudent(page)
-    await page.goto(`${TENANT_BASE}/en/dashboard/student/courses/${courseId}/exams/${examId}/result`)
+    await page.goto(`${TENANT_BASE}/dashboard/student/courses/${courseId}/exams/${examId}/result`)
 
     const banner = page.getByTestId('exam-grading-failed')
     await expect(banner).toBeVisible()

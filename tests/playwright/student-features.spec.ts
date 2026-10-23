@@ -18,7 +18,7 @@ test.describe('Student Features', () => {
     })
 
     test('shows progress stats and per-course progress', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/progress`)
+      await page.goto(`${BASE}/dashboard/student/progress`)
       await expect(page.getByTestId('progress-page')).toBeVisible()
       await expect(page.getByTestId('progress-title')).toBeVisible()
 
@@ -54,7 +54,7 @@ test.describe('Student Features', () => {
     })
 
     test('certificates page loads with title', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/certificates`)
+      await page.goto(`${BASE}/dashboard/student/certificates`)
       await expect(page.getByTestId('certificates-page')).toBeVisible()
       await expect(page.getByTestId('certificates-title')).toBeVisible()
     })
@@ -66,7 +66,7 @@ test.describe('Student Features', () => {
     })
 
     test('payments page loads with title and content', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/payments`)
+      await page.goto(`${BASE}/dashboard/student/payments`)
       await expect(page.getByTestId('payments-page')).toBeVisible()
       await expect(page.getByTestId('payments-title')).toBeVisible()
     })
@@ -78,7 +78,7 @@ test.describe('Student Features', () => {
     })
 
     test('profile page loads with user settings', async ({ page }) => {
-      await page.goto(`${BASE}/en/dashboard/student/profile`)
+      await page.goto(`${BASE}/dashboard/student/profile`)
       await expect(page.getByTestId('profile-page').filter({ visible: true })).toBeVisible()
 
       // Profile page should contain form elements or user information
@@ -95,7 +95,7 @@ test.describe('Student Features', () => {
     test('store page loads with heading and store section', async ({
       page,
     }) => {
-      await page.goto(`${BASE}/en/dashboard/student/store`)
+      await page.goto(`${BASE}/dashboard/student/store`)
       await expect(page.getByTestId('store-page')).toBeVisible()
 
       // Store should have a heading (h1)
@@ -147,6 +147,7 @@ test.describe('Student Features', () => {
       // Click browse link and verify navigation. On mobile the sheet closed
       // when the previous link navigated, so open it again.
       await openSidebar(page)
+      await expect(coursesLink).toHaveAttribute('data-active', '')
       const browseLink = page.locator(
         '[data-sidebar="sidebar"] a[href*="/dashboard/student/browse"]'
       ).first()
@@ -158,6 +159,8 @@ test.describe('Student Features', () => {
       // Click progress link and verify navigation (it sits in the collapsed
       // "My Courses" group)
       await openSidebarGroup(page, 'My Courses')
+      await expect(browseLink).toHaveAttribute('data-active', '')
+      await expect(coursesLink).not.toHaveAttribute('data-active')
       const progressLink = page.locator(
         '[data-sidebar="sidebar"] a[href*="/dashboard/student/progress"]'
       ).first()
@@ -165,19 +168,21 @@ test.describe('Student Features', () => {
       await expect(page.getByTestId('progress-page')).toBeVisible({
         timeout: 15_000,
       })
+      await openSidebarGroup(page, 'My Courses')
+      await expect(progressLink).toHaveAttribute('data-active', '')
     })
   })
 
   test.describe('Code Academy Tenant', () => {
     test('tenant student payments page loads', async ({ page }) => {
       await loginAsTenantStudent(page)
-      await page.goto(`${TENANT_BASE}/en/dashboard/student/payments`)
+      await page.goto(`${TENANT_BASE}/dashboard/student/payments`)
       await expect(page.getByTestId('payments-page')).toBeVisible()
     })
 
     test('tenant student progress page loads', async ({ page }) => {
       await loginAsTenantStudent(page)
-      await page.goto(`${TENANT_BASE}/en/dashboard/student/progress`)
+      await page.goto(`${TENANT_BASE}/dashboard/student/progress`)
       await expect(page.getByTestId('progress-page')).toBeVisible()
       await expect(page.getByTestId('progress-title')).toBeVisible()
     })

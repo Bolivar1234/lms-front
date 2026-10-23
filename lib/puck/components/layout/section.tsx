@@ -1,3 +1,4 @@
+import { imageUploadField } from '../fields/image-upload-field'
 import type { ComponentConfig } from '@measured/puck'
 import { DropZone } from '@measured/puck'
 import { cn } from '@/lib/utils'
@@ -62,7 +63,7 @@ export const Section: ComponentConfig<SectionProps> = {
   label: 'Section',
   fields: {
     backgroundColor: { type: 'text', label: 'Background Color' },
-    backgroundImage: { type: 'text', label: 'Background Image URL' },
+    backgroundImage: imageUploadField('Background Image URL'),
     backgroundGradient: { type: 'text', label: 'Background Gradient CSS' },
     overlayOpacity: { type: 'number', label: 'Overlay Opacity (%)', min: 0, max: 100 },
     paddingY: {
