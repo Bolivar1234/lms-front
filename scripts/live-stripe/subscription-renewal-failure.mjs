@@ -1,6 +1,6 @@
 import fs from 'fs'
 import crypto from 'crypto'
-const env = Object.fromEntries(fs.readFileSync('/home/user/lms-front/.env.local','utf8').split('\n').filter(l=>l.includes('=')&&!l.startsWith('#')).map(l=>{const i=l.indexOf('=');return [l.slice(0,i),l.slice(i+1).trim().replace(/^["']|["']$/g,'')]}))
+const env = Object.fromEntries(fs.readFileSync(process.env.ENV_FILE||new URL('../../.env.local',import.meta.url),'utf8').split('\n').filter(l=>l.includes('=')&&!l.startsWith('#')).map(l=>{const i=l.indexOf('=');return [l.slice(0,i),l.slice(i+1).trim().replace(/^["']|["']$/g,'')]}))
 const SUPA='https://api-staging.saythanks.org', ANON=env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY, SR=env.SUPABASE_SERVICE_ROLE_KEY
 const SK=process.env.STRIPE_RK
 const HOST='https://e2e-school.circles.saythanks.org'

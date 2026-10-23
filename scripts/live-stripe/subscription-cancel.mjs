@@ -1,6 +1,6 @@
 import fs from 'fs'
 import crypto from 'crypto'
-const env = Object.fromEntries(fs.readFileSync('/home/user/lms-front/.env.local','utf8').split('\n').filter(l=>l.includes('=')&&!l.startsWith('#')).map(l=>{const i=l.indexOf('=');return [l.slice(0,i),l.slice(i+1).trim().replace(/^["']|["']$/g,'')]}))
+const env = Object.fromEntries(fs.readFileSync(process.env.ENV_FILE||new URL('../../.env.local',import.meta.url),'utf8').split('\n').filter(l=>l.includes('=')&&!l.startsWith('#')).map(l=>{const i=l.indexOf('=');return [l.slice(0,i),l.slice(i+1).trim().replace(/^["']|["']$/g,'')]}))
 const SUPA='https://api-staging.saythanks.org', ANON=env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY, SR=env.SUPABASE_SERVICE_ROLE_KEY
 const SK=process.env.STRIPE_RK
 const HOST='https://e2e-school.circles.saythanks.org'
@@ -53,8 +53,21 @@ if(c.j.clientSecret){
   // cancel -> customer.subscription.deleted
   const del=await stripe(`subscriptions/${subId}`,null,'DELETE')
   rec('subscription canceled on Stripe',del.s===200&&del.j.status==='canceled',del.j.status||del.j.error?.message)
-  let s2;for(let i=0;i<12;i++){s2=await subq();if(s2[0]?.subscription_status!=='active')break;await sleep(2500)}
-  rec('customer.subscription.deleted: subscription expired',s2[0]?.subscription_status==='expired',JSON.stringify(s2))
+  // Paid period is still in the future: access must continue (expire_subscription_if_due keeps it).
+  await sleep(8000)
+  let s2=await subq()
+  rec('customer.subscription.deleted with paid period remaining: access continues',s2[0]?.subscription_status==='active',JSON.stringify(s2))
+  // Elapse the deadline, redeliver the event, expect expiry.
+  const past=new Date(Date.now()-86400e3).toISOString()
+  await fetch(`${SUPA}/rest/v1/subscriptions?user_id=eq.${S.id}`,{method:'PATCH',headers:lms({Prefer:'return=minimal'}),body:JSON.stringify({current_period_end:past,end_date:past})})
+  const evs=await stripe('events?type=customer.subscription.deleted&limit=20',null,'GET')
+  const ev=(evs.j.data||[]).find(e=>e.data.object.id===subId)
+  const eps=await stripe('webhook_endpoints?limit=20',null,'GET')
+  const ep=(eps.j.data||[]).find(e=>e.url.includes('circles.saythanks.org/api/stripe/webhook')&&e.enabled_events.includes('customer.subscription.deleted')&&!e.application)
+  const rr=ev&&ep?await stripe(`events/${ev.id}/retry`,{webhook_endpoint:ep.id}):{s:0,j:{error:{message:'event or endpoint not found'}}}
+  rec('deleted event redelivered',rr.s===200,rr.j.error?.message||'ok')
+  for(let i=0;i<12;i++){s2=await subq();if(s2[0]?.subscription_status!=='active')break;await sleep(2500)}
+  rec('deadline elapsed: subscription expired',s2[0]?.subscription_status==='expired',JSON.stringify(s2))
 }
 // cleanup
 const gl=await (await fetch(`${SUPA}/auth/v1/admin/generate_link`,{method:'POST',headers:adm,body:JSON.stringify({type:'magiclink',email:S.email})})).json()

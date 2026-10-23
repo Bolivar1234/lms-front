@@ -1,5 +1,5 @@
 import fs from 'fs'
-const env = Object.fromEntries(fs.readFileSync('/home/user/lms-front/.env.local','utf8').split('\n').filter(l=>l.includes('=')&&!l.startsWith('#')).map(l=>{const i=l.indexOf('=');return [l.slice(0,i),l.slice(i+1).trim().replace(/^["']|["']$/g,'')]}))
+const env = Object.fromEntries(fs.readFileSync(process.env.ENV_FILE||new URL('../../.env.local',import.meta.url),'utf8').split('\n').filter(l=>l.includes('=')&&!l.startsWith('#')).map(l=>{const i=l.indexOf('=');return [l.slice(0,i),l.slice(i+1).trim().replace(/^["']|["']$/g,'')]}))
 const SUPA='https://api-staging.saythanks.org',SR=env.SUPABASE_SERVICE_ROLE_KEY,SK=process.env.STRIPE_RK
 const A='acct_1UTNDiLs9iObyLRq',T1='7e570000-0000-4000-8000-00000000e2e1'
 const lms=(x={})=>({apikey:SR,Authorization:`Bearer ${SR}`,'Accept-Profile':'lms','Content-Profile':'lms','content-type':'application/json',...x})

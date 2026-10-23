@@ -1,6 +1,6 @@
 import fs from 'fs'
 import crypto from 'crypto'
-const env = Object.fromEntries(fs.readFileSync('/home/user/lms-front/.env.local','utf8').split('\n').filter(l=>l.includes('=')&&!l.startsWith('#')).map(l=>{const i=l.indexOf('=');return [l.slice(0,i),l.slice(i+1).trim().replace(/^["']|["']$/g,'')]}))
+const env = Object.fromEntries(fs.readFileSync(process.env.ENV_FILE||new URL('../../.env.local',import.meta.url),'utf8').split('\n').filter(l=>l.includes('=')&&!l.startsWith('#')).map(l=>{const i=l.indexOf('=');return [l.slice(0,i),l.slice(i+1).trim().replace(/^["']|["']$/g,'')]}))
 const SUPA='https://api-staging.saythanks.org', ANON=env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY, SR=env.SUPABASE_SERVICE_ROLE_KEY
 const SK=process.env.STRIPE_RK
 const HOST='https://e2e-school.circles.saythanks.org'
@@ -57,9 +57,13 @@ const evt=(evs.j.data||[]).find(e=>e.data.object.payment_intent===piId)
 rec('found charge.refunded event',!!evt,evt?.id)
 if(evt){
   const eps=await stripe('webhook_endpoints?limit=20',null,'GET')
-  for(const ep of eps.j.data||[]){ if(!ep.url.includes('circles.saythanks.org')) continue
+  const targets=(eps.j.data||[]).filter(ep=>ep.url.includes('circles.saythanks.org'))
+  let ok=0,bad=0
+  for(const ep of targets){
     const rr=await stripe(`events/${evt.id}/retry`,{webhook_endpoint:ep.id})
-    console.log('retry',ep.id,rr.s,rr.j.error?.message||'ok')}
+    console.log('retry',ep.id,rr.s,rr.j.error?.message||'ok')
+    if(rr.s===200)ok++;else bad++}
+  rec('event redelivered to every circles.saythanks.org endpoint',targets.length>0&&ok===targets.length&&bad===0,`ok=${ok} failed=${bad} endpoints=${targets.length}`)
   await sleep(6000)
   const t3=await txFull()
   rec('redelivery idempotent: unchanged',t3.status==='refunded'&&Number(t3.refunded_amount)===amount/100,JSON.stringify(t3))
