@@ -1,87 +1,119 @@
 # Mux hosting: staging pilot and rollout runbook
 
-Read the [master design](MUX_VIDEO_HOSTING_PLAN.md), [TDD work packages](MUX_VIDEO_TDD_PLAN.md) and [pinned references](MUX_VIDEO_REFERENCES.md). These steps are proposed until implemented; no checklist entry is a completed deployment claim.
+Read the [master contracts](MUX_VIDEO_HOSTING_PLAN.md), [proposed file/tool inventory](MUX_VIDEO_FILE_MAP.md), [TDD gates](MUX_VIDEO_TDD_PLAN.md), [references](MUX_VIDEO_REFERENCES.md) and [finding ledger](MUX_VIDEO_REVIEW_FINDINGS.md). This is a proposed operating procedure. No step below is a completed deployment or authorization to write a hosted database, modify secrets, delete provider assets or enable a school.
 
 ## Owners and target record
 
-The LMS target is circles.saythanks.org on the shared SayThanks backend, with LMS schema lms and common auth. SayThanks public tables/auth configuration are not this feature's migration target. Current checked-in shared-db docs identify staging; verify actual app/project/stage before writing SQL.
+Shared `lms` mode and common SayThanks authentication are fixed scope. Confirm actual project/service/stage independently before hosted changes. `circles.saythanks.org` identifies the intended LMS product, not permission to assume that any reachable deployment is disposable staging or that production already moved.
 
-Record the database operator/approver, database role and approved schema-only baseline/catalog location, app service/environment/commit/image, Supabase project identity, schema selector, Mux environment ID and callback, budget/abuse on-call owner, abuse contact and scheduler owner. Missing names/access are rollout blockers, not a reason to stop independent local implementation. Do not repeatedly ask whether shared lms mode is required: the user already chose it.
+Complete this record in the rollout receipt; absent values are launch blockers, not reasons to stop independent local implementation:
 
-Current review identifies shared staging as Coolify; checked-in deployment docs still describe Dokploy. Use Coolify/host-side staging operations as the intended procedure, but confirm the concrete app/service ID and version before any env edit. Update the deployment docs when verified. Production migration/deployment, credentials and scheduler are separate targets, never inferred from staging.
+| Record | Required input/evidence |
+| --- | --- |
+| Database operator/approver | Named person, scoped migration role, approved schema-only baseline/catalog location/version and recovery procedure. |
+| Application target | Actual staging origin/service ID, Coolify/host version, environment name, deployed commit/image digest and build/runtime schema selection. |
+| Supabase target | Project identity, API/Storage origin, `lms` prerequisites/owner, PostgreSQL version, read-only catalog receipt; explicit staging/disposable authorization. |
+| Mux target | Account/environment ID, scoped API token identity, callback URLs/endpoint IDs, signing key IDs; current plan/allowance and existing inventory. Never values of keys/secrets. |
+| Pilot/fixture | Named approved school/contact; separate disposable fixture tenant ID, authorized users, test media and ownership namespace. No real student content in destructive drills. |
+| On-call/privacy | Budget amount/currency/period and alert thresholds, budget/takedown on-call, abuse-report contact, acceptable-use/privacy/subprocessor owner and applicable caption/data policy. |
+| Scheduler | Actual staging host/service/owner, single task ID, verified origin, secret-store reference, monitor ID and deployment-grace record. |
 
-The current operational handoff assigns Mux account/environment/key creation, Coolify Production/Preview env edits/redeploy, shared SQL and scheduler variables to the named operator. Available explicitly authorized tools may assist when access exists; do not claim those tasks have been automated or that this plan grants write authorization.
+The master/runbook already choose a host-side minute staging scheduler. Existing deployment files describe Dokploy while this handoff identifies Coolify; verify the concrete service/version before editing configuration, then update actual deployment instructions during implementation. Do not infer hosting identity from labels such as Coolify “Production” or “Preview”. No production permission follows from a staging label.
 
-## Preflight and schema gate
+## Read-only preflight and SQL gate
 
-1. Confirm read-only app/database identity and expected shared prerequisites. Run the media verifier in read-only mode against the intended lms schema. Do not reset or seed the shared database.
-2. Review canonical public SQL and its checked lms namespace variant, migration checksum, grants/RLS/execute permissions and empty function search paths. Public feature tests do not prove actual shared prerequisites.
-3. Verify the approved baseline/catalog contains no credentials, user data or URLs/tokens, and is stored by the database owner. PR1b needs feature fixtures and catalog evidence, not an unreviewed full production dump in git.
-4. With explicit staging authorization, the operator applies idempotent shared SQL and records checksum/result/catalog diff. Confirm no SayThanks public/auth changes. Production application is a separate approval.
-5. Ensure all application clients use NEXT_PUBLIC_SUPABASE_DB_SCHEMA=lms with matching build/runtime/Docker settings, including Bearer/MCP paths. Confirm legacy external lessons still work with the global Mux switch off.
+1. Record actual deployed app commit/image and project identities. Resolve read-only access or an approved catalog export; request scoped missing access, not broad production credentials. Inspect configured-variable presence/readiness without printing values.
+2. Review implemented feature migration checksums and the ordered manifest in [the TDD plan](MUX_VIDEO_TDD_PLAN.md#package-order-and-deliverables). Confirm public/shared fixture gates passed. Verify the actual owner/types/grants/RLS/functions against the approved baseline. A bare `public.` -> `lms.` replacement or a public reset is not shared evidence.
+3. The planned read-only verifier is `scripts/media/verify-target.ts`; its command/manifest format must be implemented in WS1b and published with real output. Until it exists and runs, report **blocked**, not “verifier passed”. It must reject wrong target, unsupported baseline/types/PostgreSQL, unexpected grants or missing prerequisites without repairs/writes.
+4. With separate explicit staging authorization, the database operator applies only the approved additive shared feature sections and records before/after catalogs. Apply the global caption Storage SQL separately: `storage.*` is not LMS-namespace SQL. Do not reset/seed the shared project or change SayThanks public/auth configuration. A schema backup is not permission for a destructive restore over a shared live database.
+5. Verify app `NEXT_PUBLIC_SUPABASE_DB_SCHEMA=lms` at build **and** runtime/Docker configuration. Independently verify MCP `SUPABASE_DB_SCHEMA=lms`. PR #27 merged as `189eaf364ccb4c94cb9f9320835383824d9f5f22`; confirm the deployed image includes it and verify real shared role/RLS behavior. Its merge and unit fixtures alone are not that evidence.
+6. Verify production-mode Next proxy and actual ingress body ceilings support the canonical escaped-caption route bound, with valid above-default-buffer and oversize-413 receipts. Confirm external lessons and existing resource/audio/preview/completion flows work with hosting off; hosted source selection never routes cached legacy video/transcript content into question generation or unsupported clients. No broad payment/auth migration belongs to this feature. Stripe webhook/secret work remains a separate operational dependency for payment testing, not a prerequisite for local Mux implementation.
 
-## Mux and environment setup
+Proposed commands after the applicable packages exist: normal `npm run typecheck`, `npm run test:unit`, `npm run lint`, `npm run build`, discovered media Playwright cases, and `supabase test db` **only against the confirmed disposable local fixture**. Only a separately authorized disposable local reset may use `supabase db reset`. Retain actual commands/exit codes, rather than treating this list as execution evidence.
 
-Create a dedicated LMS Mux staging environment and a separate production environment in the platform account. Environment isolation separates credentials/inventory, not all account-level abuse exposure. Do not reuse SayThanks assets/keys/webhook endpoint.
+## Mux configuration and rotation
 
-Configure server secrets: MUX_TOKEN_ID, MUX_TOKEN_SECRET, MUX_WEBHOOK_SECRET, MUX_SIGNING_KEY, MUX_PRIVATE_KEY. The implementation uses @mux/ts; verify key encoding and least-privilege token scopes without printing values. The private signing key is shown once at creation and stored in secret storage, never a file committed to Git.
+Create/use a dedicated LMS staging environment, separate from SayThanks assets and the future LMS production environment. Inventory/account exposure remains account-wide even when environment credentials are separate. Verify actual pricing/allowance and fixture counts before live runs; no automatic paid-plan purchase is implied. SDK test assets are short/watermarked/temporary and cannot prove long-duration or retention behavior.
 
-Configure MUX_PROVIDER_ENABLED=false and MUX_ASSET_DELETION_ENABLED=false initially, the intended Mux environment ID, upload expiry (3600 seconds), supported token/duration bounds and any later fixed replacement retention. The service-only tenant_media_settings row remains disabled until the gate passes. Never set MUX_API_BASE in a deployed app; it exists only for loopback tests. There is no new CI switch.
+Use the [canonical environment table](MUX_VIDEO_HOSTING_PLAN.md#environment-contract). Store secrets only in the target secret manager: API credentials, current/next webhook secrets, `MUX_SIGNING_KEY_ID`/`MUX_SIGNING_PRIVATE_KEY`, and dedicated `MUX_MAINTENANCE_SECRET`. Do not introduce ambiguous old signing-variable aliases or reuse an unrelated payment cron secret. Verify least necessary permissions, PEM encoding and key/environment identity privately. Disabled external-only builds stay possible without Mux API/signing credentials; verified receipt handling never becomes optional when a hosting flag is off.
 
-In Coolify set the correct staged app's Production/Preview configuration as appropriate and redeploy; those labels do not by themselves identify the business production database. Record actual target/service/env to avoid a shared-production edit by mistake.
+Initially both global hosting and destructive-cleanup switches are false and the school settings row is disabled. Deploy reviewed code/config only with the relevant authorization. Verify actual configuration/commit afterwards; saving a config draft is not a successful redeploy. Never configure `MUX_API_BASE` on a deployed app. Local stub seams are not staging-provider evidence.
 
-Set staging Mux callback to https://circles.saythanks.org/api/mux/webhook, or the separately verified platform staging origin if different. Verify a genuine signed event reaches it without login/locale/school redirects. Callback must verify/persist within five seconds (target under two) and work while hosting flags are off. Mux retries failed attempts for up to 24 hours; queue persistence and internal replay must repair beyond that delivery window.
+Configure the callback on the verified LMS platform origin at `/api/mux/webhook`. The reserved `circles` host already resolves as platform under the shared root; explicit host configuration is still useful for other staging/canonical hosts. A genuine signed callback must reach the handler without session, tenant lookup/404 or locale/login redirects, including hosting-off mode. Measure receipt durability/acknowledgement against the master's target and provider deadline. Confirm correct event environment and redaction; do not log raw callbacks to diagnose a missing secret.
 
-Keep the webhook secret installed through rollback. API/signing credentials may be lazily required for their own operations; never acknowledge an unverified event because a feature flag is off.
+Webhook secret rotation uses **distinct addresses**, `/api/mux/webhook` and `/api/mux/webhook/next`, because Mux requires unique webhook addresses per environment. Implement the alias and install the next secret before enabling the second endpoint. Capture its one-time signing secret privately, deliver a real fixture event and prove shared event dedupe across endpoints. Retire the old provider endpoint and old secret only after the new route works and the transition/retry handling is recorded. Both paths use the same namespace/worker. Persisted verified receipts continue replaying without needing old signature freshness or the retired inbound secret. A future rotation may reuse a retired address with an explicitly recorded current/next mapping; do not assume address names imply which secret is current.
 
-## One scheduler of record
+Normal signing-key rotation: create/store the new pair, deploy it as current, prove signed playback, retain the old provider verification key through the **greatest issued TTL plus operational margin** in the master, then delete the old key. App secrets/artifacts never retain old private keys unnecessarily. Emergency environment-key deletion requires explicit incident authorization, affects every token on that key and may disrupt buffered/in-flight playback differently; record actual behavior. It is not a per-school kill switch or an app-button permission inferred from a docs merge.
 
-For staging, the Coolify/host-side minute task is the Mux scheduler of record. Register it explicitly to invoke bounded /api/cron/mux-reconcile and /api/cron/mux-cleanup on the verified LMS platform origin with the existing cron-secret authentication. Ensure cleanup uses the independent deletion switch. Endpoints and authentication must be implemented/tested before this schedule is considered live.
+## One scheduler and observable recovery
 
-Use a staging-specific base URL/secret and monitor ID. Do not reuse GitHub cron.yml's production CRON_BASE_URL to imply a staging schedule exists, and do not schedule the same staging routes twice. Existing GitHub payment schedules remain unchanged. Future production scheduling is separately registered/approved and documented.
+Register the single staging minute task only after the implemented maintenance endpoints and dedicated authentication pass. Invoke `/api/cron/mux-reconcile` then `/api/cron/mux-cleanup` on the verified platform origin, with bounded work and independent destructive switch. Verify the HTTP client is installed in the runtime; do not prescribe an unavailable curl binary. Keep secrets out of command logs, shell tracing and artifacts. Record actual service health/timeout behavior instead of relying on remembered Coolify defaults.
 
-Scheduling is best-effort, not a one-minute SLA. Configure a heartbeat and alert after three missed expected ticks (with a deployment grace), oldest pending event/intent age, preparing age, retry exhaustion, deletion backlog and provider 429/outage. Waiting upload expiry plus 15 minutes is eligible for reconcile; preparing >30 minutes alerts/polls without blindly deleting a possibly working video. Internal leases/backoff make repeated/manual runs safe. Run bounded batches so a backlog does not become a long HTTP request.
+Use the staging-specific base origin, secret reference and external monitor. Existing GitHub payment cron remains unchanged; do not also register its production `CRON_BASE_URL` as a staging Mux schedule. A healthy empty result counts as a successful tick; database/provider failure must not. Test the master's missed-tick threshold/deployment grace, oldest receipt/intent/preparing age, retry exhaustion/dead letters, cleanup backlog and provider outage/429 alerts. Configuring a monitor without observing the missed-run alert does not pass T24.
 
-Operator manual replay: confirm stage/namespace, invoke the same authenticated maintenance route with a bounded batch/event scope, inspect redacted result and remaining backlog. Do not run a direct unscoped provider delete or replay Mux rows through billing dispatch. Never put the cron header/secret in a log/artifact.
+Manual replay uses the same bounded, authenticated route/worker and verified environment/opaque event scope. Record reason/audit and remaining backlog; do not route Mux receipts through payment dispatch, rewrite the original receipt, blindly retry uncertain creates or mark provider absence merely because a bounded scan exhausted its budget. Dead letters/uncertain inventory retain ownership and accounting until an operator establishes the safe outcome.
 
-## Pilot caps, accessibility, abuse and data choices
+## Pilot controls and expiry drill
 
-One named school only. Proposed settings: 300 stored minutes, 90 minutes per video, five new attempts/day, two pending/school, one pending/lesson, declared size guidance 2 GiB. These are application reservation/usage caps, not actual pre-upload byte/duration enforcement; the operator accepts the direct-upload exposure and can lower limits. Pilot rollout requires the plain-cap code in workstream 2b, not future plan UI.
+Use the master's finite caps and shared Postgres throttles; operators may lower caps, never silently enable missing settings. Validate concurrency, UTC day boundaries, no daily-attempt refund on cancel and stored inventory retained until provider deletion. Set real account budget alerts with a named responder; request/key/environment isolation alone does not limit all ingest cost. Do not advertise declared-byte checks as a hard pre-upload provider ceiling.
 
-Create Mux budget/usage alerts and name the on-call owner who may disable school/global hosting and perform takedown. Join opaque Mux media/school references to LMS inventory for attribution; keep provider metadata free of viewer identity. Read current mux.com/pricing before setting a real budget/paid allowance; no remembered numbers in the release promise.
+Perform the accelerated renewal drill on the approved **disposable fixture tenant**, not real school users:
 
-Publish acceptable-use terms and an actual abuse-report address/contact. Verify operator-only audited school disable and owned-asset delete actions, correct environment checks, and escalation for existing signed grants. Deleting an environment signing key invalidates all tokens signed with it; use only with explicit incident authorization and account for other viewers. A dedicated environment does not guarantee the shared Mux account cannot be affected by abuse.
+1. Confirm `MUX_DEPLOYMENT_STAGE=staging`, actual staging app/project/Mux environment, fixture identity and explicit configuration authorization.
+2. Configure the paired `MUX_STAGING_FIXTURE_TENANT_ID` and `MUX_STAGING_TOKEN_TTL_SECONDS` per the master (drill 120 seconds). This is a server-only fixture policy on the normal authenticated mint/renewal path, with no client TTL input. Short-token renewal lead is derived by the master formula; no jitter applies in the drill.
+3. Observe real decoded frames before/after expiry, pause/background return, reauthorization, access-ended and temporary network failure. Keep the actual manifest/request timing and sanitized player/network evidence. An operator-generated token shown on a separate page or a prop assertion is insufficient.
+4. Remove the paired override, redeploy as authorized and verify ordinary fixture/school grants return to normal duration-aware policy. Prove production/invalid/incomplete override configuration fails and record absence in the production configuration review. Do not set a production app's stage to staging to bypass this guard.
 
-Manual WebVTT captions must work before pilot: teacher can upload/update/remove language-tagged VTT; missing/processing captions warn at publish; entitled students can select signed CC tracks. Validate actual browser CC/keyboard behavior. A warning is not a declaration of compliance; product/privacy owner handles applicable school data agreements and child-data questions.
+Manual WebVTT captions remain pilot scope; no auto-caption/translation/SRT dependency is introduced. Verify strict school/course caption requirements as well as default publish warnings, separate Video/Captions states, signed CC/keyboard behavior and en/es text. Current player localization is checked rather than assumed; record any limitations and keep the affected capability disabled if it violates the required pilot experience.
 
-Add Mux to privacy/subprocessor docs. Optional Mux Data/viewer tracking defaults off where supported by the chosen player; verify outbound requests and document actual behavior. Send no names/emails and retain no upload/source URLs or JWTs in Sentry/logs. Verify logout clears local resume state. Product owner records retention/abuse evidence policy instead of assuming a blanket legal requirement.
+Before school enablement publish the applicable acceptable-use/abuse contact and privacy/subprocessor material; name policy/data owners. Verify optional Mux Data disabled through actual network observation and no viewer names/emails in provider metadata. Record unavoidable processing. Do not claim blanket regulatory compliance or treat a percentage-captioned target as permission to publish content against a school's mandatory policy. A bounded operator inventory/cost/stuck-row report suffices initially; larger dashboards, CSP rollout and new analytics require their own evaluated scope.
 
-## Live acceptance: actual provider behavior
+## Live acceptance and cleanup
 
-Use a protected manual staging workflow or operator-run equivalent against the deployed approved fixture tenant. Keep it out of ordinary fork-PR CI. Cleanup uses if: always() and a separate orphan sweep for killed runners, scoped to the fixture namespace/environment. Write provider/upload/LMS IDs to a safe manifest immediately; never capabilities or private keys. If deletion is paused for an incident, report retained fixture assets and do not bypass that switch.
+Use the protected staging workflow or operator equivalent with approved fixture identities. Ordinary fork PR CI must not need Mux secrets. Before each run, record owned fixture IDs immediately in a manifest containing no URLs/tokens/private keys. Use cleanup-always **and** an independent orphan sweep for killed runners. If deletion is paused for an incident, record retained fixtures and their cost; do not bypass the switch.
 
-Required scenarios:
+| Scenario | Required observation / TDD contract |
+| --- | --- |
+| Target and disabled baseline | Actual app/image/project/schema/Mux environment match receipt; old external/audio/resource flows work with hosting off; valid receipt persists. T03/T14/T26. |
+| Owned upload and callback | Real direct upload, exact CORS, opaque correlation, genuine signature, durable prompt acknowledgement, async owned ready selection and authoritative video/duration/policy checks. T01/T02/T08/T23. |
+| Access and player | Student/teacher/admin cookie/Bearer matrix with distinct shared-schema rows; no token for anonymous/non-entitled/wrong school; actual decoded video/poster/audio. Native-device support recorded separately. T03/T04/T13/T17. |
+| Captions | Real private VTT ingest, ready/error event or bounded reconciliation, genuine signed student CC, unauthorized source denial, UI/keyboard, supported language, above-default-buffer transport and source-aware legacy transcript/question guards. T10/T15. |
+| Expiry | Normal authenticated fixture-policy renewal through real stream expiry, background/pause and access-ended/network recovery. T06. |
+| Recovery and caps | Actual waiting cancel/restart, ingest-winning race, lost create response/optional URL, refresh/reselection and chunk retry; concurrent cap refusal without blind duplicate creation. T07/T09/T12/T21. |
+| Operator and rollback | API-verified identity plus fresh super-admin membership (never caller x-user-id), audit, school-disable/takedown, safe report and log redaction; existing grants follow actual token/key behavior while callbacks/reconcile continue. T11/T16/T19/T20/T22. |
+| Maintenance | Actual single scheduler invocations, empty/failing tick distinction, missed-run alert and safe manual replay. T24. |
+| Removal and cleanup | Owned provider asset/track and Storage deletion/not-found, outbox durability under parent/actor removal, once-only capacity release, no resurrection on late event. Controlled isolated deletion drill before general cleanup enablement. T28–T30. |
 
-1. Read-only app commit/image, Supabase project/lms schema and Mux environment match the target record. External lessons work with hosting disabled, and a valid callback still persists.
-2. Enable the fixture school and upload a real short video directly to Mux. Observe genuine signature-verified event persistence, async worker processing, authoritative duration/policy and correct current-source selection.
-3. Entitled student sees decoded video frames/poster/audio. Anonymous/non-entitled/wrong-school sessions receive no playback token. Test cookie/Bearer authorization; native device behavior is recorded separately from browser mobile emulation.
-4. Upload private valid WebVTT, observe real text-track ingest and ready/errored events, verify signed student captions/CC language controls, and prove unauthorized VTT source access fails.
-5. Accelerated-expiry staging token drill proves continuous playback renewal, pause/background return, playhead preservation and access-ended handling. Duration/jitter/retention settings retain margin. Updating player attributes alone fails this acceptance gate.
-6. Lose a start response / remove the optional retrieve URL in a controlled adapter case, then exercise a real waiting upload cancellation/restart and a cancellation-vs-ingest race. Capture observed actual Mux status behavior; mocks do not establish recoverability. Never rely on the retrieve URL appearing.
-7. Slow-network chunk retry/pause/refresh demonstrates the honest File/reselection UX. Exceed pilot attempt/storage reservation caps and verify a server refusal; malformed declarations do not masquerade as actual provider byte-limit proof.
-8. School-disable/takedown drill stops new grants; existing tokens live to expiry unless explicitly deleted at key/asset scope. Webhook/reconcile continue. Confirm logs redact all capabilities.
-9. Remove fixture media and captions; real provider asset/track and storage cleanup complete, still-stored inventory counts until confirmation, once-only quota release is correct. If the later replacement slice ships, separately prove A/B generation swap and fixed-retention behavior.
+Required tests report **passed, failed, skipped and blocked separately**. A stub, isolated player harness, service-role Storage request, SDK type or configured toggle cannot pass a live application authorization/streaming scenario. No pilot enablement with blocked required shared-schema, caption, stream, expiry, recovery, cleanup or operational-owner evidence. WS6 replacement/history/native/MCP behavior is separately tested before enabling those capabilities; external-only unsupported operations stay explicit.
 
-Pass/fail/skipped/blocked, actual commands, target identity, IDs/cleanup manifest and redacted evidence go in the rollout receipt. No school enablement on a blocked streaming/caption/expiry/shared-schema check. The live workflow can be non-blocking for code merges without being optional for launch.
+Pilot observation targets are proposals for the named owner's approval: upload success at least 95%, median processing under ten minutes and playback-start failure below 2%. Record sample counts/time window and provider-outage attribution; these are measurements to collect during the pilot, not fabricated prelaunch statistics or replacements for hard scenario gates. Caption policy, takedown/cleanup drills, budget/contact ownership and honest teacher recovery remain mandatory. Record cost against the actual approved budget, not remembered pricing or browser-derived invoices.
 
-## Rollback, outages and key rotation
+## Rollout receipt
 
-Disable the school service-only flag first; use MUX_PROVIDER_ENABLED=false for a platform incident. Pause MUX_ASSET_DELETION_ENABLED when preservation is required. Leave callbacks, event store, status reads, reconciliation, scheduler and secrets working. Do not clear source pointers, delete assets, or silently switch to old external URLs as rollback side effects. New hosted grants/renewals fail; existing grants expire normally. Queue cleanup safely while paused; do not release billable inventory early.
+Store a redacted Markdown/JSON receipt alongside the implementation PR/artifact, with a permanent link from the findings ledger. Do not commit secret manifests or user rows. The file map separates source tools from generated private fixtures, catalogs and externally registered scheduler/alert settings; listing those artifacts does not create them.
 
-Mux API outage: no blind create retry, keep uncertain intents, bounded backoff, visible retry-later. CDN outage: preserve playhead and show unavailable/retry; local JWT signing cannot fix a streaming outage. Database/auth outage fails access closed. Lost callbacks are repaired from durable ledger/owned provider polls, not an unlimited asset scan. Resuming a school runs bounded reconciliation before new uploads.
+```text
+source commit / PR / SDK versions and checksums:
+actual app service, stage, origin, commit and image digest:
+Supabase project, schema, owner role and approved baseline/catalog location:
+Mux account/environment, callback endpoint IDs and signing key IDs (no secrets):
+migration source/variant/global-Storage checksums, approval and catalog diff:
+fixture tenant/users/media, provider upload/asset/track IDs and ownership:
+variable readiness and schema build/runtime match (presence only):
+package / T-ID / command / timestamp / exit / passed / failed / skipped / blocked:
+real acknowledgement, stream/CC/expiry/recovery evidence links:
+scheduler task/monitor/owner and observed missed-run/manual replay evidence:
+budget/abuse/privacy/caption policy owner approvals:
+cleanup manifest: confirmed deleted / retained / unresolved, reason and next owner:
+remaining blockers and exact missing access/identity/evidence:
+school enablement decision/approver, rollback verification:
+production approval: separate, absent unless explicitly supplied:
+```
 
-Normal signing-key rotation: create/store a second key, deploy it as current, prove a signed staging request, retain the old Mux key at least the longest issued TTL plus clock-skew/operational margin, then call signingKeys.delete on the old key. Mux has no separate revoke API. Never delete the previous key immediately after deploy. Emergency deletion interrupts every token using that key and needs explicit operator authorization.
+## Rollback and outages
 
-Record the signed token audiences used (v/t/g/s); d is DRM-only and not part of this rollout. Test referrer restrictions with tenant hosts and native/missing Referer before enabling them. They limit reuse but do not replace entitlement checks.
+Disable the school setting first, or global hosting for an incident; pause destructive cleanup separately when preservation is needed. Keep callback secrets, receipt store, status/removal, replay/reconcile, scheduler and ownership records alive. Rollback does not clear source pointers, destroy assets, select stale external URLs or refund stored usage prematurely. Never use a schema down script as routine shared rollback; review recovery separately with the database owner.
 
-Production rollout remains a separate operator approval after shared production target/setup is verified. The plan does not authorize a production migration, deploy, secret edit, push, merge or general enablement.
+Provider API outage keeps uncertain intents with bounded retry; CDN outage preserves playhead and shows unavailable/retry; local signing cannot repair CDN delivery. Database/auth/limiter failures deny new access. Re-enable only after reconciling stuck owned rows and confirming target/cost/flags. Resume state clears on logout/account switch. Retain incident evidence only under the named policy, without capabilities.
+
+Production is a separately verified target and approval after applicable wider-release/shared prerequisites. A docs merge, successful staging run or operator ownership record is not production SQL/deploy/enablement authorization.
