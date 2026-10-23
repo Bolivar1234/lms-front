@@ -2,6 +2,7 @@ import { createClient as createBearerClient, type SupabaseClient, type User } fr
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentTenantId } from '@/lib/supabase/tenant'
+import { DB_SCHEMA } from '@/lib/supabase/schema'
 
 export interface ApiAuthContext {
     supabase: SupabaseClient
@@ -80,7 +81,7 @@ async function verifyBearerToken(token: string): Promise<User | null> {
     const authClient = createBearerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
-        { auth: { persistSession: false, autoRefreshToken: false } }
+        { db: { schema: DB_SCHEMA }, auth: { persistSession: false, autoRefreshToken: false } }
     )
     // Server-side verification of signature and expiry.
     const { data, error } = await authClient.auth.getUser(token)
@@ -92,6 +93,7 @@ async function getBearerContext(token: string): Promise<ApiAuthContext | null> {
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!
 
     const authClient = createBearerClient(url, anonKey, {
+        db: { schema: DB_SCHEMA },
         global: { headers: { Authorization: `Bearer ${token}` } },
         auth: { persistSession: false, autoRefreshToken: false },
     })
@@ -115,6 +117,7 @@ async function getBearerContext(token: string): Promise<ApiAuthContext | null> {
     // Forward x-tenant-id like the web client does, so get_tenant_id()'s
     // header fallback stays consistent for tokens without a tenant_id claim.
     const supabase = createBearerClient(url, anonKey, {
+        db: { schema: DB_SCHEMA },
         global: {
             headers: {
                 Authorization: `Bearer ${token}`,
