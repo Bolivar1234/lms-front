@@ -520,6 +520,6 @@ test('an old Spanish lesson URL shows the English discussion', async ({ page }) 
   const section = discussion(page, 'Discussion')
   await expect(section.getByRole('heading', { name: 'Discussion' })).toBeVisible({ timeout: 30_000 })
   await expect(
-    promptArticle(page, BASE_PROMPT, 'Discussion').getByRole('button', { name: 'Reply', exact: true })
+    promptArticle(page, BASE_PROMPT, 'Discussion').getByRole('button', { name: 'Answer', exact: true })
   ).toBeVisible()
 })

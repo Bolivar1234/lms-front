@@ -20,9 +20,10 @@ import { DEFAULT_TENANT, getServiceRoleClient } from './utils/seed-state'
  * real checkout needs live test-mode price ids.
  *
  * Since #631 a price row is necessary but not sufficient: the school's own
- * `tenant_settings` toggle (`binance_enabled`, `solana_enabled`) has to be on,
- * and the seed switches none of them on, so this spec turns the two crypto rails
- * on for Default School and off again afterwards. Stripe defaults to enabled.
+ * `tenant_settings` toggle has to be on, and the seed switches none of them on,
+ * so this spec turns `binance_enabled` on for Default School and off again
+ * afterwards. Stripe defaults to enabled. `solana_enabled` is switched on too, to
+ * prove a legacy toggle cannot bring back the retired Solana rail.
  */
 
 const UPGRADE = `${BASE}/dashboard/admin/billing/upgrade`
@@ -89,29 +90,14 @@ test.describe('platform billing — payment method choice', () => {
   })
 
   test('offers the crypto rails a super admin has priced', async ({ page }) => {
-    // #610: the seed prices Binance Pay and Solana for every paid plan, and a
-    // catalog-less row (`provider_price_id IS NULL`) is a real, buyable price —
-    // the dialog must not treat a missing provider id as a missing price.
+    // #610: the seed prices Binance Pay for every paid plan, and a catalog-less
+    // row (`provider_price_id IS NULL`) is a real, buyable price — the dialog
+    // must not treat a missing provider id as a missing price.
     await clickByText(page, 'Choose plan')
     const dialog = page.getByRole('alertdialog')
     await expect(dialog).toBeVisible()
 
     await expect(dialog.getByRole('button', { name: 'Binance Pay', exact: true })).toBeVisible()
-    await expect(dialog.getByRole('button', { name: 'Solana', exact: true })).toBeVisible()
-  })
-
-  test('a Solana checkout lands on the QR page, not an unhandled protocol', async ({ page }) => {
-    // The client cannot navigate to a `solana:` URL. Choosing this rail has to
-    // produce a page with a scannable code and a poll behind it.
-    await clickByText(page, 'Choose plan')
-    await expect(page.getByRole('alertdialog')).toBeVisible()
-    await clickByText(page, 'Solana')
-
-    await page.waitForSelector('[data-testid="platform-solana-checkout"]', { timeout: 15_000 })
-    await expect(page).toHaveURL(/\/dashboard\/admin\/billing\/checkout\//)
-    // The QR is rendered client-side from the request's stored reference, so it
-    // survives the reload a wallet hand-off can cause.
-    await expect(page.getByRole('img', { name: /QR/i })).toBeVisible()
   })
 
   test('never offers a rail a school cannot buy a plan on', async ({ page }) => {
@@ -121,12 +107,11 @@ test.describe('platform billing — payment method choice', () => {
 
     // The filter is the `supportsPlatformBillingCheckout` capability, never a
     // slug list. `Binance (personal)` pays a SCHOOL's own account and the payee
-    // here is the platform; `Solana (subscription)` auto-pulls on chain and can
-    // only be cancelled by the payer's wallet, so neither belongs on this
-    // screen even though plain Solana and Binance Pay now do (#610).
-    for (const rail of ['Binance (personal)', 'Solana (subscription)']) {
-      await expect(dialog.getByRole('button', { name: rail, exact: true })).toHaveCount(0)
-    }
+    // here is the platform, so it does not belong on this screen even though
+    // Binance Pay now does (#610). Solana is a retired rail and is never offered.
+    await expect(dialog.getByRole('button', { name: 'Binance (personal)', exact: true })).toHaveCount(0)
+    // Any casing: a retired rail with no display label falls back to its slug.
+    await expect(dialog.getByRole('button', { name: /solana/i })).toHaveCount(0)
   })
 
   test('bank transfer opens the manual request form', async ({ page }) => {

@@ -6,6 +6,8 @@
  * school AND in the named lesson, and the caller is the course author, an
  * active school admin, or holds course access; a resource in another school is
  * a 404 (its existence is not confirmed); DB and storage failures are 500s.
+ * The one public exception: media embedded in a published free-preview lesson
+ * is signed for anyone, logged out included, and nothing else of that lesson is.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -18,6 +20,8 @@ const state = vi.hoisted(() => ({
   auth: null as { user: { id: string }; tenantId: string } | null,
   resources: [] as Row[],
   memberships: [] as Row[],
+  lessons: [] as Row[],
+  settings: [] as Row[],
   access: false,
   readError: null as { message: string } | null,
   signError: null as { message: string } | null,
@@ -28,7 +32,15 @@ const state = vi.hoisted(() => ({
 function builder(table: string) {
   const eqs: [string, unknown][] = []
   const source = (): Row[] =>
-    table === 'lesson_resources' ? state.resources : table === 'tenant_users' ? state.memberships : []
+    table === 'lesson_resources'
+      ? state.resources
+      : table === 'tenant_users'
+        ? state.memberships
+        : table === 'lessons'
+          ? state.lessons
+          : table === 'tenant_settings'
+            ? state.settings
+            : []
   const b: Record<string, unknown> = {
     select: () => b,
     eq: (c: string, v: unknown) => (eqs.push([c, v]), b),
@@ -64,6 +76,7 @@ const admin = {
 
 vi.mock('@/lib/supabase/api-auth', () => ({ getApiAuthContext: () => Promise.resolve(state.auth) }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => admin }))
+vi.mock('@/lib/supabase/tenant', () => ({ getCurrentTenantId: () => Promise.resolve('00000000-0000-0000-0000-000000000002') }))
 
 import { GET } from '@/app/api/lessons/[lessonId]/resources/[resourceId]/url/route'
 import { RESOURCE_URL_TTL_SECONDS } from '@/lib/lessons/resource-download'
@@ -88,6 +101,8 @@ beforeEach(() => {
   state.auth = { user: { id: 'student-1' }, tenantId: TENANT }
   state.resources = [RESOURCE]
   state.memberships = []
+  state.lessons = []
+  state.settings = []
   state.access = false
   state.readError = null
   state.signError = null
@@ -189,5 +204,55 @@ describe('GET /api/lessons/:lessonId/resources/:resourceId/url', () => {
     state.access = true
     state.signError = { message: 'Object not found' }
     expect((await get(2001, 7)).status).toBe(500)
+  })
+
+  describe('media embedded in a public free-preview lesson', () => {
+    const PREVIEW_LESSON = {
+      id: 2001,
+      tenant_id: TENANT,
+      status: 'published',
+      is_preview: true,
+      content: '<Audio src="lesson-resource://2001/7" />',
+      courses: { status: 'published' },
+    }
+
+    it('signs it for a logged-out visitor', async () => {
+      state.auth = null
+      state.lessons = [PREVIEW_LESSON]
+      const res = await get(2001, 7)
+      expect(res.status).toBe(200)
+      expect(state.signed).toEqual([{ bucket: 'lesson-resources', path: RESOURCE.file_path, ttl: RESOURCE_URL_TTL_SECONDS }])
+    })
+
+    it('signs it for a logged-in student without course access', async () => {
+      state.lessons = [PREVIEW_LESSON]
+      expect((await get(2001, 7)).status).toBe(200)
+    })
+
+    it('does not sign a file of that lesson its content does not embed', async () => {
+      state.auth = null
+      state.lessons = [{ ...PREVIEW_LESSON, content: '<Audio src="lesson-resource://2001/70" />' }]
+      expect((await get(2001, 7)).status).toBe(401)
+      expect(state.signed).toEqual([])
+    })
+
+    it.each([
+      ['an unpublished lesson', { status: 'draft' }],
+      ['a lesson not marked preview', { is_preview: false }],
+      ['a lesson of an unpublished course', { courses: { status: 'draft' } }],
+    ])('does not sign media of %s', async (_label, patch) => {
+      state.auth = null
+      state.lessons = [{ ...PREVIEW_LESSON, ...patch }]
+      expect((await get(2001, 7)).status).toBe(401)
+      expect(state.signed).toEqual([])
+    })
+
+    it('does not sign when the school switched free previews off', async () => {
+      state.auth = null
+      state.lessons = [PREVIEW_LESSON]
+      state.settings = [{ tenant_id: TENANT, setting_key: 'free_preview_enabled', setting_value: { enabled: false } }]
+      expect((await get(2001, 7)).status).toBe(401)
+      expect(state.signed).toEqual([])
+    })
   })
 })

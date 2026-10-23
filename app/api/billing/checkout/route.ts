@@ -45,6 +45,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { planId, interval = 'monthly', locale: bodyLocale, provider: requestedProvider } = body
 
+    // A retired rail is gone, not a bad request: answer before price resolution,
+    // which no longer lists it and would otherwise report a missing price.
+    if (requestedProvider === 'solana' || requestedProvider === 'solana_subs') {
+      return NextResponse.json({ error: 'Solana payments are disabled.' }, { status: 410 })
+    }
+
     if (!planId) {
       return NextResponse.json({ error: 'Missing plan ID' }, { status: 400 })
     }

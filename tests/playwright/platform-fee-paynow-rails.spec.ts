@@ -17,14 +17,7 @@
  *    capture route settles + clears the balance, and (with
  *    PAYPAL_PLATFORM_WEBHOOK_ID) a signed PAYMENT.CAPTURE.COMPLETED replay of the
  *    same capture credits nothing twice.
- *  - Solana: the CHAIN. No RPC stub exists (no spec fakes Solana RPC), so the
- *    on-chain proof is replaced by calling the real stage-1 SQL function
- *    `observe_solana_platform_payment` with a synthetic signature — exactly what
- *    /verify does after `verifyPlatformTransfer` succeeds — and then /verify runs
- *    the real stage-2 fee settlement. Transfer matching (amount, mint,
- *    reference, wrong-amount refusal) is covered by unit tests instead:
- *    tests/unit/solana-fee-verify.test.ts, solana-fee-activation.test.ts,
- *    solana-fee-checkout.test.ts.
+ *  - Solana: retired. The route answers 410 and writes nothing (hardening test).
  *  - Binance Pay: Binance's host. `BINANCE_PAY_API_BASE` (loopback-only seam,
  *    #952) points the app at a stub in this process for the two calls the rail
  *    makes: the v3 order and the webhook-verification certificate. The
@@ -84,14 +77,11 @@ const TAG = 'fee-rails-e2e'
 const USD_SALE = 61.85 // → fee 12.37
 const USD_FEE = 12.37
 const EUR_SALE = 50 // → fee 10.00 EUR
-const SOLANA_SALE = 25 // → fee 5.00
-const SOLANA_FEE = 5
 const BINANCE_SALE = 44.35 // → fee 8.87
 const BINANCE_FEE = 8.87
 
 const PAYPAL_BASE = process.env.PAYPAL_API_BASE
 const PAYPAL_READY = Boolean(PAYPAL_BASE && process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET)
-const SOLANA_READY = Boolean(process.env.SOLANA_RPC_URL && process.env.SOLANA_PLATFORM_WALLET)
 const BINANCE_BASE = process.env.BINANCE_PAY_API_BASE
 const BINANCE_KEY = process.env.BINANCE_PAY_API_KEY
 const BINANCE_SECRET = process.env.BINANCE_PAY_API_SECRET
@@ -329,12 +319,6 @@ async function redirectOf(page: Page, url: string): Promise<URL> {
   return new URL(location!, url)
 }
 
-/** Base58 (no 0/O/I/l), signature-length — what a Solana tx signature looks like. */
-function syntheticSignature(): string {
-  const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
-  return Array.from(crypto.randomBytes(88), (b) => alphabet[b % alphabet.length]).join('')
-}
-
 async function cleanup() {
   const admin = getAdmin()
   await admin.from('webhook_business_effects').delete().like('provider_event_id', `%${TAG}%`)
@@ -353,7 +337,7 @@ async function cleanup() {
 
 test.describe.configure({ mode: 'serial' })
 
-test.describe('platform fee pay-now on Binance / PayPal / Solana (#950)', () => {
+test.describe('platform fee pay-now on Binance / PayPal (#950)', () => {
   test.beforeEach(async ({}, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop-chromium', 'runs once — DB state and the provider stub are shared')
   })
@@ -387,7 +371,12 @@ test.describe('platform fee pay-now on Binance / PayPal / Solana (#950)', () => 
     expect(await ledger(admin, 'EUR')).toMatchObject({ net: 10 })
 
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    for (const provider of ['paypal', 'binance', 'solana']) {
+    // Solana is a retired rail: refused outright, before any currency check.
+    const solana = await postJson(page, '/api/billing/fees/checkout', { provider: 'solana', locale: LOCALE })
+    expect(solana.status).toBe(410)
+    expect(solana.json?.code).toBe('unsupported_rail')
+
+    for (const provider of ['paypal', 'binance']) {
       const eur = await postJson(page, '/api/billing/fees/checkout', { provider, currency: 'EUR', locale: LOCALE })
       expect(eur.status, `${provider} EUR`).toBe(400)
       expect(eur.json?.code, `${provider} EUR`).toBe('currency_not_supported_on_rail')
@@ -536,107 +525,6 @@ test.describe('platform fee pay-now on Binance / PayPal / Solana (#950)', () => 
       const rows = await feePayments(admin)
       expect(rows.filter((p) => p.status === 'succeeded')).toHaveLength(1)
       expect(await ledger(admin, 'USD')).toEqual({ accrued: USD_FEE, paid: USD_FEE, net: 0 })
-    })
-  })
-
-  test.describe('Solana (chain proof replaced by observe_solana_platform_payment)', () => {
-    test.skip(!SOLANA_READY, 'SOLANA_RPC_URL and SOLANA_PLATFORM_WALLET are required on the app server')
-
-    let paymentId = ''
-    let requestId = ''
-    let checkoutPath = ''
-
-    test('checkout returns a QR intent + a fee request row (plan_id NULL, request_type fee)', async ({ page }) => {
-      test.setTimeout(120_000)
-      const admin = getAdmin()
-      await seedSale(admin, SOLANA_SALE, 'usd')
-      expect((await ledger(admin, 'USD')).net).toBe(SOLANA_FEE)
-
-      await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-      const res = await postJson(page, '/api/billing/fees/checkout', { provider: 'solana', locale: LOCALE })
-      expect(res.status, JSON.stringify(res.json)).toBe(201)
-      expect(res.json).toMatchObject({ kind: 'qr', provider: 'solana', amount: SOLANA_FEE, currency: 'USD' })
-      expect(String(res.json!.url)).toMatch(/^solana:/)
-      paymentId = String(res.json!.paymentId)
-      requestId = String(res.json!.requestId)
-      checkoutPath = String(res.json!.checkoutPath)
-      expect(checkoutPath).toBe(`/dashboard/admin/billing/checkout/${requestId}`)
-
-      const { data: req, error } = await admin
-        .from('platform_payment_requests')
-        .select('plan_id, request_type, fee_payment_id, status, payment_provider, amount, currency, provider_reference, settlement_currency, settlement_base')
-        .eq('request_id', requestId)
-        .single()
-      expect(error).toBeNull()
-      expect(req).toMatchObject({
-        plan_id: null,
-        request_type: 'fee',
-        fee_payment_id: paymentId,
-        status: 'pending',
-        payment_provider: 'solana',
-        currency: 'usd',
-      })
-      expect(Number(req!.amount)).toBe(SOLANA_FEE)
-      expect(['usdc', 'sol']).toContain(req!.settlement_currency)
-      if (req!.settlement_currency === 'usdc') expect(Number(req!.settlement_base)).toBe(SOLANA_FEE * 1_000_000)
-
-      const payment = await feePayment(admin, paymentId)
-      expect(payment).toMatchObject({ provider: 'solana', status: 'pending', provider_reference: req!.provider_reference })
-
-      // One open fee request at a time.
-      const again = await postJson(page, '/api/billing/fees/checkout', { provider: 'solana', locale: LOCALE })
-      expect(again.status).toBe(409)
-      expect(again.json?.code).toBe('fee_request_open')
-
-      // The QR page renders for a fee request. Its verify poll is answered
-      // locally so nothing reaches a real RPC.
-      await page.route('**/api/billing/solana/verify', (route) =>
-        route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ confirmed: false, kind: 'fee' }) }),
-      )
-      await page.goto(`${QA_BASE}${checkoutPath}`, { waitUntil: 'domcontentloaded' })
-      await expect(page.getByTestId('platform-solana-checkout')).toBeVisible({ timeout: 30_000 })
-      await page.unroute('**/api/billing/solana/verify')
-    })
-
-    test('an observed signature settles the fee through /verify; a replay is a no-op', async ({ page }) => {
-      test.setTimeout(120_000)
-      expect(requestId, 'checkout test ran').toBeTruthy()
-      const admin = getAdmin()
-      const signature = syntheticSignature()
-
-      // Stage 1, as /verify runs it after verifyPlatformTransfer proves the transfer.
-      const { data: observed, error } = await admin.rpc('observe_solana_platform_payment', {
-        _request_id: requestId,
-        _tenant_id: QA.id,
-        _signature: signature,
-      })
-      expect(error).toBeNull()
-      expect((observed as { observation_status: string }[])[0].observation_status).toBe('observed')
-
-      await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-      const res = await postJson(page, '/api/billing/solana/verify', { requestId })
-      expect(res.status, JSON.stringify(res.json)).toBe(200)
-      expect(res.json).toMatchObject({ confirmed: true, kind: 'fee', state: 'activated', signature })
-
-      const payment = await feePayment(admin, paymentId)
-      expect(payment).toMatchObject({ status: 'succeeded', provider_charge_id: signature, review_reason: null })
-      expect(await ledger(admin, 'USD')).toEqual({ accrued: cents(USD_FEE + SOLANA_FEE), paid: cents(USD_FEE + SOLANA_FEE), net: 0 })
-      const { data: req } = await admin
-        .from('platform_payment_requests')
-        .select('status, activation_state, provider_charge_id')
-        .eq('request_id', requestId)
-        .single()
-      expect(req).toMatchObject({ activation_state: 'activated', provider_charge_id: signature })
-
-      const replay = await postJson(page, '/api/billing/solana/verify', { requestId })
-      expect(replay.status).toBe(200)
-      expect(replay.json).toMatchObject({ confirmed: true, kind: 'fee', alreadyProcessed: true })
-      expect((await ledger(admin, 'USD')).paid).toBe(cents(USD_FEE + SOLANA_FEE))
-      expect((await feePayments(admin)).filter((p) => p.status === 'succeeded')).toHaveLength(PAYPAL_READY ? 2 : 1)
-
-      // The QR page of a settled request sends the admin back to earnings.
-      await page.goto(`${QA_BASE}${checkoutPath}`, { waitUntil: 'domcontentloaded' })
-      await expect(page).toHaveURL(new RegExp(`/dashboard/admin/earnings`), { timeout: 30_000 })
     })
   })
 

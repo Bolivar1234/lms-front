@@ -21,7 +21,10 @@ export async function uploadPublicAsset(scope: PublicScope, formData: FormData):
   const courseId = 'courseId' in scope ? scope.courseId : undefined
   const actor = await authorizeCourseStorage(courseId, scope.purpose === 'landing-image')
   const certificate = scope.purpose === 'certificate-logo' || scope.purpose === 'certificate-signature'
-  const file = await validateUploadFile(formData.get('file'), 'image', (certificate ? 2 : 5) * 1024 * 1024)
+  // Certificates are rendered by React PDF, which cannot read WebP.
+  const file = await validateUploadFile(formData.get('file'), 'image', (certificate ? 2 : 5) * 1024 * 1024, {
+    imageFormat: certificate ? 'png' : 'webp',
+  })
   const bucket = scope.purpose === 'course-image' ? 'course-images' : 'landing-page-assets'
   const folder = certificate ? 'certificates' : scope.purpose === 'course-image' ? `courses/${courseId ?? `draft-${actor.user.id}`}` : 'images'
   const path = `${actor.tenantId}/${folder}/${nanoid()}.${file.extension}`

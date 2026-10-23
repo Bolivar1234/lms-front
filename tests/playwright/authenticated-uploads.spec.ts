@@ -161,14 +161,21 @@ test.describe('authenticated upload and private media flows', () => {
     let signerCalls = 0
     let signedResponse = 0
     await page.route(`**/api/lessons/${lessonId}/resources/*/url`, async (route) => {
-      const response = await route.fetch()
-      if (!response.ok()) { await route.fulfill({ response }); return }
-      const body = await response.json()
-      // Keep the real authorized token/bytes, but force src rotation even when
-      // the real server signs twice within the same wall-clock second.
-      const url = new URL(body.url)
-      url.searchParams.set('qa-refresh', String(++signedResponse))
-      await route.fulfill({ response, json: { ...body, url: url.href } })
+      // The viewer aborts an in-flight renewal when it re-renders or the page
+      // reloads; that disposes the response mid-read, which is not a failure.
+      try {
+        const response = await route.fetch()
+        if (!response.ok()) { await route.fulfill({ response }); return }
+        const body = await response.json()
+        // Keep the real authorized token/bytes, but force src rotation even when
+        // the real server signs twice within the same wall-clock second.
+        const url = new URL(body.url)
+        url.searchParams.set('qa-refresh', String(++signedResponse))
+        await route.fulfill({ response, json: { ...body, url: url.href } })
+      } catch (error) {
+        if (!/disposed|has been closed/i.test(String(error))) throw error
+        await route.abort().catch(() => undefined)
+      }
     })
     page.on('response', (response) => { if (response.url().includes(`/api/lessons/${lessonId}/resources/`) && response.ok()) signerCalls++ })
     await page.goto(`${school}/dashboard/student/courses/${courseId}/lessons/${lessonId}`)

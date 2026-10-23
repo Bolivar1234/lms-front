@@ -536,13 +536,13 @@ test('a school publishes Spanish course content inside the English application',
     await fillStable(page.locator('#quick-title'), courseTitle)
     const onNewLesson = /\/dashboard\/teacher\/courses\/\d+\/lessons\/new\?from=new-course/
     await clickUntil(
-      page.getByRole('button', { name: /create and publish/i }),
+      page.getByRole('button', { name: /create (&|and) publish/i }),
       async () => onNewLesson.test(page.url()),
       { attempts: 2, settleMs: 30_000 },
     )
     await expect(page).toHaveURL(onNewLesson, { timeout: 30_000 })
     courseId = Number(page.url().match(/courses\/(\d+)/)![1])
-    await expect(page.getByTestId('first-lesson-hint')).toContainText('already created', {
+    await expect(page.getByTestId('first-lesson-hint')).toContainText('is created', {
       timeout: 20_000,
     })
     const course = await readCourse(admin, courseId)
@@ -603,6 +603,6 @@ test('a school publishes Spanish course content inside the English application',
     const share = next.getByTestId('onboarding-share-invite-users')
     await expect(share).toContainText('/join-school')
     await expect(share.getByTestId('onboarding-share-whatsapp')).toContainText('WhatsApp')
-    await expect(share.getByTestId('onboarding-share-copy')).toContainText('Copiar enlace')
+    await expect(share.getByTestId('onboarding-share-copy')).toContainText('Copy join link')
   })
 })

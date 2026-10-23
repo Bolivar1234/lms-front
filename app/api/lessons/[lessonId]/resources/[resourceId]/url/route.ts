@@ -11,6 +11,8 @@
  *
  * Cookie or Bearer via `getApiAuthContext`; with Bearer the school is the
  * token's `tenant_id` claim. A resource in another school is a 404, not a 403.
+ * A logged-out caller (school from the proxy's `x-tenant-id`) is signed only
+ * media embedded in a public free-preview lesson; anything else is a 401.
  *
  * 200 `{ url, expiresIn, fileName, mimeType }` · 400 bad ids · 401 · 403
  * `access_denied` · 404 `not_found` · 500 `failed`.
@@ -18,6 +20,7 @@
 import { NextResponse } from 'next/server'
 import { getApiAuthContext } from '@/lib/supabase/api-auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getCurrentTenantId } from '@/lib/supabase/tenant'
 import { signLessonResourceDownload } from '@/lib/lessons/resource-download'
 
 export const dynamic = 'force-dynamic'
@@ -35,7 +38,6 @@ export async function GET(
   { params }: { params: Promise<{ lessonId: string; resourceId: string }> }
 ) {
   const auth = await getApiAuthContext(request)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized', code: 'unauthorized' }, { status: 401 })
 
   const raw = await params
   const lessonId = positiveInt(raw.lessonId)
@@ -45,8 +47,8 @@ export async function GET(
   }
 
   const result = await signLessonResourceDownload(createAdminClient(), {
-    tenantId: auth.tenantId,
-    userId: auth.user.id,
+    tenantId: auth?.tenantId ?? (await getCurrentTenantId()),
+    userId: auth?.user.id ?? null,
     resourceId,
     lessonId,
   })
@@ -59,6 +61,7 @@ export async function GET(
     return NextResponse.json({ error: 'Resource not found', code: 'not_found' }, { status: 404, headers: NO_STORE })
   }
   if (result.code === 'access_denied') {
+    if (!auth) return NextResponse.json({ error: 'Unauthorized', code: 'unauthorized' }, { status: 401, headers: NO_STORE })
     return NextResponse.json(
       { error: 'You do not have access to this course', code: 'access_denied' },
       { status: 403, headers: NO_STORE }

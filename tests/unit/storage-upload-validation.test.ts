@@ -13,6 +13,15 @@ describe('trusted storage byte validation', () => {
     expect(result.mimeType).toBe('image/webp')
     expect((await sharp(result.bytes).metadata()).format).toBe('webp')
   })
+  it('re-encodes to PNG when asked, keeping transparency, for consumers that cannot read WebP', async () => {
+    const transparent = await sharp({ create: { width: 2, height: 2, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).webp().toBuffer()
+    const result = await validateUploadFile(file(transparent, 'signature.webp', 'image/webp'), 'image', 1024 * 1024, { imageFormat: 'png' })
+    expect(result.extension).toBe('png')
+    expect(result.mimeType).toBe('image/png')
+    const metadata = await sharp(result.bytes).metadata()
+    expect(metadata.format).toBe('png')
+    expect(metadata.hasAlpha).toBe(true)
+  })
   it('strips appended attacker bytes from an otherwise valid raster image', async () => {
     const result = await validateUploadFile(file(Buffer.concat([await png(), Buffer.from('<script>bad()</script>')])), 'image', 1024 * 1024)
     expect(result.bytes.includes(Buffer.from('<script>'))).toBe(false)

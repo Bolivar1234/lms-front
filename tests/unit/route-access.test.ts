@@ -82,6 +82,13 @@ describe('localizePath', () => {
     expect(localizePath('/entrenamiento', 'es')).toBe('/entrenamiento')
     expect(localizePath('/español', 'en')).toBe('/español')
   })
+
+  it('never turns a stripped prefix into a cross-origin destination', () => {
+    expect(localizePath('/en//attacker.example/path', 'en')).toBe('/')
+    expect(localizePath('/es//attacker.example', 'es')).toBe('/')
+    expect(localizePath('/en/%2F%2Fattacker.example', 'en')).toBe('/')
+    expect(localizePath('/en/\\attacker.example', 'en')).toBe('/')
+  })
 })
 
 describe('loginPath', () => {

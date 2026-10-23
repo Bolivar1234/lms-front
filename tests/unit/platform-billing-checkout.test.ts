@@ -117,15 +117,14 @@ describe('platform billing capability', () => {
     // `manual` settles through platform_payment_requests rather than a checkout;
     // `solana_subs` cannot be cancelled without the payer's wallet;
     // `binance_personal` pays a SCHOOL's account, and the payee here is us.
-    for (const slug of ['manual', 'solana_subs', 'binance_personal'] as const) {
+    // `solana` is a retired rail.
+    for (const slug of ['manual', 'solana', 'solana_subs', 'binance_personal'] as const) {
       expect(isPlatformCheckoutProvider(slug)).toBe(false)
     }
   })
 
-  it('includes the crypto rails opened in #610', () => {
-    for (const slug of ['binance', 'solana'] as const) {
-      expect(isPlatformCheckoutProvider(slug)).toBe(true)
-    }
+  it('includes the crypto rail opened in #610', () => {
+    expect(isPlatformCheckoutProvider('binance')).toBe(true)
   })
 
   it('keeps every self-managed rail out of the webhook allowlist unless it signs', () => {

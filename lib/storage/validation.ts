@@ -70,7 +70,18 @@ function mediaType(bytes: Buffer, category: FileCategory): { mimeType: string; e
   return null
 }
 
-export async function validateUploadFile(value: FormDataEntryValue | null, category: FileCategory, maxBytes: number): Promise<ValidatedFile> {
+/**
+ * `imageFormat` picks the re-encoded raster format. WebP is the default; PNG is
+ * for consumers that cannot read WebP, such as React PDF on certificates. PNG
+ * keeps transparency (signatures) and takes the first frame of an animation.
+ */
+export async function validateUploadFile(
+  value: FormDataEntryValue | null,
+  category: FileCategory,
+  maxBytes: number,
+  options: { imageFormat?: 'webp' | 'png' } = {}
+): Promise<ValidatedFile> {
+  const imageFormat = options.imageFormat ?? 'webp'
   if (!(value instanceof File) || value.size === 0) throw new Error('No file provided')
   if (value.size > maxBytes) throw new Error(`File must be under ${Math.floor(maxBytes / 1024 / 1024)}MB`)
   const bytes = Buffer.from(await value.arrayBuffer())
@@ -78,12 +89,13 @@ export async function validateUploadFile(value: FormDataEntryValue | null, categ
   const raster = rasterType(bytes)
   if (raster && category !== 'audio') {
     try {
-      const image = sharp(bytes, { limitInputPixels: 40_000_000, failOn: 'warning', animated: true })
+      const image = sharp(bytes, { limitInputPixels: 40_000_000, failOn: 'warning', animated: imageFormat === 'webp' })
       const metadata = await image.metadata()
       if (metadata.format !== raster) throw new Error('Unsupported image')
-      const output = await image.rotate().webp({ quality: 90 }).toBuffer()
+      const rotated = image.rotate()
+      const output = await (imageFormat === 'png' ? rotated.png() : rotated.webp({ quality: 90 })).toBuffer()
       if (output.length > maxBytes) throw new Error('Decoded image exceeds the upload limit')
-      return { bytes: output, mimeType: 'image/webp', extension: 'webp', fileName, size: output.length }
+      return { bytes: output, mimeType: `image/${imageFormat}`, extension: imageFormat, fileName, size: output.length }
     } catch {
       throw new Error('Invalid or unsupported image file')
     }

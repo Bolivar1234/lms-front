@@ -203,6 +203,12 @@ test.describe('AI chat image attachments', () => {
         rmSync(fixtureDir, { recursive: true, force: true })
         rmSync(AUTH_STATE, { force: true })
     })
+    // Every sent turn ends with the provider refusing the synthetic key, which
+    // marks the school's key invalid, sometimes after the test has finished. The
+    // next test would open a chat that says AI is off, so re-arm it first.
+    test.beforeEach(async () => {
+        await reactivateTenantAi('code-academy')
+    })
 
     test('an ordinary phone-sized photo is accepted and downscaled onto the wire', async ({ page }) => {
         // Generating and re-encoding ~14 MB of pixels in the page is slow by nature.
