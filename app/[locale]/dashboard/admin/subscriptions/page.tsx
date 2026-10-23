@@ -51,9 +51,10 @@ export default async function SubscriptionsPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }) {
   const { locale } = await params
+  const resolvedSearchParams = await searchParams
   const t = await getTranslations('dashboard.admin.subscriptions')
   const tBreadcrumbs = await getTranslations('dashboard.admin.breadcrumbs')
   const dateLocale = locale === 'es' ? es : enUS
@@ -78,8 +79,8 @@ export default async function SubscriptionsPage({
   }
 
   const tenantId = await getCurrentTenantId()
-  const search = searchParams.search || ''
-  const statusFilter = searchParams.status || 'all'
+  const search = resolvedSearchParams.search || ''
+  const statusFilter = resolvedSearchParams.status || 'all'
 
   // Build query
   let query = supabase

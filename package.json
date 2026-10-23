@@ -12,7 +12,7 @@
     "lint": "eslint",
     "email:check": "node --import tsx scripts/auth-email.ts",
     "email:setup": "node --import tsx scripts/auth-email.ts --setup",
-    "typecheck": "NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit",
+    "typecheck": "NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit --incremental false",
     "test": "npx playwright test",
     "test:e2e": "npx playwright test",
     "test:e2e:mobile": "npx playwright test --project=mobile",
