@@ -10,6 +10,8 @@ Repository evidence is pinned to merged `d5db2bf477374d229aa6c049ffce08c7d7c4700
 
 Review brief: read the complete planning set and the relevant code/provider sources at the stated commits; report a concrete failure, evidence, correction and acceptance test. Separate design decisions, implementation tasks, launch inputs and optional proposals. Model agreement and green documentation CI are not launch evidence. Documentation work authorizes no application implementation, shared SQL, deployment, secret changes or feature enablement.
 
+For milestone reviews, identify the M1–M5 milestone, WS package, affected file path and T-ID/F-ID where applicable. State whether the comment changes the full vision, delivery order, implementation contract or required evidence. Update the linked documents together; retain later capabilities in the roadmap when they move between phases.
+
 ## Outcome, scope and package order
 
 Teachers upload video inside the LMS and add manual WebVTT captions; entitled students watch signed adaptive playback. Existing external video, private audio/documents, free-preview behavior, manual completion and checkpoints remain intact. No Solana work, watch-based completion, new payment rail, auto-caption/translation/AI subsystem or general provider catalog mirror belongs to this feature.
@@ -23,6 +25,22 @@ The confirmed topology is LMS `circles.saythanks.org`, SayThanks `saythanks.org`
 | Wider release | WS5/WS6, supported history/replacement/client contracts and separately approved shared-production rollout. |
 
 WS0/PR0, WS1/PR1, WS1b/PR1b, WS2a/PR2a, WS2b/PR2b, WS3/PR3, WS4/PR4, WS5/PR5 and WS6/PR6 are **planned package names**, not existing GitHub PR numbers. [The TDD dependency table](MUX_VIDEO_TDD_PLAN.md#package-order-and-deliverables) governs sequencing. Local work continues while genuinely missing hosted inputs remain blocked. Manual captions and safe lost-handoff/restart handling remain pilot scope.
+
+## Delivery milestones
+
+Keep the full vision and implement it in phases. These milestones group the existing work packages into inspectable outcomes; they do not remove capabilities or replace package dependencies. The complete [file inventory](MUX_VIDEO_FILE_MAP.md) spans the whole roadmap. Only the active package's files are implemented at a time, with agreed consolidation reflected in the map.
+
+| Milestone | Packages | Intended outcome | Status |
+| --- | --- | --- | --- |
+| M1 — Foundation | WS0, WS1 | Disposable SQL test gate; ownership, permissions, source/state model, durable cleanup identity and initial history guards. | Planned |
+| M2 — Upload lifecycle | WS2a, WS2b | Owned direct uploads, verified durable callbacks, processing status, quotas, recovery, removal and cleanup behind guarded APIs. | Planned |
+| M3 — Playback | WS3 | Authorized signed playback and renewal in the authenticated app harness, preserving pause/playhead and checkpoint behavior. | Planned |
+| M4 — Pilot launch | WS1b, WS4 and applicable Ops/live gates | Complete teacher/student experience, manual captions, accessibility, initial unsupported-client guards, operator controls and verified shared-staging/provider operation. | Planned |
+| M5 — Wider release | WS5, WS6 and applicable rollout gates | Plan limits/usage, supported history/replacement/restore and supported MCP/core/native experiences, with separate shared-production approval. | Planned |
+
+All five feature milestones are planned; merged baseline fixes remain recorded separately. WS1b verification can proceed after WS1 and repeats with later SQL; it does not wait for M3 or block independent local coding. WS4 presentation can proceed against settled contracts alongside WS3. Provider/account/operator preparation also starts early; its actual receipts gate M4 enablement. Within M5, WS5 and WS6 capabilities may progress independently under their package dependencies.
+
+The [milestone completion rules](MUX_VIDEO_TDD_PLAN.md#milestone-completion-and-evidence) define acceptance coverage and evidence. Record a milestone's implementation, verification and enablement status separately: a merged package or passing mock cannot complete a live gate. M3 is an internal working slice; M4 is the named-school pilot gate. Later roadmap features stay visible throughout.
 
 ## File-level implementation blueprint
 

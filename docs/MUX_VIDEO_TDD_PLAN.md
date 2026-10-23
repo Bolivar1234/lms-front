@@ -10,6 +10,22 @@ Use synthetic RSA keys, fake clocks and distinct tenants/roles/lessons. Service-
 
 Every implementation PR records the exact reviewed main/SDK version, owned files, route/test contracts, red/green commands and actual issue if one exists. The repository currently disables GitHub issues; do not invent issue numbers or enable issues. Planned PR aliases below are work-package identifiers. Use the repository work-issue/ship-pr/pr-review-loop workflows where applicable when execution is authorized; this document alone does not start application work.
 
+## Milestone completion and evidence
+
+The master's [M1–M5 roadmap](MUX_VIDEO_HOSTING_PLAN.md#delivery-milestones) preserves the full vision; the [package table](#package-order-and-deliverables) below governs implementation dependencies. Milestones are delivery groups, not replacements for WS packages or actual GitHub PR numbers. All milestone implementation remains planned until receipts establish otherwise.
+
+| Milestone | Acceptance focus | Required completion evidence |
+| --- | --- | --- |
+| M1 — Foundation | WS0/WS1 portions of T05, T25, T28–T30 | Actual disposable SQL discovery and failures/green results, constraints/RLS/grants, guarded history/cascades and generated types. Later WS1b/shared and WS6/history coverage stays open. |
+| M2 — Upload lifecycle | T01/T02/T04/T07/T09/T12/T19–T23/T26; lifecycle portions of T28/T29 | Failing-to-passing adapter/HTTP/SQL controls, durable enqueue/lease/payment isolation, owned reservations, finite caps, uncertain-create/restart and late-ingest cleanup. Local provider stubs establish wiring; real-provider behavior remains a required M4 receipt. |
+| M3 — Playback | WS3 portions of T03/T06/T13/T17; checkpoint compatibility from T15 | Real local Auth/RLS/HTTP role matrix and app harness grant/renewal/checkpoint checks. Mux frames, real expiry/caption behavior and deployed shared authorization remain live gates for M4. |
+| M4 — Pilot launch | T08/T10/T11/T14–T16/T24/T27 and applicable live portions of M1–M3 families | WS1b public/shared parity and read-only target/owner receipts, complete teacher/student browser journeys, private captions and transport, operator controls, actual provider callbacks/frames/renewal/recovery/deletion, scheduler/alerts/budget/privacy and cleanup receipts. Missing or skipped required scenarios block school enablement. |
+| M5 — Wider release | T18 plus later T03/T05/T06/T10/T13/T15/T17/T28 capability coverage | Media plan semantics/usage and each enabled history/replacement/client capability's own tests and real evidence. Inventory actual native repository paths before native work; device behavior is not inferred from desktop Chromium. Shared-production rollout requires separate approval. |
+
+Before starting a package, record the milestone/WS alias, bounded owned paths, prerequisites and failing acceptance cases. Before closing it, record exact commit/target identity, commands, pass/fail/skip/blocked counts and receipt locations. Keep implementation complete, verification complete and enablement approved as separate facts. Required blocked/skipped checks cannot be relabeled passed to close a milestone. A code merge can precede an approved live run, but the associated release gate stays open.
+
+The acceptance focus above assigns every T01–T30 family and deliberately revisits cross-cutting contracts as later capabilities are enabled. It does not reduce the detailed requirements below. Follow the actual package dependencies rather than serializing all WS1b/Ops preparation behind M3; do not start every mapped file in parallel.
+
 ## Package order and deliverables
 
 | Package / alias | Dependencies | Deliverable and gate |
