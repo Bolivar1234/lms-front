@@ -14,7 +14,7 @@ Use this brief when requesting a model review:
 
 > Read all four documents linked above at the current PR commit. Review the design against repository code and current Mux contracts. Report actionable findings with file/heading, evidence, failure scenario, proposed fix and acceptance test. Preserve the user-confirmed shared lms deployment. Distinguish design defects from implementation work and launch inputs; do not claim planned or mocked tests prove live behavior. Suggest focused edits to the relevant document and cite the commit reviewed.
 
-Keep unresolved findings in PR threads until the relevant document is corrected or the tradeoff is explicitly recorded. A model's approval or agreement count does not establish launch readiness; the TDD and live acceptance gates below do. Review comments and documentation edits do not authorize application implementation, shared-database writes, deployment, or feature enablement.
+Prior-round findings, each with an ID, evidence, a proposed correction and an acceptance test, are recorded in [the consolidated review findings](MUX_VIDEO_REVIEW_FINDINGS.md); reply to them by ID. Keep unresolved findings in PR threads until the relevant document is corrected or the tradeoff is explicitly recorded. A model's approval or agreement count does not establish launch readiness; the TDD and live acceptance gates below do. Review comments and documentation edits do not authorize application implementation, shared-database writes, deployment, or feature enablement.
 
 ## Outcome and release stages
 
