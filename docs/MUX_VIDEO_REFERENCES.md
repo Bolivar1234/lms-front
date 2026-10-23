@@ -201,10 +201,25 @@ Adopt these patterns only in later authorized media-intelligence work; teacher-u
 
 Deliberately reject these demo assumptions for LMS:
 
-- public playback preference and the one-day signed-token default in app/lib/mux.ts; LMS uses private playback and the duration-aware token lifetime and renewal contract defined by this plan;
+- public playback preference and the one-day signed-token default in app/lib/mux.ts; LMS uses private playback and the bounded token lifetime and renewal contract defined by this plan;
 - the standalone Drizzle/Postgres catalog, unscoped videos/video_chunks tables, and direct Mux lookup from search results;
 - S3 translation artifacts, Remotion/Lambda rendering, and ElevenLabs dubbing in the first release;
 - importing all Mux assets as the source of truth; LMS lesson_media ownership is the only first-release application record and no provider mirror is required;
 - claiming cross-device durability from localStorage, which is browser-local only.
 
 The master plan and TDD work packages govern release scope: APIs plus a harness are internal only; a teacher pilot also requires editor upload, manual captions, finite pilot caps, cleanup, abuse controls, the shared-schema gate, and live staging acceptance. Add @mux/ai and Vercel Workflows in a later, separately reviewable phase for captions, summaries, translation, and semantic search.
+
+
+## PR 28 follow-up code evidence
+
+These paths were read at main `981c596f247accc6c069b35b22b4a27f095e2c6f`; PR #29 adds Stripe scripts/receipts only. The [reconciliation](MUX_VIDEO_PR28_REVIEW_RECONCILIATION.md) separates observed source from incomplete contracts and already-specified controls. No hosted function/Cloudflare/account state was inspected in this documentation pass.
+
+| Key | Pinned code and observed boundary |
+| --- | --- |
+| C13 | [Original snapshot](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/supabase/migrations/20260215000001_create_version_triggers.sql), [nullable-author replacement](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/supabase/migrations/20260302180000_fix_version_triggers_nullable_changed_by.sql), [original restore](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/supabase/migrations/20260215000002_create_restore_functions.sql), [effective restore replacement](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/supabase/migrations/20260729120000_fix_version_restore_course_join.sql): two explicit definitions each in this checkout; hosted lms copies need catalog evidence. |
+| C14 | [Tenant helpers](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/lib/supabase/tenant.ts): getCurrentTenantId() falls back; new media auth must not use that boundary. |
+| C15 | [Checkpoint player](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/components/lesson/checkpoint-video-player.tsx): scheduler distinguishes jumps and unfinished markers; future Mux token replacement is not implemented and needs continuity tests, not a claim that every swap always resets. |
+| C16 | [Webhook ledger](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/supabase/migrations/20260615130000_webhook_events.sql): existing UNIQUE(provider, provider_event_id). Explicit Mux environment namespace belongs in that provider field. |
+| C17 | [Feature declarations](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/lib/plans/features.ts), [server gate](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/lib/plans/server.ts), [contract test](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/tests/unit/plan-feature-gate-contract.test.ts): advertised features need actual server enforcement and comparison labels. |
+| C18 | [Automatic downgrade](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/lib/billing/downgrade-tenant.ts), [admin billing](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/app/actions/admin/billing.ts), [provider dispatch](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/lib/billing/platform-webhook-dispatch.ts): existing billing authority must survive media-overage handling. |
+| C19 | [Dockerfile](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/Dockerfile), [deploy workflow](https://github.com/Bolivar1234/lms-front/blob/981c596f247accc6c069b35b22b4a27f095e2c6f/.github/workflows/deploy.yml): schema build selector missing; workflow still names Dokploy and its secret. No curl installation is declared in the runtime image; inspect actual image rather than infer tool presence from the base. |

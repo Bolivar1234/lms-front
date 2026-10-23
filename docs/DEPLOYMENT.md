@@ -1,4 +1,6 @@
-# Deployment Guide: Dokploy + Multi-Tenant Subdomains
+# Legacy deployment reference: Dokploy + multi-tenant subdomains
+
+**Current LMS handoff identifies Coolify.** The Dokploy procedures, webhook names, old cron examples and host-specific assumptions below are historical reference, not verified instructions for the current service. Do not run them against the active host. Use the Mux [target/edge preflight](MUX_VIDEO_OPS_RUNBOOK.md#read-only-preflight-and-sql-gate) and [scheduler procedure](MUX_VIDEO_OPS_RUNBOOK.md#one-scheduler-and-observable-recovery); record actual Coolify service/version, image, Cloudflare policy and approved operator actions before rollout. This docs correction does not alter or invoke `.github/workflows/deploy.yml`.
 
 Self-host the LMS on [Dokploy](https://dokploy.com) (open-source PaaS built on Docker + Traefik) with wildcard subdomain routing for multi-tenancy.
 
