@@ -16,7 +16,11 @@ The LMS lives in the `lms` schema. Production is not on this setup yet.
 - `lms-catchup-20261024.sql`: the 21 repo migrations the staging `lms` schema was
   missing after the upstream syncs (#33, #34): billing mode, tenant assets, read gates,
   the AI evals tables and more. Generated, one transaction, with a preflight and a
-  ledger (`lms.lms_migration_log`). Not applied yet; see the run line in its header.
+  ledger (`lms.lms_migration_log`). Applied to staging on 2026-10-24 (21/21 in the
+  ledger). Its preflight referenced the ledger statically and failed on the fresh
+  schema, so the ledger was created first with the bundle's own definition and the file
+  ran unchanged. The generator now emits a dynamic-SQL preflight; this file is kept as
+  the record of what ran.
 
 ## Applying new repo migrations
 
