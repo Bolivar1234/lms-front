@@ -180,7 +180,16 @@ export async function createProduct(formData: ProductFormData): Promise<ActionRe
       }
       providerPriceId = variantId
     } else if (providerType === 'solana' || providerType === 'solana_subs') {
-      throw new Error('Solana payments are disabled.')
+      // No catalog — but the school must have a receiving wallet, else checkout 400s.
+      const { data: wallet } = await adminClient
+        .from('tenant_payment_wallets')
+        .select('wallet_address')
+        .eq('tenant_id', tenantId)
+        .eq('provider', providerType)
+        .maybeSingle()
+      if (!wallet?.wallet_address) {
+        throw new Error('Configure your Solana wallet in Settings → Payment before creating a Solana product.')
+      }
     }
 
     // 3. Insert product into database

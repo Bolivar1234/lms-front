@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import Link from 'next/link'
 import { CourseSelector, type CourseOption } from './course-selector'
 import { createPlan, updatePlan } from '@/app/actions/admin/plans'
 import type { PaymentProvider } from '@/lib/payments'
@@ -156,6 +157,8 @@ export function PlanForm({ mode, initialData, courses, enabledProviders = [] }: 
             {visibleProviders.has('lemonsqueezy') && <SelectItem value="lemonsqueezy">{t('methodLemonsqueezy')}</SelectItem>}
             {visibleProviders.has('binance') && <SelectItem value="binance">{t('methodBinance')}</SelectItem>}
             {visibleProviders.has('binance_personal') && <SelectItem value="binance_personal">{t('methodBinancePersonal')}</SelectItem>}
+            {visibleProviders.has('solana') && <SelectItem value="solana">{t('methodSolana')}</SelectItem>}
+            {visibleProviders.has('solana_subs') && <SelectItem value="solana_subs">{t('methodSolanaSubs')}</SelectItem>}
           </SelectContent>
         </Select>
         <p className="text-sm text-muted-foreground">
@@ -178,6 +181,22 @@ export function PlanForm({ mode, initialData, courses, enabledProviders = [] }: 
           />
           <p className="text-sm text-muted-foreground">{t('variantIdHint')}</p>
         </div>
+      )}
+
+      {/* Solana providers need a wallet configured in Settings → Payment. */}
+      {(formData.paymentProvider === 'solana' || formData.paymentProvider === 'solana_subs') && (
+        <Alert>
+          <IconAlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {t('solanaWalletHint')}{' '}
+            <Link
+              href="/dashboard/admin/settings"
+              className="font-medium underline underline-offset-4"
+            >
+              {t('solanaWalletCta')}
+            </Link>
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Price, Currency, and Duration */}

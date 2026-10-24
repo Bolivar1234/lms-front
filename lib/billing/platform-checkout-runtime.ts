@@ -1,4 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { getPlatformSolanaConfig } from '@/lib/billing/solana-platform-payment'
+import { isSolanaEnabled } from '@/lib/payments/solana-flag'
 import { PLAN_PRICE_PROVIDERS } from '@/lib/billing/plan-prices'
 import type {
   PaymentProvider,
@@ -18,18 +20,23 @@ const REQUIRED_ENV: Partial<Record<PaymentProvider, string[]>> = {
   paypal: ['PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET', 'PAYPAL_PLATFORM_WEBHOOK_ID'],
   binance: ['BINANCE_PAY_API_KEY', 'BINANCE_PAY_API_SECRET'],
   lemonsqueezy: ['LEMONSQUEEZY_API_KEY', 'LEMONSQUEEZY_STORE_ID', 'LEMONSQUEEZY_WEBHOOK_SECRET'],
+  solana: ['SOLANA_RPC_URL', 'SOLANA_PLATFORM_WALLET'],
 }
 
 /**
  * Resolve global provider configuration without constructing a provider or
- * exposing credentials.
+ * exposing credentials. `ready` catches syntactically invalid Solana config;
+ * other providers currently have no separate readiness handshake.
  */
 export function getPlatformProviderRuntimeStatuses(): Record<string, PlatformProviderRuntimeStatus> {
   return Object.fromEntries(
     PLAN_PRICE_PROVIDERS.map((provider) => {
       const required = REQUIRED_ENV[provider as PaymentProvider] ?? []
       const configured = required.every((key) => Boolean(process.env[key]))
-      return [provider, { enabled: true, configured, ready: configured }]
+      const ready = provider === 'solana' ? configured && Boolean(getPlatformSolanaConfig()) : configured
+      // Solana is kept in-tree but disabled unless SOLANA_PAYMENTS_ENABLED=true.
+      if (provider === 'solana' && !isSolanaEnabled()) return [provider, { enabled: false, configured, ready: false }]
+      return [provider, { enabled: true, configured, ready }]
     }),
   )
 }
@@ -39,6 +46,7 @@ const TENANT_SETTING_BY_PROVIDER: Partial<Record<PaymentProvider, string>> = {
   paypal: 'paypal_enabled',
   lemonsqueezy: 'lemonsqueezy_enabled',
   binance: 'binance_enabled',
+  solana: 'solana_enabled',
 }
 
 /** Resolve tenant payment toggles used by the school upgrade surface/API. */

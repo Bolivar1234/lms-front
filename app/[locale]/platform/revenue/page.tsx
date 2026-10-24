@@ -46,6 +46,8 @@ const PROVIDER_LABEL: Record<string, string> = {
   stripe: 'Stripe',
   paypal: 'PayPal',
   lemonsqueezy: 'Lemon Squeezy',
+  solana: 'Solana',
+  solana_subs: 'Solana subscriptions',
   binance: 'Binance Pay',
   manual: 'Manual / offline',
 }

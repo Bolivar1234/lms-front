@@ -25,7 +25,7 @@ const DAY_MS = 24 * 60 * 60 * 1000
 export const MIN_AUTOMATED_FEE_PAYMENT_USD = 0.5
 
 /** Every rail the dialog knows how to present, in display order: cards/PayPal, crypto, manual last. */
-const FEE_DIALOG_RAIL_ORDER = ['stripe', 'paypal', 'binance', 'manual'] as const satisfies readonly PaymentProvider[]
+const FEE_DIALOG_RAIL_ORDER = ['stripe', 'paypal', 'binance', 'solana', 'manual'] as const satisfies readonly PaymentProvider[]
 
 export type FeeRail = (typeof FEE_DIALOG_RAIL_ORDER)[number]
 
@@ -78,7 +78,9 @@ export function feeRailsFor(
 
 /**
  * What the dialog does with a successful `POST /api/billing/fees/checkout`
- * body: hosted rails answer a `url` to navigate to. `manual` (`instructions`) is handled by the
+ * body: Solana answers `kind: 'qr'` (its `url` is a `solana:` wallet URI, so
+ * the school goes to the in-app QR page `checkoutPath`); every hosted rail
+ * answers a `url` to navigate to. `manual` (`instructions`) is handled by the
  * caller before this. Same-origin paths only for `push`.
  */
 export function payNowNavigation(body: Record<string, unknown>): { type: 'push' | 'assign'; to: string } | null {
