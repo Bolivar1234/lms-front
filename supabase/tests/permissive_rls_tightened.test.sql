@@ -1,4 +1,4 @@
--- 20261026121500_tighten_permissive_rls: profiles, messages, assignments,
+-- 20261026121599_fork_tighten_permissive_rls: profiles, messages, assignments,
 -- comment_reactions and gamification_profiles no longer have `true` read
 -- policies. Run with `supabase test db` against a seeded local stack
 -- (supabase/seed.sql: default school = owner a1…02 + student a1…01; code-academy
