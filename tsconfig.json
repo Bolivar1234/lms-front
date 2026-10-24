@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "mcp-use/react": ["./tests/stubs/mcp-use-react.ts"]
     }
   },
   "include": [

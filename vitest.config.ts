@@ -8,6 +8,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, '.'),
+      // mcp-use is installed only under mcp-server; see tests/stubs/mcp-use-react.ts.
+      'mcp-use/react': resolve(__dirname, 'tests/stubs/mcp-use-react.ts'),
     },
     // mcp-server has its own node_modules; without this, widget sources under
     // it load a second copy of React and hooks blow up mid-render.
