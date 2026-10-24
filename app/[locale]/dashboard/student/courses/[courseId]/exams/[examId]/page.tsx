@@ -64,6 +64,7 @@ export default async function TakeExamPage({ params }: PageProps) {
     .eq('exam_id', parseInt(examId))
     .eq('status', 'published')
     .eq('tenant_id', tenantId)
+    .order('sequence', { foreignTable: 'exam_questions', ascending: true, nullsFirst: false })
     .order('question_id', { foreignTable: 'exam_questions', ascending: true })
     .single()
 

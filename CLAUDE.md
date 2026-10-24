@@ -29,6 +29,7 @@ Branches: `<type>/<slug>-<issue#>`. Skill `/web-design-guidelines <path>` audits
 - All routes under `app/[locale]/`; user strings in `messages/{en,es}.json` (parity test).
 - AI is BYOK: no platform key, no fallback. Only `lib/ai/providers.ts` imports `@ai-sdk/*`. Never log/return keys.
 - Never `git add -A` after a build (rewrites `next-env.d.ts`); stage named paths.
+- Fork-only migrations: version ends in `99`, name starts `fork_` (`20261026121599_fork_x.sql`) so they never collide with upstream → docs/MIGRATIONS.md.
 
 ## Schema gotchas (top hits; full list → docs/claude/testing-env-pitfalls.md)
 

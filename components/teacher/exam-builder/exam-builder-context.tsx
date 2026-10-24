@@ -26,6 +26,8 @@ export interface QuestionData {
   ai_grading_criteria: string
   expected_keywords: string[]
   grading_rubric?: string
+  /** Students have answered it: removing it would delete their answers, so the action refuses. */
+  answered?: boolean
   options: {
     id: number | string
     option_text: string
@@ -43,38 +45,34 @@ export interface ExamFormData {
   questions: QuestionData[]
 }
 
-/** A stored question as the edit page loads it (exam_questions + options + grading secrets). */
-interface InitialQuestion {
-  question_id?: number
-  question_text?: string
-  question_type?: string
-  points_possible?: number | null
-  sequence?: number | null
+/** A saved question as the edit page loads it (key merged back by `withExamGradingSecrets`). */
+interface InitialExamQuestion {
+  question_id: number
+  question_text: string
+  question_type: string
   ai_grading_criteria?: string | null
   expected_keywords?: string[] | null
   grading_rubric?: string | null
-  options?: {
-    option_id?: number
-    option_text?: string
-    is_correct?: boolean | null
-  }[] | null
+  points_possible?: number
+  exam_answers?: { count: number }[]
+  options?: { option_id: number; option_text: string; is_correct: boolean }[]
 }
 
-export interface ExamBuilderInitialData {
+export interface InitialExamData {
   exam_id?: number
-  title?: string
+  title?: string | null
   description?: string | null
   image?: string | null
-  duration?: number
+  duration?: number | null
   sequence?: number | null
   status?: string | null
-  questions?: InitialQuestion[]
+  questions?: InitialExamQuestion[]
 }
 
 export interface ExamBuilderProps {
   courseId: number
   courseTitle: string
-  initialData?: ExamBuilderInitialData
+  initialData?: InitialExamData
 }
 
 export interface ExamBuilderContextValue {
@@ -121,28 +119,31 @@ export function ExamBuilderProvider({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [formData, setFormData] = useState<ExamFormData>(() => ({
+  const [formData, setFormData] = useState<ExamFormData>({
     title: initialData?.title || '',
     description: initialData?.description || '',
     image: initialData?.image || '',
     duration: initialData?.duration || 60,
     sequence: initialData?.sequence || 1,
     status: initialData?.status || 'draft',
-    questions: ((initialData?.questions || [])
-      .map((q) => ({
-        ...q,
-        id: q.question_id || `new-${Math.random()}`,
-        expected_keywords: q.expected_keywords || [],
-        ai_grading_criteria: q.ai_grading_criteria || '',
-        points_possible: q.points_possible ?? 10,
-        options: (q.options || []).map((o) => ({
-          ...o,
-          id: o.option_id || `new-opt-${Math.random()}`
-        }))
-      })) as QuestionData[])
-      .sort((a, b) => a.sequence - b.sequence),
-  }))
-
+    // Saved rows keep their numeric ids so the save updates them in place.
+    questions: (initialData?.questions || []).map((q, idx): QuestionData => ({
+      id: q.question_id,
+      question_text: q.question_text,
+      question_type: q.question_type as QuestionData['question_type'],
+      points_possible: q.points_possible ?? 10,
+      sequence: idx + 1,
+      ai_grading_criteria: q.ai_grading_criteria || '',
+      expected_keywords: q.expected_keywords || [],
+      grading_rubric: q.grading_rubric || '',
+      answered: (q.exam_answers?.[0]?.count ?? 0) > 0,
+      options: (q.options || []).map((o) => ({
+        id: o.option_id,
+        option_text: o.option_text,
+        is_correct: o.is_correct,
+      })),
+    })),
+  })
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -230,7 +231,10 @@ export function ExamBuilderProvider({
       duration: formData.duration,
       sequence: formData.sequence,
       publish,
+      // Saved rows carry their numeric id so the action updates them in place;
+      // new ones carry a `new-…` string id and are inserted.
       questions: formData.questions.map(q => ({
+        question_id: typeof q.id === 'number' ? q.id : undefined,
         question_text: q.question_text,
         question_type: q.question_type,
         points_possible: q.points_possible,
@@ -239,6 +243,7 @@ export function ExamBuilderProvider({
         expected_keywords: q.expected_keywords,
         grading_rubric: q.grading_rubric,
         options: q.options.map(o => ({
+          option_id: typeof o.id === 'number' ? o.id : undefined,
           option_text: o.option_text,
           is_correct: o.is_correct,
         })),

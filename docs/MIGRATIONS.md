@@ -16,6 +16,26 @@ Edit the generated file with your SQL. Always make migrations **idempotent** whe
 - Use `ON CONFLICT DO NOTHING` or `DO UPDATE` for seed data
 - Wrap risky operations in `DO $$ ... END $$` blocks with exception handling
 
+## Fork migrations (ours vs upstream)
+
+This repo is a fork of `guillermoscript/lms-front`. Supabase identifies a migration
+only by the number before the first `_`, so a fork migration that reuses one of
+upstream's timestamps breaks `supabase start` and the shared-db ledger, whatever its
+name. Every migration that exists only in this fork:
+
+- ends its version in `99` (seconds = 99, which no real timestamp has; upstream uses
+  real times or `…00`), and
+- starts its name with `fork_`.
+
+```bash
+supabase migration new fork_<descriptive_name>   # then rename the version's last two digits to 99
+# e.g. 20261026121599_fork_tighten_permissive_rls.sql
+```
+
+`tests/unit/fork-migrations.test.ts` enforces both rules. The fork migrations written
+before this rule keep their versions (they are already recorded on staging) and are
+listed there as grandfathered.
+
 ## Applying Migrations
 
 ### The rule: cloud changes go through `supabase db push`

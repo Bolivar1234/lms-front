@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -22,48 +23,43 @@ import {
   IconUser,
   IconMessage,
   IconAlertTriangle,
+  IconCircleCheck,
   IconLoader2,
   IconHourglass,
   IconPencil,
 } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
+import { SaveSubmissionAsTest } from '@/components/teacher/ai-evals/save-submission-as-test'
 
-/**
- * The page passes the display shape; after a save the state is replaced by the
- * raw `exam_submissions` row, which lacks the display fields — hence optional.
- */
 interface ReviewSubmission {
   submission_id: number
-  status?: string
-  submitted_at?: string | null
-  ai_score?: number | null
-  final_score?: number | null
-  teacher_feedback?: string | null
+  exam_id: number
+  status: string
+  submitted_at: string
+  ai_score: number | null
+  final_score: number | null
+  teacher_feedback?: string
 }
 
 interface ReviewQuestion {
   id: number
-  sequence: number
   question_type: string
   question_text: string
   points_possible: number
-  answer_text?: string | null
-  ai_feedback?: string | null
-  ai_confidence?: number | null
+  sequence?: number
+  answer_text?: string
+  ai_feedback?: string
   ai_grading_criteria?: string | null
   expected_keywords?: string[] | null
-  options?: {
-    id: number
-    option_text: string | null
-    is_correct: boolean | null
-  }[]
+  ai_confidence?: number | null
+  options?: { id: number; option_text: string; is_correct?: boolean | null }[]
 }
 
 interface ReviewAnswer {
   question_id: number
   points_earned: number | null
   is_correct: boolean | null
-  teacher_notes?: string | null
+  teacher_notes?: string
   teacher_score_override: number | null
 }
 
@@ -78,7 +74,7 @@ interface SubmissionReviewProps {
   submission: ReviewSubmission
   questions?: ReviewQuestion[]
   answers?: ReviewAnswer[]
-  onSave?(overrides: Record<number, QuestionOverride>): Promise<void>
+  onSave?: (overrides: Record<number, QuestionOverride>) => Promise<void>
 }
 
 export function SubmissionReview({
@@ -89,7 +85,7 @@ export function SubmissionReview({
 }: SubmissionReviewProps) {
   const t = useTranslations('dashboard.teacher.submissionReview')
   const supabase = createClient()
-  const [submission, setSubmission] = useState<ReviewSubmission>(initialSubmission)
+  const [submission, setSubmission] = useState(initialSubmission)
   const [loading, setLoading] = useState(false)
   const [teacherFeedback, setTeacherFeedback] = useState(
     submission.teacher_feedback || ''
@@ -140,11 +136,12 @@ export function SubmissionReview({
       // Refresh data
       const { data: updatedSub } = await supabase
         .from('exam_submissions')
-        .select('*')
+        .select('review_status')
         .eq('submission_id', submission.submission_id)
         .single()
 
-      if (updatedSub) setSubmission(updatedSub)
+      // Only the status: the raw row does not have this view's field names.
+      if (updatedSub?.review_status) setSubmission((s) => ({ ...s, status: updatedSub.review_status ?? s.status }))
       setEditingQuestionId(null)
 
       // Fire before `onSave`: the page's server action redirects to the
@@ -181,7 +178,7 @@ export function SubmissionReview({
     })
   }
 
-  const getStatusBadge = (status?: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
         return <Badge variant="outline">{t('status.pending')}</Badge>
@@ -214,7 +211,7 @@ export function SubmissionReview({
             {getStatusBadge(submission.status)}
           </div>
           <p className="text-sm text-muted-foreground">
-            {t('header.submittedOn', { date: new Date(submission.submitted_at ?? 0).toLocaleDateString() })}
+            {t('header.submittedOn', { date: new Date(submission.submitted_at).toLocaleDateString() })}
           </p>
         </div>
         <div className="flex items-center gap-8">
@@ -237,13 +234,17 @@ export function SubmissionReview({
         </div>
       </div>
 
+      {submission.status === 'teacher_reviewed' && (questions ?? []).some((q) => q.question_type === 'free_text') && (
+        <SaveSubmissionAsTest examId={submission.exam_id} submissionId={submission.submission_id} submittedAt={submission.submitted_at} />
+      )}
+
       {/* Review Questions */}
       <div className="space-y-6">
         <h3 className="text-lg font-bold flex items-center gap-2">
           {t('questions.title')}
         </h3>
 
-        {(questions || []).sort((a, b) => a.sequence - b.sequence).map((q, idx) => {
+        {(questions || []).sort((a, b) => (a.sequence ?? a.id) - (b.sequence ?? b.id)).map((q, idx) => {
           const override = overrides[q.id]
           const isCorrect = override?.is_correct
           const isPendingReview = q.question_type === 'free_text' && submission.status === 'pending'

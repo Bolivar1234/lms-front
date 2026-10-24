@@ -22,9 +22,12 @@ The LMS lives in the `lms` schema. Production is not on this setup yet.
   ran unchanged. The generator now emits a dynamic-SQL preflight; this file is kept as
   the record of what ran.
 
-- `lms-catchup-20261024b.sql`: `20261026120000_tighten_permissive_rls` (#38). Replaces the
-  `true` read policies on `profiles`, `messages`, `assignments`, `comment_reactions` and
-  `gamification_profiles` with school-scoped ones. Not yet applied.
+- `lms-catchup-20261024c.sql`: 7 migrations. Upstream's AI-evals follow-ups
+  (checkpoint and exam graders, exercise scenarios, case submission source, exercise
+  evaluation answer/review, exam question sequence) and our
+  `20261026121599_fork_tighten_permissive_rls`, which replaces the `true` read policies
+  on `profiles`, `messages`, `assignments`, `comment_reactions` and
+  `gamification_profiles`. It replaces the never-applied `-b` bundle. Not yet applied.
 
 ## Applying new repo migrations
 
