@@ -131,7 +131,7 @@ test.describe('Teacher Content — Course Detail Page', () => {
     await expect(row).toBeVisible()
     // No completions → 0 of 2 lessons and an explicit "not started", never a blank.
     await expect(row).toContainText('0 / 2')
-    await expect(row.locator('[data-status]')).toHaveAttribute('data-status', 'not_started')
+    await expect(row.locator('[data-slot="badge"][data-status]')).toHaveAttribute('data-status', 'not_started')
     await expect(row).toContainText(/No activity yet/)
 
     // Filtering to a status with no students shows the empty-filter message, not "no students".
