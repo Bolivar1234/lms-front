@@ -71,14 +71,22 @@ ${storageLines.join('\n')}
 SET LOCAL search_path = lms, public, extensions;
 
 -- Preflight: refuse to run against a schema that is not the pre-sync baseline.
+-- The ledger query is dynamic SQL: a static reference to a table that does not exist
+-- yet fails when PL/pgSQL plans it, even behind a to_regclass() check.
 DO $preflight$
+DECLARE
+  already boolean := false;
 BEGIN
   IF to_regclass('lms.tenants') IS NULL THEN
     RAISE EXCEPTION 'lms.tenants not found: wrong database or schema';
   END IF;
-  IF to_regclass('lms.lms_migration_log') IS NOT NULL
-     AND EXISTS (SELECT 1 FROM lms.lms_migration_log WHERE version = ANY (ARRAY[${versions.map((v) => `'${v}'`).join(', ')}])) THEN
-    RAISE EXCEPTION 'some of these migrations are already recorded in lms.lms_migration_log';
+  IF to_regclass('lms.lms_migration_log') IS NOT NULL THEN
+    EXECUTE 'SELECT EXISTS (SELECT 1 FROM lms.lms_migration_log WHERE version = ANY ($1))'
+      INTO already
+      USING ARRAY[${versions.map((v) => `'${v}'`).join(', ')}]::text[];
+    IF already THEN
+      RAISE EXCEPTION 'some of these migrations are already recorded in lms.lms_migration_log';
+    END IF;
   END IF;
 END
 $preflight$;
