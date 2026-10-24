@@ -126,7 +126,8 @@ test.describe('Teacher Content — Course Detail Page', () => {
       )
       .toBeGreaterThan(0)
 
-    const row = page.locator('[data-testid="student-row"]').first()
+    // `student-row` is only the name cell now (#1000); the progress cells sit in the same table row.
+    const row = page.getByRole('row').filter({ has: rows.first() }).first()
     await expect(row).toBeVisible()
     // No completions → 0 of 2 lessons and an explicit "not started", never a blank.
     await expect(row).toContainText('0 / 2')
