@@ -87,10 +87,15 @@ let alice: SupabaseClient
 let anonA: SupabaseClient
 let anonB: SupabaseClient
 
-async function must<T>(p: PromiseLike<{ data: T; error: { message: string } | null }>, what: string): Promise<T> {
+// The admin client's table types resolve to `never` under the configured DB schema, so a
+// fixture row is read as an untyped record rather than through the generated row types.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FixtureRow = Record<string, any>
+async function must(p: PromiseLike<{ data: unknown; error: { message: string } | null }>, what: string): Promise<FixtureRow> {
   const { data, error } = await p
   if (error) throw new Error(`fixture ${what}: ${error.message}`)
-  return data
+  if (data === null || data === undefined) throw new Error(`fixture ${what}: no row returned`)
+  return data as FixtureRow
 }
 
 async function entitlementsOf(userId: string, courseIds: number[]) {

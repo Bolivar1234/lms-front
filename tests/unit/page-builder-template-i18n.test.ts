@@ -67,7 +67,7 @@ describe('template copy in Spanish', () => {
     expect(header.ctaLabel).toBe('Inscríbete ahora')
     expect(header.navLinks[0]).toEqual({ label: 'Cursos', href: '/courses' })
     const items = (es.components.FeaturesGrid.fields as Record<string, { defaultItemProps?: Record<string, unknown> }>).items
-    expect(items.defaultItemProps).toEqual({ icon: '⭐', title: 'Característica', description: 'Descripción' })
+    expect(items.defaultItemProps).toEqual({ icon: 'star', title: 'Característica', description: 'Descripción' })
     expect((createPuckConfig(t).components.Header.defaultProps as HeaderDefaults).ctaLabel).toBe('Enroll Now')
   })
 

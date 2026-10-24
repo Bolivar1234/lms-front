@@ -43,7 +43,7 @@ type DataTableClearFilterProps<TData extends RowData> = Omit<
  * <DataTableClearFilter
  *   variant="ghost"
  *   size="sm"
- *   className="text-red-500"
+ *   className="text-destructive"
  * >
  *   Clear All
  * </DataTableClearFilter>

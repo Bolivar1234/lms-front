@@ -1076,4 +1076,13 @@ export const TEMPLATE_COPY_ES: Readonly<Record<string, string>> = {
   "Column": "Columna",
   "Link 1": "Enlace 1",
   "Page": "Página",
+  "How it works": "Cómo funciona",
+  "Learn the idea": "Aprende la idea",
+  "A short lesson that explains one concept.": "Una lección breve que explica un concepto.",
+  "Practice it": "Practícalo",
+  "Apply it right away in a guided exercise.": "Aplícalo de inmediato en un ejercicio guiado.",
+  "Get feedback": "Recibe comentarios",
+  "Find out what to improve and try again.": "Descubre qué mejorar y vuelve a intentarlo.",
+  "Step": "Paso",
+  "What happens in this step.": "Lo que sucede en este paso.",
 }

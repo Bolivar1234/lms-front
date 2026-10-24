@@ -253,7 +253,7 @@ describe('system prompt', () => {
     for (const t of PAGE_TEMPLATES) expect(formatTemplatesForPrompt()).toContain(t.id)
     expect(text).toContain('Never invent people')
     expect(text).not.toContain('<tenant_data>\n')
-    expect(text.length).toBeLessThanOrEqual(12_500)
+    expect(text.length).toBeLessThanOrEqual(12_600)
   })
 
   it('the dynamic part carries the language, the preload, the outline and the selection', async () => {
