@@ -31,6 +31,8 @@ const eslintConfig = defineConfig([
     ".claude/**",
     ".github/skills/**",
     ".opencode/**",
+    // Vendored registry source (niko-table), kept close to upstream so it can be re-synced:
+    "components/niko-table/**",
   ]),
   {
     rules: {

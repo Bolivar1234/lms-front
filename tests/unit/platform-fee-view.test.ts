@@ -31,7 +31,6 @@ const standing = (over: Partial<FeeStandingSnapshot> = {}): FeeStandingSnapshot 
   state: 'ok',
   overdueSince: null,
   blockedAt: null,
-  enforcementExempt: false,
   ...over,
 })
 
@@ -45,11 +44,11 @@ describe('owed buckets', () => {
 })
 
 describe('pay-now rails', () => {
-  const AUTO = ['stripe', 'paypal', 'binance', 'manual']
+  const AUTO = ['stripe', 'paypal', 'binance', 'solana', 'manual']
   it('offers automated rails only for USD at or above the minimum; Stripe only when configured', () => {
     expect(feeRailsFor('USD', 10, { cardConfigured: true })).toEqual(AUTO)
     expect(feeRailsFor('usd', 10, { cardConfigured: true })).toEqual(AUTO)
-    expect(feeRailsFor('USD', 10, { cardConfigured: false })).toEqual(['paypal', 'binance', 'manual'])
+    expect(feeRailsFor('USD', 10, { cardConfigured: false })).toEqual(['paypal', 'binance', 'solana', 'manual'])
     expect(feeRailsFor('USD', 0.49, { cardConfigured: true })).toEqual(['manual'])
     expect(feeRailsFor('EUR', 100, { cardConfigured: true })).toEqual(['manual'])
   })
@@ -83,6 +82,7 @@ describe('parsePayNowAmount', () => {
 
   it('applies the automated minimum on every rail but manual', () => {
     expect(parsePayNowAmount('0.30', 10, 'stripe')).toEqual({ ok: false, error: 'amount_below_minimum' })
+    expect(parsePayNowAmount('0.30', 10, 'solana')).toEqual({ ok: false, error: 'amount_below_minimum' })
     expect(parsePayNowAmount('0.30', 10, 'manual')).toEqual({ ok: true, amount: 0.3 })
   })
 })
@@ -154,11 +154,18 @@ describe('describeFeeBanner', () => {
     })
   })
 
-  it('overdue states when sales pause only in enforce mode and when not exempt', () => {
+  it('overdue states when sales pause only in enforce mode and for paid schools', () => {
     const overdue = standing({ state: 'overdue', overdueSince: '2026-10-05T00:00:00.000Z' })
     expect(describeFeeBanner({ ...base, standing: overdue })?.blockOn).toBe('2026-10-12T00:00:00.000Z')
     expect(describeFeeBanner({ ...base, enforcementMode: 'notify_only', standing: overdue })).toMatchObject({ variant: 'overdue', blockOn: null })
-    expect(describeFeeBanner({ ...base, standing: { ...overdue, enforcementExempt: true } })?.blockOn).toBeNull()
+    expect(describeFeeBanner({ ...base, billingMode: 'comped', standing: overdue })).toMatchObject({ variant: 'overdue', blockOn: null })
+  })
+
+  it('comped never shows a blocked banner; internal shows nothing', () => {
+    const blocked = standing({ state: 'blocked', overdueSince: '2026-10-05T00:00:00Z', blockedAt: '2026-10-13T00:00:00Z' })
+    expect(describeFeeBanner({ ...base, billingMode: 'comped', standing: blocked })).toMatchObject({ variant: 'overdue', blockOn: null })
+    expect(describeFeeBanner({ ...base, billingMode: 'internal', standing: blocked })).toBeNull()
+    expect(describeFeeBanner({ ...base, billingMode: 'internal', standing: standing({ state: 'reminded' }) })).toBeNull()
   })
 
   it('blocked wins whenever blocked_at is set', () => {
@@ -177,12 +184,12 @@ describe('feeErrorKey', () => {
 })
 
 describe('payNowNavigation', () => {
-  it('routes QR responses to the in-app checkout page, never the wallet URI', () => {
-    expect(payNowNavigation({ kind: 'qr', url: 'qr:abc', checkoutPath: '/en/dashboard/admin/billing/checkout/r1' })).toEqual({
+  it('routes Solana QR to the in-app checkout page, never the wallet URI', () => {
+    expect(payNowNavigation({ kind: 'qr', url: 'solana:abc', checkoutPath: '/en/dashboard/admin/billing/checkout/r1' })).toEqual({
       type: 'push',
       to: '/en/dashboard/admin/billing/checkout/r1',
     })
-    expect(payNowNavigation({ kind: 'qr', url: 'qr:abc' })).toBeNull()
+    expect(payNowNavigation({ kind: 'qr', url: 'solana:abc' })).toBeNull()
     expect(payNowNavigation({ kind: 'qr', checkoutPath: '//evil.com' })).toBeNull()
   })
   it('navigates hosted rails to their url', () => {

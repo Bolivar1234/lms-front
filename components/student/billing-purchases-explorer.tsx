@@ -10,10 +10,13 @@ import {
   IconBrandStripe,
   IconPackage,
   IconRefresh,
+  IconWallet,
   IconX,
 } from '@tabler/icons-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { BillingDateTime } from '@/components/student/solana-renewal-details'
+import { VerifyPaymentButton } from '@/components/student/verify-payment-button'
 import { ListToolbar, matchesQuery } from '@/components/student/list-toolbar'
 
 export type PurchaseStatus = 'successful' | 'pending' | 'failed' | 'canceled' | 'refunded' | 'archived'
@@ -27,6 +30,8 @@ export interface PurchaseRow {
   amount: number
   currency: string | null
   renewal?: boolean
+  signatures?: string[]
+  network?: string | null
 }
 
 type StatusFilter = 'all' | PurchaseStatus
@@ -67,6 +72,9 @@ function ProviderIcon({ provider }: { provider: string | null }) {
   switch (provider) {
     case 'stripe':
       return <IconBrandStripe className="w-3.5 h-3.5 shrink-0" />
+    case 'solana':
+    case 'solana_subs':
+      return <IconWallet className="w-3.5 h-3.5 shrink-0" />
     case 'lemonsqueezy':
       return <IconCoin className="w-3.5 h-3.5 shrink-0" />
     case 'paypal':
@@ -178,20 +186,20 @@ export function BillingPurchasesExplorer({ rows }: { rows: PurchaseRow[] }) {
                       {tx.renewal && <span className="text-xs text-muted-foreground">{t('purchases.renewal')}</span>}
                       <p className="mt-1 flex items-center gap-1 text-xs font-normal text-muted-foreground sm:hidden">
                         <ProviderIcon provider={tx.provider} />
-                        {providerLabel(tx.provider)}
+                        {tx.provider === 'solana_subs' ? t('purchases.usdcMethod') : providerLabel(tx.provider)}
                       </p>
                       <p className="mt-1 text-xs font-normal text-muted-foreground sm:hidden">
-                        {formatDate(tx.date)}
+                        {tx.provider === 'solana_subs' ? <BillingDateTime date={tx.date} /> : formatDate(tx.date)}
                       </p>
                     </td>
                     <td className="hidden px-4 py-3 align-top sm:table-cell">
                       <span className="flex items-center gap-1 text-muted-foreground text-xs">
                         <ProviderIcon provider={tx.provider} />
-                        {providerLabel(tx.provider)}
+                        {tx.provider === 'solana_subs' ? t('purchases.usdcMethod') : providerLabel(tx.provider)}
                       </span>
                     </td>
                     <td className="hidden px-4 py-3 align-top tabular-nums text-muted-foreground sm:table-cell">
-                      {formatDate(tx.date)}
+                      {tx.provider === 'solana_subs' ? <BillingDateTime date={tx.date} /> : formatDate(tx.date)}
                     </td>
                     <td className="px-4 py-3 align-top">
                       <div className="flex flex-col items-start gap-1.5">
@@ -201,6 +209,14 @@ export function BillingPurchasesExplorer({ rows }: { rows: PurchaseRow[] }) {
                         </Badge>
                         <span className="font-medium tabular-nums sm:hidden">{formatCurrency(tx.amount, tx.currency ?? 'USD')}</span>
                         {tx.renewal && tx.status === 'failed' && <span className="text-xs text-muted-foreground">{t('purchases.notCharged')}</span>}
+                        {tx.status === 'successful' && tx.signatures?.map((signature, index) => (
+                          <a key={signature} href={`https://explorer.solana.com/tx/${signature}${tx.network === 'devnet' || tx.network === 'testnet' ? `?cluster=${tx.network}` : ''}`} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-text underline underline-offset-4">
+                            {t('purchases.receipt', { number: index + 1 })}
+                          </a>
+                        ))}
+                        {tx.status === 'pending' && tx.provider === 'solana' && (
+                          <VerifyPaymentButton transactionId={tx.id} />
+                        )}
                       </div>
                     </td>
                     <td className="hidden px-4 py-3 text-right align-top font-medium tabular-nums sm:table-cell">

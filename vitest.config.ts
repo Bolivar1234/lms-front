@@ -17,5 +17,8 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/unit/**/*.test.ts'],
     globals: false,
+    // Solana is off in the app unless this is 'true'; the Solana suites exercise the
+    // code itself, and solana-flag.test.ts covers the disabled behavior.
+    env: { SOLANA_PAYMENTS_ENABLED: 'true' },
   },
 })

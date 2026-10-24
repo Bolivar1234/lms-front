@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { isSolanaEnabled } from '@/lib/payments/solana-flag'
 import { verifyAdminAccess, createAdminClient, type ActionResult } from '@/lib/supabase/admin'
 import { getPaymentProvider, PROVIDER_CAPABILITIES, type Currency, type PaymentProvider } from '@/lib/payments'
 import { getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
@@ -130,6 +131,9 @@ export async function createProduct(formData: ProductFormData): Promise<ActionRe
     // provider yet — provider constructors (e.g. Lemon Squeezy) throw on missing
     // env, and only the createsCatalog branch actually needs a live client.
     const providerType = formData.paymentProvider || 'stripe'
+    if ((providerType === 'solana' || providerType === 'solana_subs') && !isSolanaEnabled()) {
+      throw new Error('Solana payments are disabled.')
+    }
     const caps = PROVIDER_CAPABILITIES[providerType]
     const adminClient = createAdminClient()
 
@@ -180,7 +184,16 @@ export async function createProduct(formData: ProductFormData): Promise<ActionRe
       }
       providerPriceId = variantId
     } else if (providerType === 'solana' || providerType === 'solana_subs') {
-      throw new Error('Solana payments are disabled.')
+      // No catalog — but the school must have a receiving wallet, else checkout 400s.
+      const { data: wallet } = await adminClient
+        .from('tenant_payment_wallets')
+        .select('wallet_address')
+        .eq('tenant_id', tenantId)
+        .eq('provider', providerType)
+        .maybeSingle()
+      if (!wallet?.wallet_address) {
+        throw new Error('Configure your Solana wallet in Settings → Payment before creating a Solana product.')
+      }
     }
 
     // 3. Insert product into database

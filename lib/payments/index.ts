@@ -10,6 +10,9 @@ import { BinancePayProvider } from './binance-provider'
 import { BinancePersonalProvider } from './binance-personal-provider'
 import { ManualPaymentProvider } from './manual-provider'
 import { LemonSqueezyProvider } from './lemonsqueezy-provider'
+import { SolanaProvider } from './solana-provider'
+import { SolanaSubscriptionsProvider } from './solana-subscriptions-provider'
+import { isSolanaEnabled } from './solana-flag'
 
 export interface GetProviderOptions {
   /**
@@ -90,6 +93,25 @@ export function getPaymentProvider(
       return new LemonSqueezyProvider(lsKey, lsStore, options.webhookSecret ?? lsSecret)
     }
 
+    case 'solana': {
+      if (!isSolanaEnabled()) throw new Error('Solana payments are disabled')
+      const rpcUrl = process.env.SOLANA_RPC_URL
+      if (!rpcUrl) {
+        throw new Error('SOLANA_RPC_URL is required')
+      }
+      // Receiving wallets are per-tenant (tenant_payment_wallets) + the platform
+      // fee wallet (SOLANA_PLATFORM_WALLET, read in the /tx + /verify routes).
+      // SOLANA_USDC_MINT optional — omit for native SOL payments.
+      return new SolanaProvider(rpcUrl, process.env.SOLANA_USDC_MINT)
+    }
+
+    case 'solana_subs':
+      if (!isSolanaEnabled()) throw new Error('Solana payments are disabled')
+      // Native on-chain auto-pull subscriptions. No required config here:
+      // RPC / puller keypair / wallets are read in the subscribe-tx + verify +
+      // crank-cron routes.
+      return new SolanaSubscriptionsProvider()
+
     case 'manual':
       return new ManualPaymentProvider()
 
@@ -114,3 +136,5 @@ export { BinancePayProvider } from './binance-provider'
 export { BinancePersonalProvider } from './binance-personal-provider'
 export { ManualPaymentProvider } from './manual-provider'
 export { LemonSqueezyProvider } from './lemonsqueezy-provider'
+export { SolanaProvider } from './solana-provider'
+export { SolanaSubscriptionsProvider } from './solana-subscriptions-provider'

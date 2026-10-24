@@ -291,7 +291,7 @@ test.describe('Admin CRUD Operations', () => {
       const initialCount = await initialRows.count()
 
       // Search for a non-matching query to filter results
-      const searchInput = page.locator('input[type="search"]')
+      const searchInput = page.getByRole('search').getByRole('textbox')
       await expect(searchInput).toBeVisible()
       await searchInput.fill('zzz_nonexistent_user_xyz')
 

@@ -94,8 +94,7 @@ test.describe('Free preview lessons (#791)', () => {
     await page.goto(`${TENANT_BASE}/courses/${previewCourseId}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { name: PREVIEW_COURSE })).toBeVisible({ timeout: 120_000 })
 
-    // The curriculum is behind the "All Lessons" accordion, closed on arrival.
-    await page.getByRole('button', { name: /All Lessons/ }).click()
+    // The curriculum is always open (there is no accordion since #1007).
 
     // It links only the free lessons; the rest are plain rows.
     const freeOne = page.getByRole('link', { name: /Free lesson one/ })

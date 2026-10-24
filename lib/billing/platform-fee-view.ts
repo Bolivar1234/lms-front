@@ -5,6 +5,7 @@
  * banner decision. No DB, no server-only imports: the Pay-now dialog (client)
  * imports this module. Loaders live in `platform-fee-account.ts`.
  */
+import { feeBlockingApplies, feeNoticesApply, normalizeBillingMode, type BillingMode } from '@/lib/billing/billing-mode'
 import { MONEY_EPSILON, roundMoney } from '@/lib/payments/payouts-owed'
 import { feeForTxn, FEE_LEDGER_USD, type FeeBalance, type FeeLedgerOptions, type FeeLedgerTxn } from '@/lib/payments/platform-fee-owed'
 import { PROVIDER_CAPABILITIES, type PaymentProvider } from '@/lib/payments/types'
@@ -24,7 +25,7 @@ const DAY_MS = 24 * 60 * 60 * 1000
 export const MIN_AUTOMATED_FEE_PAYMENT_USD = 0.5
 
 /** Every rail the dialog knows how to present, in display order: cards/PayPal, crypto, manual last. */
-const FEE_DIALOG_RAIL_ORDER = ['stripe', 'paypal', 'binance', 'manual'] as const satisfies readonly PaymentProvider[]
+const FEE_DIALOG_RAIL_ORDER = ['stripe', 'paypal', 'binance', 'solana', 'manual'] as const satisfies readonly PaymentProvider[]
 
 export type FeeRail = (typeof FEE_DIALOG_RAIL_ORDER)[number]
 
@@ -37,7 +38,6 @@ export interface FeeStandingSnapshot {
   state: FeeStandingState
   overdueSince: string | null
   blockedAt: string | null
-  enforcementExempt: boolean
 }
 
 // ─── pure helpers ───────────────────────────────────────────────────────────
@@ -78,7 +78,9 @@ export function feeRailsFor(
 
 /**
  * What the dialog does with a successful `POST /api/billing/fees/checkout`
- * body: hosted rails answer a `url` to navigate to. `manual` (`instructions`) is handled by the
+ * body: Solana answers `kind: 'qr'` (its `url` is a `solana:` wallet URI, so
+ * the school goes to the in-app QR page `checkoutPath`); every hosted rail
+ * answers a `url` to navigate to. `manual` (`instructions`) is handled by the
  * caller before this. Same-origin paths only for `push`.
  */
 export function payNowNavigation(body: Record<string, unknown>): { type: 'push' | 'assign'; to: string } | null {
@@ -175,7 +177,7 @@ export interface FeeBannerNotice {
   owed: Record<string, number>
   /** Due date of the latest statement (reminded). */
   dueAt: string | null
-  /** When new sales pause, if they will (overdue, enforce mode, not exempt). */
+  /** When new sales pause, if they will (overdue, enforce mode, paid billing mode). */
   blockOn: string | null
 }
 
@@ -190,17 +192,21 @@ export function describeFeeBanner(input: {
   enforcementMode: FeeEnforcementMode
   graceDays: number
   latestDueAt: string | null
+  /** tenants.billing_mode; absent = paid. internal: no banner; comped: notice but never a block date. */
+  billingMode?: BillingMode
 }): FeeBannerNotice | null {
   const { standing } = input
+  const billingMode = normalizeBillingMode(input.billingMode)
+  if (!feeNoticesApply(billingMode)) return null
   if (!standing || standing.state === 'ok') return null
   const owed = owedByCurrency(input.balances)
   if (Object.keys(owed).length === 0) return null
 
-  if (standing.blockedAt) return { variant: 'blocked', owed, dueAt: input.latestDueAt, blockOn: null }
+  if (standing.blockedAt && feeBlockingApplies(billingMode)) return { variant: 'blocked', owed, dueAt: input.latestDueAt, blockOn: null }
 
   if (standing.state === 'overdue' || standing.state === 'blocked') {
     let blockOn: string | null = null
-    if (input.enforcementMode === 'enforce' && !standing.enforcementExempt && standing.overdueSince) {
+    if (input.enforcementMode === 'enforce' && feeBlockingApplies(billingMode) && standing.overdueSince) {
       const since = Date.parse(standing.overdueSince)
       if (!Number.isNaN(since)) blockOn = new Date(since + input.graceDays * DAY_MS).toISOString()
     }

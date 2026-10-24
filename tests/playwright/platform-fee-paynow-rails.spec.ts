@@ -371,10 +371,9 @@ test.describe('platform fee pay-now on Binance / PayPal (#950)', () => {
     expect(await ledger(admin, 'EUR')).toMatchObject({ net: 10 })
 
     await login(page, SEEDED.owner.email, SEEDED.owner.password, QA_BASE)
-    // Solana is a retired rail: refused outright, before any currency check.
+    // Solana is disabled by default (lib/payments/solana-flag.ts): the route 404s before any currency check.
     const solana = await postJson(page, '/api/billing/fees/checkout', { provider: 'solana', locale: LOCALE })
-    expect(solana.status).toBe(410)
-    expect(solana.json?.code).toBe('unsupported_rail')
+    expect(solana.status).toBe(404)
 
     for (const provider of ['paypal', 'binance']) {
       const eur = await postJson(page, '/api/billing/fees/checkout', { provider, currency: 'EUR', locale: LOCALE })

@@ -15,6 +15,7 @@ import { revalidatePath } from 'next/cache'
 import { SCHOOL_THEME_SETTING_KEY } from '@/lib/themes/kit'
 import { normalizeGeneralSettings } from '@/lib/settings/general-settings'
 import { normalizeManualPaymentAccounts, type ManualPaymentAccount } from '@/lib/payments/manual-payment-accounts'
+import { isSolanaEnabled } from '@/lib/payments/solana-flag'
 import {
   defaultCurrencyForCountry,
   isCurrencySettingEmpty,
@@ -103,8 +104,8 @@ export async function getSettings(category?: string): Promise<SettingsResponse> 
       const categoryPrefixes: Record<string, string[]> = {
         general: ['site_name', 'site_description', 'contact_email', 'support_email', 'timezone', 'maintenance_mode'],
         email: ['smtp_', 'email_'],
-        payment: ['stripe_', 'paypal_', 'lemonsqueezy_', 'binance_', 'currency', 'tax_rate', 'invoice_prefix', 'require_payment_approval', 'manual_payment_instructions'],
-        enrollment: ['auto_enrollment', 'require_enrollment_approval', 'max_enrollments_per_user', 'allow_self_enrollment', 'enrollment_expiration_days', 'course_capacity_enabled', 'free_preview_enabled'],
+        payment: ['stripe_', 'paypal_', 'lemonsqueezy_', 'solana_', 'binance_', 'currency', 'tax_rate', 'invoice_prefix', 'require_payment_approval', 'manual_payment_instructions'],
+        enrollment: ['free_preview_enabled'],
       }
       const keys = categoryPrefixes[category]
       if (keys) {
@@ -306,16 +307,12 @@ export async function resetSetting(key: string): Promise<SettingsResponse> {
       stripe_enabled: { enabled: false },
       paypal_enabled: { enabled: false },
       lemonsqueezy_enabled: { enabled: false },
+      solana_enabled: { enabled: false },
+      solana_accept_sol: { enabled: false },
       currency: { value: 'USD' },
       tax_rate: { value: 0 },
       invoice_prefix: { value: 'INV' },
       require_payment_approval: { enabled: false },
-      auto_enrollment: { enabled: false },
-      require_enrollment_approval: { enabled: false },
-      max_enrollments_per_user: { value: 0 },
-      allow_self_enrollment: { enabled: true },
-      enrollment_expiration_days: { value: 365 },
-      course_capacity_enabled: { enabled: false },
       // On by default — matches what ships today (#799): every school already
       // has free preview lessons unless it explicitly turns them off.
       free_preview_enabled: { enabled: true },
@@ -398,6 +395,123 @@ export async function updateSchoolCountry(country: string): Promise<{
   } catch (error) {
     console.error('Error updating school country:', error)
     return { success: false, error: 'Failed to update the school country' }
+  }
+}
+
+/**
+ * Get this tenant's configured Solana receiving wallet (if any).
+ *
+ * One wallet backs both the one-time `solana` provider and the auto-pull
+ * `solana_subs` provider, so we read the `solana` row as the source of truth.
+ */
+export async function getSolanaWallet(): Promise<WalletResponse> {
+  try {
+    const role = await getUserRole()
+    if (role !== 'admin') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const tenantId = await getCurrentTenantId()
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+      .from('tenant_payment_wallets')
+      .select('wallet_address')
+      .eq('tenant_id', tenantId)
+      .eq('provider', 'solana')
+      .maybeSingle()
+
+    if (error) throw error
+
+    return { success: true, data: { wallet_address: data?.wallet_address || '' } }
+  } catch (error) {
+    console.error('Error fetching Solana wallet:', error)
+    return { success: false, error: 'Failed to fetch Solana wallet' }
+  }
+}
+
+/**
+ * Upsert this tenant's Solana receiving wallet.
+ *
+ * Writes BOTH the `solana` and `solana_subs` rows from one input so a school
+ * configures its wallet once — the one-time (/tx, /verify) and subscription
+ * (/subscribe-tx, cron pull) routes filter by their exact provider string.
+ * Uses the service-role client (bypasses RLS), so admin role + tenant scope are
+ * validated above and the rows are written with this tenant's id only.
+ */
+export async function setSolanaWallet(walletAddress: string): Promise<WalletResponse> {
+  try {
+    const role = await getUserRole()
+    if (role !== 'admin') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const address = (walletAddress || '').trim()
+    // Solana addresses are base58, 32–44 chars (no 0, O, I, l).
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
+      return { success: false, error: 'Enter a valid Solana wallet address (base58, 32–44 characters).' }
+    }
+
+    const tenantId = await getCurrentTenantId()
+    const supabase = createAdminClient()
+
+    // Was Solana already configured? Read BEFORE the upsert: re-saving the same
+    // wallet, or correcting a typo in it, is not a new connection, and
+    // `payment_provider_connected` counted per save would make the activation
+    // funnel's denominator meaningless.
+    //
+    // Guarded: this read exists only to decide whether to emit, and it runs
+    // BEFORE the upsert — unguarded, a transient failure here would abort the
+    // wallet save itself. `null` means the read failed; unknowable is not
+    // "new", for the same reason `isFirstConnectedProvider` returns false.
+    const existingWalletRead = await Promise.resolve(
+      supabase
+        .from('tenant_payment_wallets')
+        .select('wallet_address')
+        .eq('tenant_id', tenantId)
+        .eq('provider', 'solana')
+        .maybeSingle()
+    ).catch(() => null)
+    const isNewConnection = !!existingWalletRead && !existingWalletRead.data?.wallet_address
+    const isFirstProvider = isNewConnection
+      ? await isFirstConnectedProvider(tenantId, 'solana', supabase)
+      : false
+
+    const rows = ['solana', 'solana_subs'].map(provider => ({
+      tenant_id: tenantId,
+      provider,
+      wallet_address: address,
+      updated_at: new Date().toISOString(),
+    }))
+
+    const { error } = await supabase
+      .from('tenant_payment_wallets')
+      .upsert(rows, { onConflict: 'tenant_id,provider' })
+
+    if (error) throw error
+
+    // Wrapped: the wallet is already saved, and `getCurrentUserId()` is a real
+    // await — the enclosing catch would otherwise report "Failed to save Solana
+    // wallet" for a save that succeeded.
+    if (isNewConnection) {
+      await safeAnalytics(async () => {
+        const userId = await getCurrentUserId()
+        await track(
+          ANALYTICS_EVENTS.PAYMENT_PROVIDER_CONNECTED,
+          { provider: 'solana', is_first_provider: isFirstProvider },
+          { userId, tenantId, role }
+        )
+        // Connecting a rail is the other half of the activation condition.
+        await evaluateSchoolActivation({ tenantId, userId, role })
+      }, 'payment_provider_connected (solana)')
+    }
+
+    revalidatePath('/dashboard/admin/settings')
+
+    return { success: true, data: { wallet_address: address } }
+  } catch (error) {
+    console.error('Error saving Solana wallet:', error)
+    return { success: false, error: 'Failed to save Solana wallet' }
   }
 }
 
@@ -632,7 +746,7 @@ export async function getEnabledPaymentProviders(): Promise<{ success: boolean; 
       .from('tenant_settings')
       .select('setting_key, setting_value')
       .eq('tenant_id', tenantId)
-      .in('setting_key', ['stripe_enabled', 'paypal_enabled', 'lemonsqueezy_enabled', 'binance_enabled', 'binance_personal_enabled'])
+      .in('setting_key', ['stripe_enabled', 'paypal_enabled', 'lemonsqueezy_enabled', 'solana_enabled', 'binance_enabled', 'binance_personal_enabled'])
 
     if (error) throw error
 
@@ -648,6 +762,7 @@ export async function getEnabledPaymentProviders(): Promise<{ success: boolean; 
     const isOn = (key: string, fallback: boolean) =>
       key in flags ? flags[key] : fallback
 
+    const solanaOn = isSolanaEnabled() && isOn('solana_enabled', false)
     const binancePersonalOn = isOn('binance_personal_enabled', false)
 
     // Stripe: a flag alone used to offer a rail that fails at payment time — an
@@ -677,8 +792,8 @@ export async function getEnabledPaymentProviders(): Promise<{ success: boolean; 
 
     // Solana and binance_personal both gate on a `tenant_payment_wallets` row —
     // fetch both providers in ONE query instead of one round trip per provider.
-    const walletProviders = [binancePersonalOn && 'binance_personal'].filter(
-      (p): p is 'binance_personal' => Boolean(p)
+    const walletProviders = [solanaOn && 'solana', binancePersonalOn && 'binance_personal'].filter(
+      (p): p is 'solana' | 'binance_personal' => Boolean(p)
     )
     const walletsByProvider = new Map<string, { wallet_address: string | null; credentials: unknown }>()
     if (walletProviders.length > 0) {
@@ -696,6 +811,16 @@ export async function getEnabledPaymentProviders(): Promise<{ success: boolean; 
     if (stripeOn && stripeReady) providers.push('stripe')
     if (isOn('paypal_enabled', false)) providers.push('paypal')
     if (isOn('lemonsqueezy_enabled', false)) providers.push('lemonsqueezy')
+
+    // Solana: a flag alone used to offer a rail with no receiving wallet — the
+    // one-time and subscription checkout routes have nowhere to point a
+    // payment without a `tenant_payment_wallets` row.
+    if (solanaOn) {
+      const wallet = walletsByProvider.get('solana')
+      if (wallet?.wallet_address) {
+        providers.push('solana', 'solana_subs')
+      }
+    }
 
     if (isOn('binance_enabled', false)) providers.push('binance')
 
@@ -726,9 +851,33 @@ export async function getEnabledPaymentProviders(): Promise<{ success: boolean; 
   }
 }
 
-/** Legacy compatibility for persisted checkout clients. Solana is disabled. */
+/**
+ * Which Solana settlement tokens the current tenant offers at checkout.
+ *
+ * USDC is available whenever the platform has a USDC mint configured
+ * (SOLANA_USDC_MINT) — it is a 1:1 USD stablecoin, so it always reflects the
+ * USD price. Native SOL is OPT-IN per school via the `solana_accept_sol`
+ * toggle (default off), because SOL is volatile: it is converted from the USD
+ * price at the live rate at checkout. No role gate — students call this at
+ * checkout. Returns only booleans.
+ */
 export async function getSolanaSettlementOptions(): Promise<{ usdc: boolean; sol: boolean }> {
-  return { usdc: false, sol: false }
+  try {
+    const tenantId = await getCurrentTenantId()
+    const supabase = createAdminClient()
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('setting_value')
+      .eq('tenant_id', tenantId)
+      .eq('setting_key', 'solana_accept_sol')
+      .maybeSingle()
+    const sol = (data?.setting_value as { enabled?: boolean } | null)?.enabled === true
+    const usdc = !!process.env.SOLANA_USDC_MINT
+    return { usdc, sol }
+  } catch (error) {
+    console.error('Error resolving Solana settlement options:', error)
+    return { usdc: !!process.env.SOLANA_USDC_MINT, sol: false }
+  }
 }
 
 /**
@@ -809,12 +958,9 @@ export async function getAllSettingsByCategory(): Promise<CategorySettingsRespon
       smtp_host: 'email', smtp_port: 'email', smtp_username: 'email', smtp_password: 'email',
       smtp_from_email: 'email', smtp_from_name: 'email', email_notifications: 'email',
       stripe_enabled: 'payment', paypal_enabled: 'payment', binance_enabled: 'payment', binance_personal_enabled: 'payment',
-      lemonsqueezy_enabled: 'payment', currency: 'payment',
+      lemonsqueezy_enabled: 'payment', solana_enabled: 'payment', solana_accept_sol: 'payment', currency: 'payment',
       tax_rate: 'payment', invoice_prefix: 'payment', require_payment_approval: 'payment',
       manual_payment_instructions: 'payment', manual_payment_accounts: 'payment',
-      auto_enrollment: 'enrollment', require_enrollment_approval: 'enrollment',
-      max_enrollments_per_user: 'enrollment', allow_self_enrollment: 'enrollment',
-      enrollment_expiration_days: 'enrollment', course_capacity_enabled: 'enrollment',
       free_preview_enabled: 'enrollment',
     }
 

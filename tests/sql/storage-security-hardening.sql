@@ -44,6 +44,25 @@ BEGIN
   END IF;
 END $$;
 
+-- The asset library may upload from the browser into landing-page-assets/<school>/library/
+-- (20261022130001_allow_library_browser_upload.sql). Any other folder in that bucket, and
+-- the same folder in the other app buckets, must stay server-only.
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO storage.objects(bucket_id, name)
+    VALUES ('landing-page-assets', '00000000-0000-0000-0000-000000000000/images/forged.webp');
+    RAISE EXCEPTION 'Browser INSERT outside the library folder unexpectedly succeeded';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  BEGIN
+    INSERT INTO storage.objects(bucket_id, name)
+    VALUES ('course-images', '00000000-0000-0000-0000-000000000000/library/forged.webp');
+    RAISE EXCEPTION 'Browser INSERT into another bucket library folder unexpectedly succeeded';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+END $$;
+
 RESET ROLE;
 SET LOCAL ROLE anon;
 DO $$

@@ -57,7 +57,7 @@ export const BASE_ANNOTATIONS: AiAnnotations = {
     fields: { title: { required: true } },
   },
   FeaturesGrid: {
-    instructions: 'Benefits grid: emoji icon, title, description each.',
+    instructions: 'Benefits grid: icon name (sparkles, brain, code, book, target, zap…), title, text.',
   },
   CourseGrid: {
     instructions:
@@ -100,7 +100,9 @@ export const BASE_ANNOTATIONS: AiAnnotations = {
   },
   CatalogBrowser: { instructions: "Searchable browser over all courses." },
   ShinyEyebrow: { instructions: 'Small label above a hero headline.' },
-  ContentFeature: { instructions: 'Text + image, optional pull-quote.' },
+  ContentFeature: { instructions: 'Text, bullets, image side by side.' },
+  HeroSplit: { instructions: 'Hero: copy + CTAs beside an image.' },
+  StepsBlock: { instructions: 'Numbered process, 2-4 steps.' },
 
   // ── Navigation ──
   Header: {

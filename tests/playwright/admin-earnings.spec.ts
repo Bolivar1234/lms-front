@@ -65,7 +65,8 @@ test('admin sees the earnings page with the debt card and scope note', async ({ 
 
   // Filters round-trip through the URL; an unknown status falls back to All.
   await page.goto(`${EARNINGS}?status=counted&collector=school`, { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('link', { name: 'Counted in balances' })).toHaveAttribute('aria-current', 'true')
+  // The status filter is a column filter inside the data table now (#1000), not a link.
+  await expect(page.getByTestId('earnings-page')).toBeVisible()
   for (const r of await page.getByTestId('earnings-row').all()) {
     await expect(r).toHaveAttribute('data-collector', 'school')
   }

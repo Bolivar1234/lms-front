@@ -8,8 +8,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
  * ships, not a stub. The branch under test:
  *   - createsCatalog (stripe/paypal)      → auto-create product + price.
  *   - isMerchantOfRecord (lemonsqueezy)   → require a pasted variant id; no API.
- *   - else (manual)                       → no catalog ids.
- *   - solana/solana_subs                  → retired rail; always refused.
+ *   - else (solana/solana_subs)           → no catalog; require a wallet row.
  */
 
 interface FakeAdmin {
@@ -144,21 +143,23 @@ describe('createPlan — capability branch', () => {
     expect(row.provider_product_id).toBeNull()
   })
 
-  it('solana (retired rail) → refused even with a wallet, no insert', async () => {
-    state.walletRow = { wallet_address: 'So1aNaWa11et1111111111111111111111111111111' }
+  it('solana WITHOUT a configured wallet → fails with a wallet message, no insert', async () => {
+    state.walletRow = null
     const r = await createPlan({ ...basePlan, paymentProvider: 'solana' })
     expect(r.success).toBe(false)
-    expect(r.success ? '' : r.error).toMatch(/solana payments are disabled/i)
+    expect(r.success ? '' : r.error).toMatch(/wallet/i)
     expect(state.admin._inserted.find(i => i.table === 'plans')).toBeUndefined()
   })
 
-  it('solana_subs (retired rail) → refused, no insert, no provider call', async () => {
+  it('solana_subs WITH a wallet → inserts with null catalog ids, no provider call', async () => {
     state.walletRow = { wallet_address: 'So1aNaWa11et1111111111111111111111111111111' }
     const r = await createPlan({ ...basePlan, paymentProvider: 'solana_subs' })
-    expect(r.success).toBe(false)
-    expect(r.success ? '' : r.error).toMatch(/solana payments are disabled/i)
+    expect(r.success).toBe(true)
     expect(state.providerCalls.createProduct).toBe(0)
-    expect(state.admin._inserted.find(i => i.table === 'plans')).toBeUndefined()
+    const row = state.admin._inserted.find(i => i.table === 'plans')!.values
+    expect(row.payment_provider).toBe('solana_subs')
+    expect(row.provider_product_id).toBeNull()
+    expect(row.provider_price_id).toBeNull()
   })
 })
 
@@ -188,17 +189,16 @@ describe('createProduct — capability branch', () => {
     expect(row.provider_product_id).toBeNull()
   })
 
-  it('solana (retired rail) → refused even with a wallet, no insert', async () => {
-    state.walletRow = { wallet_address: 'So1aNaWa11et1111111111111111111111111111111' }
+  it('solana WITHOUT a wallet → fails', async () => {
+    state.walletRow = null
     const r = await createProduct({ ...baseProduct, paymentProvider: 'solana' })
     expect(r.success).toBe(false)
-    expect(r.success ? '' : r.error).toMatch(/solana payments are disabled/i)
-    expect(state.providerCalls.createProduct).toBe(0)
-    expect(state.admin._inserted.find(i => i.table === 'products')).toBeUndefined()
+    expect(r.success ? '' : r.error).toMatch(/wallet/i)
   })
 
-  it('manual → inserts with null catalog ids, no provider call', async () => {
-    const r = await createProduct({ ...baseProduct, paymentProvider: 'manual' })
+  it('solana WITH a wallet → inserts with null catalog ids', async () => {
+    state.walletRow = { wallet_address: 'So1aNaWa11et1111111111111111111111111111111' }
+    const r = await createProduct({ ...baseProduct, paymentProvider: 'solana' })
     expect(r.success).toBe(true)
     expect(state.providerCalls.createProduct).toBe(0)
     const row = state.admin._inserted.find(i => i.table === 'products')!.values
@@ -253,9 +253,10 @@ describe('publish gate — connected-account readiness', () => {
     // Same unusable Stripe state — irrelevant to a rail that has nothing to
     // onboard, so these must still publish.
     state.tenantRow = ABANDONED
+    state.walletRow = { wallet_address: 'So1aNaWa11et1111111111111111111111111111111' }
 
-    const manual = await createProduct({ ...baseProduct, paymentProvider: 'manual' })
-    expect(manual.success).toBe(true)
+    const solana = await createProduct({ ...baseProduct, paymentProvider: 'solana' })
+    expect(solana.success).toBe(true)
 
     const lemon = await createProduct({
       ...baseProduct,

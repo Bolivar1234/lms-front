@@ -18,6 +18,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentTenantId } from '@/lib/supabase/tenant'
 import { resolveRequestLocale } from '@/lib/i18n/request-locale'
+import { isSolanaEnabled, solanaDisabledResponse } from '@/lib/payments/solana-flag'
 import { PROVIDER_CAPABILITIES } from '@/lib/payments/types'
 import { getTenantPlatformProviderStatuses } from '@/lib/billing/platform-checkout-runtime'
 import {
@@ -30,6 +31,13 @@ import {
 import { checkPlanLimits, formatPlanLimitError } from '@/lib/billing/plan-limits'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 import { track } from '@/lib/analytics/server'
+import { hasOpenPaymentRequest, requestExpiresAt } from '@/lib/billing/payment-request-ttl'
+import {
+  getPlatformSolanaConfig,
+  quotePlatformSettlement,
+  recordSolanaPlatformRequest,
+  type PlatformSettlement,
+} from '@/lib/billing/solana-platform-payment'
 import {
   SWITCH_METADATA_KEY,
   SwitchAlreadyPendingError,
@@ -45,10 +53,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { planId, interval = 'monthly', locale: bodyLocale, provider: requestedProvider } = body
 
-    // A retired rail is gone, not a bad request: answer before price resolution,
-    // which no longer lists it and would otherwise report a missing price.
-    if (requestedProvider === 'solana' || requestedProvider === 'solana_subs') {
-      return NextResponse.json({ error: 'Solana payments are disabled.' }, { status: 410 })
+    // Solana is disabled unless SOLANA_PAYMENTS_ENABLED=true: answer before price resolution.
+    if ((requestedProvider === 'solana' || requestedProvider === 'solana_subs') && !isSolanaEnabled()) {
+      return solanaDisabledResponse()!
     }
 
     if (!planId) {
@@ -134,8 +141,8 @@ export async function POST(req: NextRequest) {
 
     const { provider, price } = resolved.value
 
-    if (provider === 'solana' || provider === 'solana_subs') {
-      return NextResponse.json({ error: 'Solana payments are disabled.' }, { status: 410 })
+    if ((provider === 'solana' || provider === 'solana_subs') && !isSolanaEnabled()) {
+      return solanaDisabledResponse()!
     }
 
     const capabilities = PROVIDER_CAPABILITIES[provider]
@@ -209,6 +216,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'This plan has no price to charge on that method.' }, { status: 400 })
     }
 
+    // A crypto rail needs its intent recorded before the QR exists: the wallet
+    // hits `/api/billing/solana/tx` with no session, and the only thing tying
+    // that anonymous call to a school, a plan and an amount is this row.
+    // Guarded like the manual request it is — one open promise to pay at a time,
+    // or a school could hold a plan with a QR it never scans.
+    //
+    // Every reason to refuse is checked HERE, above the supersession below: that
+    // step cancels the school's live subscription, and refusing afterwards would
+    // leave it with neither the old plan nor the new one.
+    let solanaSettlement: PlatformSettlement | null = null
+    if (provider === 'solana') {
+      const config = getPlatformSolanaConfig()
+      if (!config) {
+        return NextResponse.json(
+          { error: 'Solana payments are not configured on this platform yet.' },
+          { status: 503 },
+        )
+      }
+      if (await hasOpenPaymentRequest(adminClient, tenantId)) {
+        return NextResponse.json(
+          { error: 'You already have a pending plan change request. Please wait for it to be processed.' },
+          { status: 400 },
+        )
+      }
+      solanaSettlement = await quotePlatformSettlement(amountUsd, config)
+    }
+
     const paymentProvider = getPlatformBillingProvider(provider)
     if (!paymentProvider.createCheckoutSession) {
       return NextResponse.json(
@@ -271,6 +305,7 @@ export async function POST(req: NextRequest) {
     const successUrl = `${origin}/dashboard/admin/billing?session_id={CHECKOUT_SESSION_ID}`
     const cancelUrl = `${origin}/dashboard/admin/billing/upgrade`
 
+    const replacementExpiresAt = provider === 'solana' ? requestExpiresAt() : undefined
     let switchId: string | null
     try {
       switchId = await beginPlatformSubscriptionSwitch({
@@ -280,7 +315,7 @@ export async function POST(req: NextRequest) {
         targetProvider: provider,
         targetInterval: interval,
         initiatedBy: user.id,
-        expiresAt: undefined,
+        expiresAt: replacementExpiresAt,
       })
     } catch (switchError) {
       if (switchError instanceof SwitchAlreadyPendingError) {
@@ -355,6 +390,37 @@ export async function POST(req: NextRequest) {
       },
       { userId: user.id, tenantId, role: 'admin', locale },
     )
+
+    // The QR's on-chain reference is minted by the provider, so the row is
+    // written now that we have it. A failure here must fail the request: a
+    // scannable QR with no row behind it is a payment nobody can credit.
+    if (solanaSettlement) {
+      if (!session.providerRef) {
+        console.error('[billing/checkout] solana session carried no on-chain reference')
+        await failPlatformSubscriptionSwitch(adminClient, switchId, 'Solana session carried no reference')
+        return NextResponse.json({ error: 'Could not start checkout' }, { status: 502 })
+      }
+      let requestId: string
+      try {
+        const recorded = await recordSolanaPlatformRequest({
+          admin: adminClient,
+          tenantId,
+          userId: user.id,
+          planId: plan.plan_id,
+          amountUsd,
+          interval,
+          reference: session.providerRef,
+          settlement: solanaSettlement,
+          switchId,
+          expiresAt: replacementExpiresAt,
+        })
+        requestId = recorded.requestId
+      } catch (recordError) {
+        await failPlatformSubscriptionSwitch(adminClient, switchId, recordError)
+        throw recordError
+      }
+      return NextResponse.json({ kind: session.kind, url: session.url, provider, requestId })
+    }
 
     // `kind` is carried on every response so the client presents what it was
     // actually given rather than assuming a redirect — the two shapes differ by

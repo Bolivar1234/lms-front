@@ -56,9 +56,7 @@ describe('getAllSettingsByCategory', () => {
     const r = await getAllSettingsByCategory()
     const paymentKeys = Object.keys(r.data?.payment ?? {})
     expect(paymentKeys.sort()).toEqual(
-      ['binance_enabled', 'lemonsqueezy_enabled', 'paypal_enabled', 'stripe_enabled'].sort()
+      ['binance_enabled', 'lemonsqueezy_enabled', 'paypal_enabled', 'solana_enabled', 'stripe_enabled'].sort()
     )
-    // Solana is a retired rail: a legacy row is no longer a payment toggle.
-    expect(r.data?.payment?.solana_enabled).toBeUndefined()
   })
 })

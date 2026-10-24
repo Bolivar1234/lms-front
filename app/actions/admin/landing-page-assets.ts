@@ -4,9 +4,12 @@ import { uploadScopedAsset } from '@/app/actions/storage'
 import type { ActionResult } from '@/lib/supabase/admin'
 import { authorizeCourseStorage } from '@/lib/storage/authorization'
 import { storagePathFromPublicUrl } from '@/lib/storage/upload'
+import { recordAssetUploader } from '@/lib/assets/record-uploader'
 
 export async function uploadLandingPageAsset(formData: FormData) {
-  return uploadScopedAsset({ purpose: 'landing-image' }, formData)
+  const result = await uploadScopedAsset({ purpose: 'landing-image' }, formData)
+  if (result.success && result.data) await recordAssetUploader(result.data.bucket, result.data.path)
+  return result
 }
 
 export async function deleteLandingPageAsset(fileUrl: string): Promise<ActionResult> {

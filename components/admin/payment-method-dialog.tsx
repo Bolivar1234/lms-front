@@ -16,9 +16,11 @@ import { providerLabel } from '@/lib/billing/plan-prices'
 import { useTranslations } from 'next-intl'
 
 /**
- * Rails that move crypto rather than money from a card or a bank (#610).
+ * Rails that move crypto rather than money from a card or a bank (#610). A card
+ * icon on a Solana button reads as a promise the flow does not keep — the
+ * school is about to be shown a QR, not a card form.
  */
-const CRYPTO_RAILS = new Set(['binance'])
+const CRYPTO_RAILS = new Set(['solana', 'binance'])
 
 /**
  * How a school pays the platform for a plan.

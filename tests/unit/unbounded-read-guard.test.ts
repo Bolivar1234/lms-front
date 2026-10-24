@@ -71,11 +71,12 @@ const KNOWN_UNBOUNDED: Record<string, string> = {
   'lib/hooks/use-course-access.ts::entitlements': 'scoped — one user’s entitlements',
   'lib/services/course-access.ts::entitlements': 'scoped — one user’s entitlements',
   'lib/payments/subscription-guard.ts::subscriptions': 'scoped — one user’s subscriptions',
+  'app/api/cron/comped-expiry/route.ts::tenants':
+    'scoped — claim/flip updates are keyed by `.eq(\'id\', tenant.id)`, so they return at most one row',
   'app/api/cron/expire-stale-checkouts/route.ts::transactions':
     'scoped — the write-back `.in()` only ever carries the ids from the same pass’s own `.limit(BATCH_LIMIT)` read (200), so it cannot reach the API row cap',
 
   // scoped: one course (large, but bounded by a course roster)
-  'app/[locale]/dashboard/teacher/courses/[courseId]/page.tsx::enrollments': 'scoped — one course roster',
   'app/[locale]/dashboard/teacher/courses/[courseId]/certificates/page.tsx::enrollments': 'scoped — one course roster',
   'app/actions/teacher/courses.ts::enrollments': 'scoped — one course roster',
   'app/actions/admin/notifications.ts::enrollments': 'scoped — one course roster',
@@ -83,12 +84,8 @@ const KNOWN_UNBOUNDED: Record<string, string> = {
   // gap: tenant- or platform-wide sweeps, #533 class, not in #548's scope
   'app/[locale]/dashboard/admin/analytics/page.tsx::transactions': 'gap #540 — tenant-wide, summed',
   'app/[locale]/dashboard/admin/analytics/page.tsx::enrollments': 'gap #540 — tenant-wide, counted',
-  'app/[locale]/dashboard/admin/page.tsx::transactions': 'gap #540 — tenant-wide, summed',
-  'app/[locale]/dashboard/admin/courses/page.tsx::enrollments': 'gap #540 — tenant-wide, counted',
-  'app/[locale]/dashboard/admin/enrollments/page.tsx::enrollments': 'gap #540 — tenant-wide listing',
   'app/[locale]/dashboard/admin/users/page.tsx::enrollments': 'gap #540 — tenant-wide, counted',
   'app/[locale]/dashboard/admin/subscriptions/page.tsx::subscriptions': 'gap #540 — tenant-wide listing',
-  'app/[locale]/dashboard/admin/transactions/page.tsx::transactions': 'gap #540 — tenant-wide listing',
   'app/[locale]/dashboard/teacher/page.tsx::enrollments': 'gap #540 — tenant-wide, counted',
   'app/actions/admin/binance-personal.ts::transactions': 'gap #540 — tenant-wide reconcile list',
   'app/api/cron/binance-personal-reconcile/route.ts::transactions': 'gap #540 — platform-wide cron queue',

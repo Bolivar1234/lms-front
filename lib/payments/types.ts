@@ -361,10 +361,12 @@ export const PROVIDER_CAPABILITIES: Record<PaymentProvider, ProviderCapabilities
     supportsNativeSubscriptions: false,
     emitsRenewalWebhooks: false,
     supportsHostedCheckout: false,
-    // Retired rail: kept in the table so legacy rows stay readable, but never
-    // offered for a platform plan or a fee payment (the routes answer 410).
-    supportsPlatformBillingCheckout: false,
-    supportsPlatformFeePayNow: false,
+    // Not a hosted page — the school scans a QR and the payment is proven
+    // on-chain by /api/billing/solana/verify (#610). The flag says the rail can
+    // carry a school→platform purchase, not that a redirect URL exists;
+    // `CheckoutSession.kind` is what tells the caller how to present it.
+    supportsPlatformBillingCheckout: true,
+    supportsPlatformFeePayNow: true, // QR + on-chain verify, #950
     supportsRefunds: false,
     isMerchantOfRecord: false,
     selfManagedPeriod: true,

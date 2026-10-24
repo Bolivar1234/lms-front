@@ -10,6 +10,7 @@ import { courseRemovedTemplate } from '@/lib/email/templates/course-removed'
 import { bestEffortLocale } from '@/lib/i18n/best-effort-locale'
 import { getSchoolBrand } from '@/lib/themes/school-brand'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { fetchLiveEntitlementKeys, liveEntitlementKey } from '@/lib/services/course-access'
 import { countTenantUsage, getTenantPlanLimits } from '@/lib/billing/plan-limits'
 import { courseLimitMessage, isPlanLimitError } from '@/lib/billing/plan-limit-error'
 import { reconcileAccessCutoffSafely } from '@/lib/billing/access-cutoff'
@@ -21,6 +22,7 @@ export interface CourseFormData {
   title: string
   description?: string | null
   thumbnail_url?: string | null
+  trailer_url?: string | null
   category_id?: number | null
   status?: 'draft' | 'published' | 'archived'
   learning_objectives?: string[] | null
@@ -153,6 +155,7 @@ export async function createCourse(courseData: CourseFormData) {
       title: courseData.title,
       description: courseData.description || null,
       thumbnail_url: courseData.thumbnail_url || null,
+      trailer_url: courseData.trailer_url?.trim() || null,
       category_id: courseData.category_id || null,
       author_id: user.id,
       tenant_id: tenantId,
@@ -255,6 +258,7 @@ export async function updateCourse(courseId: number, courseData: CourseFormData)
       title: courseData.title,
       description: courseData.description || null,
       thumbnail_url: courseData.thumbnail_url || null,
+      trailer_url: courseData.trailer_url?.trim() || null,
       category_id: courseData.category_id || null,
       status: courseData.status || undefined,
       learning_objectives: sanitizeObjectives(courseData.learning_objectives),
@@ -322,14 +326,10 @@ export async function getCourseEnrollmentCount(courseId: number) {
   const supabase = await createClient()
   const tenantId = await getCurrentTenantId()
 
-  const { count } = await supabase
-    .from('enrollments')
-    .select('*', { count: 'exact', head: true })
-    .eq('course_id', courseId)
-    .eq('tenant_id', tenantId)
-    .eq('status', 'active')
+  // Students who can still open the course (entitlements), not enrollment rows.
+  const live = await fetchLiveEntitlementKeys(supabase, tenantId, { courseIds: [courseId] })
 
-  return { enrollmentCount: count ?? 0 }
+  return { enrollmentCount: live.size }
 }
 
 /**
@@ -407,14 +407,18 @@ export async function deleteCourse(courseId: number) {
   // many students were NOT reached rather than implying everyone was (#676).
   const notification = { recipients: 0, emailsSent: 0, mailerConfigured: isMailerConfigured() }
   try {
-    const { data: enrollments } = await adminClient
+    const { data: allEnrollments } = await adminClient
       .from('enrollments')
       .select('user_id')
       .eq('course_id', courseId)
       .eq('tenant_id', tenantId)
       .eq('status', 'active')
 
-    notification.recipients = enrollments?.length ?? 0
+    // Only students who can still open the course are told it is going away.
+    const liveKeys = await fetchLiveEntitlementKeys(adminClient, tenantId, { courseIds: [courseId] })
+    const enrollments = (allEnrollments || []).filter((e) => liveKeys.has(liveEntitlementKey(e.user_id, courseId)))
+
+    notification.recipients = enrollments.length
 
     if (notification.recipients > 0 && notification.mailerConfigured) {
       const [brand, locale, authUsers] = await Promise.all([

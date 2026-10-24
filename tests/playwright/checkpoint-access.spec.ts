@@ -176,9 +176,12 @@ test.describe('checkpoint attempt access gate (#532)', () => {
 
   test('tenant past its access cutoff is refused as suspended', async ({ page }) => {
     const admin = getAdmin()
+    // #982: the default tenant is billing_mode='internal', which is never cut off, so
+    // make it a paid school for this test and put the mode back afterwards.
+    const { data: prior } = await admin.from('tenants').select('billing_mode').eq('id', DEFAULT_TENANT).single()
     await admin
       .from('tenants')
-      .update({ access_cutoff_at: new Date(Date.now() - 60_000).toISOString() })
+      .update({ billing_mode: 'paid', access_cutoff_at: new Date(Date.now() - 60_000).toISOString() })
       .eq('id', DEFAULT_TENANT)
     try {
       const res = await page.request.post(
@@ -189,7 +192,10 @@ test.describe('checkpoint attempt access gate (#532)', () => {
       const body = await res.json()
       expect(body.accessSuspended).toBe(true)
     } finally {
-      await admin.from('tenants').update({ access_cutoff_at: null }).eq('id', DEFAULT_TENANT)
+      await admin
+        .from('tenants')
+        .update({ access_cutoff_at: null, billing_mode: prior?.billing_mode ?? 'internal' })
+        .eq('id', DEFAULT_TENANT)
     }
   })
 })

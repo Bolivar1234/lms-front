@@ -284,7 +284,9 @@
       "accountSubtitle": "Actualiza tu información personal",
       "preferencesTitle": "Preferencias",
       "preferencesSubtitle": "Ajustes personales sobre el comportamiento del panel",
-      "manageTokens": "Administrar tokens de API"
+      "manageTokens": "Administrar tokens de API",
+      "profileTitle": "Perfil",
+      "profileSubtitle": "Actualiza tus datos personales y preferencias de cuenta."
     },
     "student": {
       "aiAssistant": {
@@ -1153,7 +1155,8 @@
             "feedback": "Retroalimentación del tutor",
             "requirementsCheck": "Verificación del verificador",
             "notFound": "No hay ninguna finalización del tutor de IA registrada para esta lección."
-          }
+          },
+          "searchPlaceholder": "Buscar estudiantes…"
         },
         "certificates": {
           "title": "Certificados",
@@ -1334,7 +1337,8 @@
           "reset": "Limpiar filtros",
           "noMatches": "No hay coincidencias",
           "noMatchesHint": "Prueba otro título o limpia los filtros."
-        }
+        },
+        "landingPage": "Página de venta"
       },
       "newCourse": {
         "title": "Crear Nuevo Curso",
@@ -1385,7 +1389,10 @@
           "cancel": "Cancelar",
           "update": "Actualizar Curso",
           "create": "Crear Curso"
-        }
+        },
+        "trailerLabel": "Tráiler / video de introducción",
+        "trailerPlaceholder": "https://www.youtube.com/watch?v=...",
+        "trailerHint": "YouTube, Vimeo, Loom… los visitantes lo verán en la página pública del curso antes de inscribirse"
       },
       "courseDelete": {
         "triggerButton": "Eliminar Curso",
@@ -1455,7 +1462,11 @@
         "removeOption": "Eliminar opción",
         "dragQuestion": "Arrastrar para reordenar pregunta",
         "publishSuccess": "Examen publicado",
-        "draftSaved": "Borrador guardado"
+        "draftSaved": "Borrador guardado",
+        "imageLabel": "Imagen de portada",
+        "uploadImage": "Elegir imagen",
+        "removeImage": "Quitar imagen",
+        "imageHint": "Se muestra en la página pública del curso (se recomienda 16:9)"
       },
       "versionHistory": {
         "trigger": "Historial",
@@ -2261,7 +2272,8 @@
           "submitted": "Enviado",
           "noSubmissions": "No se encontraron entregas",
           "unknownStudent": "Estudiante Desconocido",
-          "reviewButton": "Revisar"
+          "reviewButton": "Revisar",
+          "searchPlaceholder": "Buscar por estudiante..."
         }
       },
       "examSubmissions": {
@@ -2597,6 +2609,10 @@
         "deterministic": "Estas preguntas se corrigen con la clave de respuestas, sin IA.",
         "correct": "Correcto",
         "incorrect": "Incorrecto"
+      },
+      "imagePicker": {
+        "title": "Elige una imagen",
+        "description": "Reutiliza una imagen que ya subiste o agrega una nueva."
       }
     },
     "admin": {
@@ -2669,7 +2685,9 @@
             "platform": "Plataforma"
           },
           "footnote": "El monto descuenta reembolsos. La comisión usa el reparto vigente cuando ocurrió cada venta. Las ventas por confirmar y las reembolsadas por completo no cuentan en ningún saldo.",
-          "fxRate": "1 {currency} = {rate} USD ({source})"
+          "fxRate": "1 {currency} = {rate} USD ({source})",
+          "searchPlaceholder": "Buscar ventas…",
+          "monthFilter": "Mes"
         },
         "status": {
           "successful": "Pagada",
@@ -2718,7 +2736,8 @@
             "method": "Método",
             "paidAt": "Pagado el",
             "stripeRef": "Ref. Stripe"
-          }
+          },
+          "searchPlaceholder": "Buscar por referencia, nota o monto…"
         },
         "empty": {
           "title": "Sin pagos aún",
@@ -2750,7 +2769,9 @@
             "actions": "Acciones"
           },
           "unknownProduct": "Producto desconocido",
-          "viewInvoice": "Ver factura"
+          "viewInvoice": "Ver factura",
+          "searchPlaceholder": "Buscar por n.º de factura, artículo o estado…",
+          "otherStatus": "Otro"
         },
         "empty": {
           "title": "No hay facturas",
@@ -2787,7 +2808,8 @@
         "monetization": "Monetización",
         "appearance": "Apariencia",
         "website": "Sitio Web",
-        "webhooks": "Webhooks"
+        "webhooks": "Webhooks",
+        "assets": "Archivos"
       },
       "appearance": {
         "title": "Apariencia",
@@ -2904,6 +2926,77 @@
             "description": "Crea y gestiona cursos desde la sección de Gestión de Contenido."
           },
           "replay": "Repetir recorrido"
+        },
+        "header": {
+          "title": "Bienvenido de nuevo, {name}",
+          "titleFallback": "Bienvenido de nuevo",
+          "newCourse": "Nuevo curso"
+        },
+        "attention": {
+          "title": "Requiere atención",
+          "clear": "Todo en orden — nada te necesita ahora mismo",
+          "error": "No se pudieron cargar algunos elementos. Recarga para reintentar.",
+          "paymentRequests": "{count, plural, one {# solicitud de pago por revisar} other {# solicitudes de pago por revisar}}",
+          "paymentRequestsAction": "Revisar",
+          "examSubmissions": "{count, plural, one {# examen esperando tu revisión} other {# exámenes esperando tu revisión}}",
+          "examSubmissionsAction": "Calificar",
+          "pastDue": "{count, plural, one {# suscripción vencida} other {# suscripciones vencidas}}",
+          "pastDueAction": "Ver",
+          "failedPayments": "{count, plural, one {# pago fallido en los últimos 30 días} other {# pagos fallidos en los últimos 30 días}}",
+          "failedPaymentsAction": "Revisar",
+          "flags": "{count, plural, one {# reporte de la comunidad por moderar} other {# reportes de la comunidad por moderar}}",
+          "flagsAction": "Moderar",
+          "questions": "{count, plural, one {# pregunta de la comunidad sin responder} other {# preguntas de la comunidad sin responder}}",
+          "questionsAction": "Responder"
+        },
+        "performance": {
+          "title": "Últimos 30 días",
+          "revenue": "Ingresos",
+          "chartLabel": "Ingresos diarios, últimos 30 días",
+          "error": "No se pudieron cargar los ingresos.",
+          "statsError": "No se pudieron cargar algunas cifras.",
+          "partial": "Solo se contaron las {count} ventas más recientes, así que esta cifra puede estar incompleta.",
+          "delta": {
+            "change": "{value} vs los 30 días anteriores",
+            "new": "Nuevo vs los 30 días anteriores"
+          },
+          "newStudents": "Estudiantes nuevos",
+          "members": "Miembros",
+          "courses": "Cursos",
+          "coursesDetail": "{count} publicados",
+          "activeSubscriptions": "Suscripciones activas",
+          "empty": {
+            "connect": "Conecta los pagos para empezar a ganar",
+            "connectAction": "Conectar pagos",
+            "publish": "Publica un curso para empezar a vender",
+            "publishAction": "Ir a cursos",
+            "share": "Aún no hay ventas — comparte tu escuela"
+          }
+        },
+        "activity": {
+          "title": "Actividad reciente",
+          "enrolled": "{name} se inscribió en {course}",
+          "paid": "{name} pagó {amount}",
+          "joined": "{name} se unió",
+          "someone": "Alguien",
+          "aCourse": "un curso",
+          "empty": "Todavía nada. Comparte tu enlace para atraer a tus primeros estudiantes.",
+          "error": "No se pudo cargar la actividad reciente."
+        },
+        "share": {
+          "title": "Comparte tu escuela",
+          "description": "Envía este enlace para que se unan a tu escuela.",
+          "copy": "Copiar enlace",
+          "copied": "Copiado",
+          "whatsapp": "WhatsApp",
+          "viewSite": "Ver sitio público"
+        },
+        "drafts": {
+          "waiting": "{count, plural, one {# curso en borrador pendiente} other {# cursos en borrador pendientes}}",
+          "action": "Terminar borradores"
+        },
+        "planFooter": {
+          "unlimited": "{plan} · Ilimitado"
         }
       },
       "billing": {
@@ -3115,6 +3208,13 @@
           "hintInstructionsSent": "Revisa tu correo para ver las instrucciones de transferencia. Cuando la hagas, sube el comprobante aquí.",
           "hintPaymentReceived": "Recibimos tu pago y lo estamos confirmando. Tu plan se activará pronto.",
           "uploadProof": "Sube el comprobante de pago (opcional; agiliza la activación)"
+        },
+        "comped": {
+          "summaryUntil": "Plan cortesía: {plan} hasta {date} · fee {fee} %",
+          "summaryNoExpiry": "Plan cortesía: {plan}, sin vencimiento · fee {fee} %",
+          "expiredHint": "El periodo de cortesía terminó. Contrata un plan para conservar tus funciones.",
+          "cta": "Contratar plan",
+          "internalNote": "Escuela interna — sin facturación"
         }
       },
       "users": {
@@ -3298,7 +3398,7 @@
           "received": "Pago Recibido",
           "receivedDesc": "Listos para inscribir",
           "completed": "Completados",
-          "completedTotal": "${amount} en total"
+          "completedTotal": "{amount} en total"
         },
         "tabs": {
           "open": "Abiertas ({count})",
@@ -3317,7 +3417,8 @@
             "status": "Estado",
             "invoice": "Factura",
             "date": "Fecha",
-            "actions": "Acciones"
+            "actions": "Acciones",
+            "method": "Método"
           },
           "noRequests": "No se encontraron solicitudes de pago",
           "manage": "Gestionar",
@@ -3325,7 +3426,21 @@
           "id": "ID de solicitud",
           "invoice": "Factura",
           "reported": "Pago reportado",
-          "expired": "Vencida sin pago"
+          "expired": "Vencida sin pago",
+          "searchPlaceholder": "Buscar por estudiante, correo, producto o factura…",
+          "methods": {
+            "stripe": "Stripe",
+            "manual": "Manual",
+            "bank_transfer": "Transferencia Bancaria",
+            "zelle": "Zelle",
+            "pagos_chile": "Pagos Chile",
+            "paypal": "PayPal",
+            "binance": "Binance",
+            "binance_personal": "Binance (personal)",
+            "lemonsqueezy": "Lemon Squeezy",
+            "solana": "Solana",
+            "pago_movil": "Pago Móvil"
+          }
         },
         "status": {
           "pending": "Pendiente",
@@ -3775,11 +3890,18 @@
             "manual": "Manual",
             "bank_transfer": "Transferencia Bancaria",
             "zelle": "Zelle",
-            "pagos_chile": "Pagos Chile"
+            "pagos_chile": "Pagos Chile",
+            "paypal": "PayPal",
+            "binance": "Binance",
+            "binance_personal": "Binance (personal)",
+            "lemonsqueezy": "Lemon Squeezy",
+            "solana": "Solana",
+            "pago_movil": "Pago Móvil"
           },
           "unknown": "Desconocido",
           "notAvailable": "N/A",
-          "empty": "No se encontraron transacciones"
+          "empty": "No se encontraron transacciones",
+          "searchPlaceholder": "Buscar por ID, usuario, método..."
         }
       },
       "enrollments": {
@@ -3803,7 +3925,9 @@
           "unknown": "Desconocido",
           "unknownCourse": "Curso Desconocido",
           "viewCourse": "Ver Curso",
-          "empty": "No se encontraron inscripciones"
+          "empty": "No se encontraron inscripciones",
+          "searchPlaceholder": "Buscar por estudiante, correo o curso...",
+          "statusDisabled": "Deshabilitada"
         }
       },
       "settings": {
@@ -4130,18 +4254,6 @@
             "faviconUrlHint": "URL del icono de la pestaña del navegador (recomendado: 32x32px ICO o PNG)"
           },
           "enrollment": {
-            "auto": "Inscripción Automática",
-            "autoHint": "Inscribir automáticamente a nuevos usuarios en cursos designados",
-            "self": "Permitir Autoinscripción",
-            "selfHint": "Permitir que los estudiantes se inscriban ellos mismos en los cursos",
-            "approval": "Requerir Aprobación de Inscripción",
-            "approvalHint": "Requerir aprobación del administrador antes de que los estudiantes accedan a los cursos",
-            "max": "Máximo de Inscripciones por Usuario",
-            "maxHint": "Número máximo de cursos en los que un usuario puede inscribirse (0 = ilimitado)",
-            "expiration": "Expiración de Inscripción (Días)",
-            "expirationHint": "Número de días hasta que la inscripción expire (0 = nunca expira)",
-            "capacity": "Activar Capacidad de Curso",
-            "capacityHint": "Permitir establecer límites máximos de estudiantes para los cursos",
             "freePreview": "Vistas Previas Públicas de Lecciones",
             "freePreviewHint": "Permite que cualquiera vea una lección gratuita por curso, incluso sin una cuenta, para que los estudiantes potenciales puedan probar antes de comprar.",
             "freePreviewCount": "{count} lecciones son públicas actualmente."
@@ -4899,7 +5011,8 @@
     "myBilling": "Facturación y Recibos",
     "community": "Comunidad",
     "flashcardReviews": "Repaso de Tarjetas",
-    "webhooks": "Webhooks"
+    "webhooks": "Webhooks",
+    "assets": "Archivos"
   },
   "userNav": {
     "profile": "Perfil",
@@ -5836,7 +5949,9 @@
       "duration": "{h}h {m}m",
       "published": "Publicado el {date}",
       "language": "Español",
-      "createdBy": "Creado por {name}"
+      "createdBy": "Creado por {name}",
+      "readMore": "Leer más",
+      "tags": "Etiquetas"
     },
     "sections": {
       "whatYoullLearn": "Lo que aprenderás",
@@ -5847,7 +5962,24 @@
         "totalLength": "{h}h {m}m de duración total",
         "allLessons": "Todas las Lecciones",
         "noLessons": "No hay lecciones disponibles todavía.",
-        "previewBadge": "Vista previa"
+        "previewBadge": "Vista previa",
+        "stats": {
+          "videos": "{count, plural, one {video} other {videos}}",
+          "readings": "{count, plural, one {lectura} other {lecturas}}",
+          "exercises": "{count, plural, one {ejercicio} other {ejercicios}}",
+          "exams": "{count, plural, one {examen} other {exámenes}}",
+          "resources": "{count, plural, one {recurso} other {recursos}}"
+        },
+        "sequential": "Las lecciones se completan en orden: cada una desbloquea la siguiente.",
+        "kind": {
+          "video": "Video",
+          "reading": "Lectura",
+          "exam": "Examen",
+          "exercise": "Ejercicio"
+        },
+        "lessonExercises": "{count, plural, one {# ejercicio} other {# ejercicios}}",
+        "lessonResources": "{count, plural, one {# recurso} other {# recursos}}",
+        "examMinutes": "{count} min"
       },
       "instructor": {
         "title": "Instructor",
@@ -5875,7 +6007,10 @@
         "duration": "{h}h {m}m de contenido",
         "lifetime": "Acceso de por vida",
         "mobile": "Acceso en móvil y escritorio",
-        "certificate": "Certificado de finalización"
+        "certificate": "Certificado de finalización",
+        "exercises": "{count, plural, one {# ejercicio con feedback} other {# ejercicios con feedback}}",
+        "resources": "{count, plural, one {# recurso descargable} other {# recursos descargables}}",
+        "exams": "{count, plural, one {# examen final} other {# exámenes}}"
       }
     },
     "preview": {
@@ -5889,6 +6024,10 @@
       "signUpBody": "Crea una cuenta para seguir: toma un momento.",
       "signUpCta": "Crea tu cuenta",
       "haveAccount": "¿Ya tienes cuenta? Inicia sesión"
+    },
+    "trailer": {
+      "watch": "Ver tráiler",
+      "title": "Tráiler: {title}"
     }
   },
   "pricing": {
@@ -6315,7 +6454,7 @@
       "badgeTooltip": "{title} ({count})",
       "backToSchool": "Volver a mi escuela",
       "logout": "Cerrar sesión",
-      "bankAccounts": "Cuentas bancarias",
+      "bankAccounts": "Cuentas de pago",
       "webhooks": "Webhooks"
     },
     "fees": {
@@ -6330,9 +6469,6 @@
       },
       "overdueSince": "Vencida desde",
       "blockedAt": "Bloqueada el",
-      "exempt": "Exenta del bloqueo",
-      "exemptYes": "Sí: {reason}",
-      "exemptNo": "No",
       "lastEvaluated": "Última evaluación",
       "never": "Nunca",
       "balances": "Saldos",
@@ -6400,17 +6536,6 @@
         "submit": "Revertir pago",
         "success": "Pago revertido."
       },
-      "exemption": {
-        "set": "Eximir del bloqueo",
-        "clear": "Retirar exención",
-        "titleSet": "¿Eximir a esta escuela de la pausa de ventas?",
-        "titleClear": "¿Retirar la exención de esta escuela?",
-        "bodySet": "Los recordatorios se siguen enviando, pero las ventas nunca se pausan. Una pausa activa se levanta ahora.",
-        "bodyClear": "La escuela puede volver a pausarse en la próxima evaluación si está vencida.",
-        "reason": "Motivo",
-        "submit": "Guardar",
-        "success": "Exención actualizada."
-      },
       "cancel": "Cancelar",
       "saving": "Guardando…",
       "errors": {
@@ -6430,23 +6555,29 @@
       "viewStatement": "Ver",
       "backToSchool": "Volver a la escuela",
       "noBankAccount": "No hay ninguna cuenta bancaria de la plataforma configurada. Las escuelas que pagan por transferencia no ven datos bancarios.",
-      "noBankAccountLink": "Agregar una cuenta bancaria"
+      "noBankAccountLink": "Agregar una cuenta bancaria",
+      "billingMode": "Modo de facturación",
+      "mode": {
+        "paid": "De pago",
+        "comped": "Cortesía (solo avisos)",
+        "internal": "Interna"
+      }
     },
     "bankAccounts": {
-      "title": "Cuentas bancarias",
-      "description": "Adónde transfieren las escuelas sus comisiones de plataforma. Cada escuela ve la cuenta activa en la moneda de su saldo, o la cuenta activa en USD si no hay una. Una cuenta activa por moneda. Cada cambio queda auditado.",
+      "title": "Cuentas de pago",
+      "description": "Adónde pagan las escuelas sus comisiones de plataforma: transferencia bancaria, Zelle, Binance, PayPal, Zinli, efectivo o Pago Móvil. Cada escuela ve las cuentas activas en la moneda de su saldo, o las activas en USD si no hay ninguna. Una cuenta activa por método y moneda. Cada cambio queda auditado.",
       "add": "Agregar cuenta",
       "edit": "Editar",
       "activate": "Activar",
       "deactivate": "Desactivar",
       "active": "Activa",
       "inactive": "Inactiva",
-      "empty": "Todavía no hay cuentas bancarias",
+      "empty": "Todavía no hay cuentas de pago",
       "emptyDesc": "Mientras no agregues una, a las escuelas que paguen por transferencia se les dice que recibirán los datos por correo.",
-      "loadError": "No pudimos cargar las cuentas bancarias. Actualiza para intentarlo de nuevo.",
-      "noActiveWarning": "No hay ninguna cuenta bancaria activa. Las escuelas que pagan por transferencia no ven datos bancarios.",
-      "createTitle": "Agregar cuenta bancaria",
-      "editTitle": "Editar cuenta bancaria",
+      "loadError": "No pudimos cargar las cuentas de pago. Actualiza para intentarlo de nuevo.",
+      "noActiveWarning": "No hay ninguna cuenta de pago activa. Las escuelas que pagan por transferencia no ven datos de pago.",
+      "createTitle": "Agregar cuenta de pago",
+      "editTitle": "Editar cuenta de pago",
       "formDescription": "Las escuelas ven todos los campos excepto el nombre interno y el orden.",
       "optional": "opcional",
       "hints": {
@@ -6466,7 +6597,10 @@
         "swiftCode": "SWIFT / BIC",
         "extraInstructions": "Instrucciones adicionales",
         "sortOrder": "Orden",
-        "isActive": "Activa"
+        "isActive": "Activa",
+        "kind": "Método",
+        "email": "Correo",
+        "document": "Cédula / RIF"
       },
       "headers": {
         "account": "Cuenta",
@@ -6474,14 +6608,16 @@
         "bank": "Banco",
         "number": "Número de cuenta",
         "status": "Estado",
-        "updated": "Actualizada"
+        "updated": "Actualizada",
+        "method": "Método",
+        "details": "Datos"
       },
       "save": "Guardar",
       "saving": "Guardando…",
       "cancel": "Cancelar",
-      "saved": "Cuenta bancaria guardada.",
-      "activated": "Cuenta bancaria activada.",
-      "deactivated": "Cuenta bancaria desactivada.",
+      "saved": "Cuenta de pago guardada.",
+      "activated": "Cuenta de pago activada.",
+      "deactivated": "Cuenta de pago desactivada.",
       "deactivateTitle": "¿Desactivar esta cuenta?",
       "deactivateBody": "Las escuelas dejan de verla de inmediato. Puedes volver a activarla más adelante.",
       "errors": {
@@ -6489,7 +6625,7 @@
         "invalid": "Revisa los campos marcados.",
         "invalid_id": "Esa cuenta no existe.",
         "not_found": "Esa cuenta ya no existe.",
-        "duplicate_currency": "Ya hay otra cuenta activa en esta moneda. Desactívala primero.",
+        "duplicate_currency": "Otra cuenta activa ya usa este método y moneda. Desactívala primero.",
         "internal": "Algo salió mal. Inténtalo de nuevo.",
         "generic": "Algo salió mal. Inténtalo de nuevo."
       },
@@ -6504,7 +6640,63 @@
         "swiftCode": "Usa 8 u 11 letras y dígitos.",
         "extraInstructions": "Hasta 1000 caracteres.",
         "sortOrder": "Usa un número entero.",
-        "isActive": "Valor no válido."
+        "isActive": "Valor no válido.",
+        "kind": "Elige un método.",
+        "email": "Ingresa un correo válido.",
+        "document": "Obligatorio, hasta 40 caracteres."
+      },
+      "kinds": {
+        "bank": {
+          "name": "Transferencia bancaria",
+          "description": "Una cuenta bancaria a la que las escuelas transfieren."
+        },
+        "zelle": {
+          "name": "Zelle",
+          "description": "Recibe pagos Zelle en un correo.",
+          "fields": {
+            "email": "Correo de Zelle",
+            "accountHolder": "Nombre en la cuenta"
+          }
+        },
+        "binance": {
+          "name": "Binance",
+          "description": "Binance Pay: las escuelas envían a tu Pay ID.",
+          "fields": {
+            "accountNumber": "Pay ID de Binance",
+            "email": "Correo de Binance"
+          }
+        },
+        "paypal": {
+          "name": "PayPal",
+          "description": "Recibe pagos de PayPal en un correo.",
+          "fields": {
+            "email": "Correo de PayPal"
+          }
+        },
+        "zinli": {
+          "name": "Zinli",
+          "description": "Recibe pagos en una billetera Zinli.",
+          "fields": {
+            "email": "Correo de Zinli",
+            "accountHolder": "Nombre en la cuenta"
+          }
+        },
+        "cash": {
+          "name": "Efectivo",
+          "description": "Pago en efectivo en persona. Indica dónde y cuándo en las instrucciones.",
+          "fields": {
+            "extraInstructions": "Instrucciones"
+          }
+        },
+        "pago_movil": {
+          "name": "Pago Móvil",
+          "description": "Pago Móvil se paga en bolívares, convertidos desde tu monto en USD.",
+          "fields": {
+            "bankName": "Banco",
+            "accountNumber": "Teléfono",
+            "accountHolder": "Titular de la cuenta"
+          }
+        }
       }
     }
   },
@@ -9526,7 +9718,6 @@
         "overdue": "Vencido",
         "blocked": "Ventas pausadas"
       },
-      "exempt": "Exenta de la pausa de ventas",
       "notifyOnly": "Solo recordatorios: todavía no se pausan las ventas por comisiones impagas.",
       "payNow": "Pagar ahora",
       "openRequest": "Transferencia de {amount} esperando nuestra confirmación (solicitada el {date}).",
@@ -9591,7 +9782,7 @@
       "redirecting": "Abriendo el pago…",
       "nothingToPay": "No hay nada que pagar en este momento.",
       "bank": {
-        "title": "Datos para la transferencia bancaria",
+        "title": "Datos de pago",
         "fallback": "Todavía no tenemos datos bancarios para mostrarte aquí. Al registrar la transferencia te los enviaremos por correo a tu contacto de facturación.",
         "reference": "Referencia de pago",
         "referenceHint": "Indícala en el concepto de la transferencia para que podamos identificarla.",
@@ -9606,12 +9797,26 @@
           "accountType": "Tipo de cuenta",
           "routingNumber": "Número de ruta",
           "swiftCode": "SWIFT / BIC",
-          "extraInstructions": "Instrucciones adicionales"
+          "extraInstructions": "Instrucciones adicionales",
+          "email": "Correo",
+          "document": "Cédula / RIF",
+          "payId": "Pay ID de Binance",
+          "phone": "Teléfono",
+          "vesAmount": "Monto a enviar"
         },
         "currencyNote": "Esta cuenta recibe {accountCurrency}. Transfiere el equivalente de tu saldo en {currency}.",
         "copyFailed": "No se pudo copiar",
         "copyManual": "Presiona Ctrl/Cmd+C para copiar",
-        "copyField": "Copiar {field}"
+        "copyField": "Copiar {field}",
+        "kinds": {
+          "zelle": "Zelle",
+          "binance": "Binance",
+          "paypal": "PayPal",
+          "zinli": "Zinli",
+          "cash": "Efectivo",
+          "pago_movil": "Pago Móvil"
+        },
+        "vesRate": "Tasa: {rate} Bs por USD · {source} · {date}"
       },
       "instructions": {
         "title": "Transferencia registrada",
@@ -9860,5 +10065,97 @@
       "pause": "Pausar audio",
       "play": "Reproducir pronunciación"
     }
+  },
+  "assets": {
+    "title": "Archivos",
+    "description": "Todas las imágenes que ha subido tu escuela — portadas de cursos, página de inicio, certificados, comunidad e imágenes con IA — en un solo lugar.",
+    "searchPlaceholder": "Buscar por nombre de archivo",
+    "filterBySource": "Filtrar por dónde se usó",
+    "all": "Todos",
+    "sources": {
+      "course": "Portadas de cursos",
+      "landing_page": "Página de inicio",
+      "certificate": "Certificados",
+      "community": "Comunidad",
+      "ai_generated": "Generadas con IA",
+      "library": "Biblioteca",
+      "other": "Otros"
+    },
+    "summary": "{count, plural, one {# archivo} other {# archivos}} · {size} usados",
+    "empty": "Aún no hay archivos. Suelta una imagen arriba para añadir la primera.",
+    "select": "Usar {name}",
+    "delete": "Eliminar {name}",
+    "deleted": "Archivo eliminado",
+    "deleteTitle": "¿Eliminar {name}?",
+    "deleteInUse": "Este archivo se usa en {count, plural, one {# lugar} other {# lugares}}: {where}. Al eliminarlo quedará una imagen rota allí.",
+    "deleteUnused": "Nada en tu escuela usa este archivo. Esta acción no se puede deshacer.",
+    "deleteConfirm": "Eliminar",
+    "cancel": "Cancelar",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {page} de {count}",
+    "unusedOnly": "Solo sin usar",
+    "unused": "Sin usar",
+    "usedCount": "Usado en {count}",
+    "details": "Detalles de {name}",
+    "urlCopied": "URL copiada",
+    "copyFailed": "No se pudo copiar la URL",
+    "uploadedBy": "Subido por",
+    "uploadedOn": "Subido el",
+    "size": "Tamaño",
+    "type": "Tipo",
+    "unknownUser": "Usuario desconocido",
+    "unknownUploader": "Sin registro (subido antes del seguimiento)",
+    "usedIn": "Usado en",
+    "notUsed": "Nada en tu escuela usa este archivo.",
+    "copyUrl": "Copiar URL",
+    "openOriginal": "Abrir original",
+    "usageTypes": {
+      "course": "Portada de curso",
+      "lesson": "Lección",
+      "certificate": "Certificado",
+      "landing_page": "Página de inicio",
+      "setting": "Ajuste",
+      "school_logo": "Logo de la escuela",
+      "community_post": "Publicación de la comunidad"
+    }
+  },
+  "dataTable": {
+    "columnSort": "Ordenar columna",
+    "sortPriority": "Prioridad de orden (orden en que se ordenan las columnas)",
+    "multiSortTip": "CONSEJO: mantén 'Shift' para ordenar por varias columnas",
+    "clearSort": "Quitar orden",
+    "sortColumn": "Ordenar columna",
+    "sort": {
+      "asc": "A-Z",
+      "desc": "Z-A",
+      "lowToHigh": "De menor a mayor",
+      "highToLow": "De mayor a menor",
+      "oldestFirst": "Más antiguos primero",
+      "newestFirst": "Más recientes primero",
+      "falseFirst": "Falso primero",
+      "trueFirst": "Verdadero primero"
+    },
+    "pagination": "Paginación de la tabla",
+    "itemsPerPage": "Elementos por página",
+    "selectPageSize": "Seleccionar tamaño de página",
+    "zeroItems": "0 elementos",
+    "itemRange": "{start}-{end} de {total} elementos",
+    "pageNumber": "Número de página",
+    "pageOf": "Página {current} de {total}",
+    "ofPages": "de {total, plural, one {# página} other {# páginas}}",
+    "previousPageAria": "Ir a la página anterior, página {page}",
+    "previousPage": "Ir a la página anterior",
+    "nextPageAria": "Ir a la página siguiente, página {page}",
+    "nextPage": "Ir a la página siguiente",
+    "reset": "Restablecer",
+    "search": "Buscar...",
+    "searchTable": "Buscar en la tabla",
+    "clearSearch": "Borrar búsqueda",
+    "clearFilterTitle": "Quitar filtro {title}",
+    "selectedCount": "{count} seleccionados",
+    "noResults": "No se encontraron resultados.",
+    "clearFilters": "Quitar filtros",
+    "columnActions": "Acciones de columna"
   }
 }
