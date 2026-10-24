@@ -2503,6 +2503,7 @@ export type Database = {
           question_id: number
           question_text: string
           question_type: string
+          sequence: number | null
         }
         Insert: {
           ai_grading_criteria?: string | null
@@ -2515,6 +2516,7 @@ export type Database = {
           question_id?: number
           question_text: string
           question_type: string
+          sequence?: number | null
         }
         Update: {
           ai_grading_criteria?: string | null
@@ -2527,6 +2529,7 @@ export type Database = {
           question_id?: number
           question_text?: string
           question_type?: string
+          sequence?: number | null
         }
         Relationships: [
           {
@@ -2857,9 +2860,16 @@ export type Database = {
           exercise_id: number
           id: number
           passed: boolean
+          reviewed_at: string | null
           score: number | null
           submission_id: number | null
+          submission_metadata: Json | null
           submission_source: string | null
+          submission_text: string | null
+          teacher_feedback: string | null
+          teacher_id: string | null
+          teacher_passed: boolean | null
+          teacher_score: number | null
           tenant_id: string
           user_id: string
         }
@@ -2872,9 +2882,16 @@ export type Database = {
           exercise_id: number
           id?: number
           passed?: boolean
+          reviewed_at?: string | null
           score?: number | null
           submission_id?: number | null
+          submission_metadata?: Json | null
           submission_source?: string | null
+          submission_text?: string | null
+          teacher_feedback?: string | null
+          teacher_id?: string | null
+          teacher_passed?: boolean | null
+          teacher_score?: number | null
           tenant_id: string
           user_id: string
         }
@@ -2887,9 +2904,16 @@ export type Database = {
           exercise_id?: number
           id?: number
           passed?: boolean
+          reviewed_at?: string | null
           score?: number | null
           submission_id?: number | null
+          submission_metadata?: Json | null
           submission_source?: string | null
+          submission_text?: string | null
+          teacher_feedback?: string | null
+          teacher_id?: string | null
+          teacher_passed?: boolean | null
+          teacher_score?: number | null
           tenant_id?: string
           user_id?: string
         }
@@ -8179,9 +8203,21 @@ export type Database = {
       }
     }
     Functions: {
+      ensure_checkpoint_grader_version: {
+        Args: { _checkpoint_id: number }
+        Returns: string
+      }
+      ensure_exam_grader_version: {
+        Args: { _exam_id: number }
+        Returns: string
+      }
       ensure_exercise_grader_version: {
         Args: { _exercise_id: number }
         Returns: string
+      }
+      exam_grader_config_snapshot: {
+        Args: { _exam_id: number }
+        Returns: Json
       }
       exercise_grader_config_snapshot: {
         Args: { _exercise_id: number }

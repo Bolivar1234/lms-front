@@ -170,7 +170,7 @@ export default async function ExercisePage({ params }: PageProps) {
     try {
         const { data: evaluations, error: evaluationsError } = await supabase
             .from('exercise_evaluations')
-            .select('id, score, passed, ai_result, ai_metrics, engine_type, attempt_number, created_at, submission_id, submission_source')
+            .select('id, score, passed, ai_result, ai_metrics, engine_type, attempt_number, created_at, submission_id, submission_source, teacher_score, teacher_passed, teacher_feedback')
             .eq('exercise_id', parseInt(exerciseId))
             .eq('user_id', userId)
             .eq('tenant_id', tenantId)
@@ -300,6 +300,7 @@ export default async function ExercisePage({ params }: PageProps) {
             attemptNumber={latestEvaluation.attemptNumber}
             completedAt={latestEvaluation.createdAt}
             passingScore={passingScore}
+            teacherReview={latestEvaluation.teacherReview}
         />
     ) : null
 
@@ -316,6 +317,8 @@ export default async function ExercisePage({ params }: PageProps) {
         <ExerciseChat
             apiEndpoint="/api/chat/exercises/student"
             exerciseId={exerciseId}
+            exerciseTitle={exercise.title}
+            exerciseDescription={exercise.description}
             initialMessages={initialMessages}
             isExerciseCompleted={isExerciseCompleted}
             profile={profile}

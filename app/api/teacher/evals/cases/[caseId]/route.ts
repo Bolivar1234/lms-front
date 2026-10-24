@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { evalStaffForRow } from '@/lib/ai/evals/route-auth'
-import { CASE_COLUMNS } from '@/lib/ai/evals/store'
-import { gradedExpectedSchema, updateCaseSchema, updateGradedCaseSchema } from '@/lib/ai/evals/schema'
+import { CASE_COLUMNS, loadExamQuestionsForCases } from '@/lib/ai/evals/store'
+import { validateExamCase } from '@/lib/ai/evals/exam-engine'
+import { examAnswersSchema, examExpectedSchema, expectedSchema, gradedExpectedSchema, scenarioInputSchema, scoreBandOk, updateCaseSchema, updateCoachCaseSchema, updateExamCaseSchema, updateGradedCaseSchema, updateVoiceCaseSchema, voiceExpectedSchema, voiceInputSchema } from '@/lib/ai/evals/schema'
 
 type Params = { params: Promise<{ caseId: string }> }
 
@@ -15,7 +16,112 @@ export async function PATCH(req: Request, { params }: Params) {
 
   const body = await req.json().catch(() => null)
 
+  if (ctx.targetType === 'exam') {
+    const exam = updateExamCaseSchema.safeParse(body)
+    if (!exam.success) return NextResponse.json({ error: 'Invalid case', issues: exam.error.issues }, { status: 400 })
+    const ep = exam.data
+
+    const { data: stored } = await ctx.supabase
+      .from('ai_eval_cases')
+      .select('kind, input, expected')
+      .eq('id', ctx.row.id)
+      .eq('tenant_id', ctx.tenantId)
+      .single()
+    if (stored?.kind !== 'graded_exam') return NextResponse.json({ error: 'Not an exam case' }, { status: 400 })
+
+    // Partials merge into what is stored: nothing the caller omits is dropped.
+    const storedInput = (stored.input ?? {}) as { answers?: Record<string, string> }
+    const storedExpected = (stored.expected ?? {}) as { questions?: object }
+    const answers = examAnswersSchema.safeParse({ ...(storedInput.answers ?? {}), ...(ep.input?.answers ?? {}) })
+    if (!answers.success) return NextResponse.json({ error: 'Invalid case', issues: answers.error.issues }, { status: 400 })
+    const expected = examExpectedSchema.safeParse({
+      ...storedExpected,
+      ...(ep.expected ?? {}),
+      questions: { ...(storedExpected.questions ?? {}), ...(ep.expected?.questions ?? {}) },
+    })
+    if (!expected.success) return NextResponse.json({ error: 'Invalid case', issues: expected.error.issues }, { status: 400 })
+
+    // Edited answers and expectations must still name questions of this exam
+    // (ones deleted since the case was written stay readable, but cannot be re-sent).
+    const questions = await loadExamQuestionsForCases(ctx.supabase, ctx.exam.id, ctx.tenantId)
+    const checked = validateExamCase(questions, ep.input?.answers, ep.expected?.questions)
+    if (!checked.ok) return NextResponse.json({ error: checked.error, question_id: checked.question_id }, { status: 400 })
+
+    // Closed questions are scored exactly; expectations on them are dropped.
+    const closedIds = new Set(questions.filter((q) => q.question_type !== 'free_text').map((q) => String(q.question_id)))
+    const mergedExpected = {
+      ...expected.data,
+      questions: Object.fromEntries(Object.entries(expected.data.questions).filter(([id]) => !closedIds.has(id))),
+    }
+    if (ep.expected !== undefined && Object.keys(mergedExpected.questions).length === 0) {
+      return NextResponse.json({ error: 'no_ai_questions' }, { status: 400 })
+    }
+
+    const { data: updated, error: examError } = await ctx.supabase
+      .from('ai_eval_cases')
+      .update({
+        ...(ep.name !== undefined ? { name: ep.name } : {}),
+        ...(ep.importance_note !== undefined ? { importance_note: ep.importance_note } : {}),
+        ...(ep.expected !== undefined ? { expected: mergedExpected } : {}),
+        ...(ep.input !== undefined ? { input: { answers: answers.data } } : {}),
+        teacher_edited: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', ctx.row.id)
+      .eq('tenant_id', ctx.tenantId)
+      .select(CASE_COLUMNS)
+      .single()
+    if (examError) return NextResponse.json({ error: 'Could not save the case' }, { status: 500 })
+    return NextResponse.json({ case: updated })
+  }
+
   if (ctx.targetType === 'exercise') {
+    // Exercises hold three case kinds; the stored kind decides the schema.
+    const { data: kindRow } = await ctx.supabase
+      .from('ai_eval_cases')
+      .select('kind, input, expected')
+      .eq('id', ctx.row.id)
+      .eq('tenant_id', ctx.tenantId)
+      .single()
+    const storedKind = kindRow?.kind
+    if (storedKind === 'coach_scenario' || storedKind === 'voice_scenario') {
+      const isCoach = storedKind === 'coach_scenario'
+      const sp = (isCoach ? updateCoachCaseSchema : updateVoiceCaseSchema).safeParse(body)
+      if (!sp.success) return NextResponse.json({ error: 'Invalid case', issues: sp.error.issues }, { status: 400 })
+      const patch = sp.data as { name?: string; importance_note?: string | null; must_keep?: string[]; expected?: object; input?: object }
+
+      // Partials merge into what is stored: nothing the caller omits is dropped.
+      const input = (isCoach ? scenarioInputSchema : voiceInputSchema).safeParse({ ...(kindRow!.input as object), ...(patch.input ?? {}) })
+      const expected = (isCoach ? expectedSchema : voiceExpectedSchema).safeParse({ ...(kindRow!.expected as object), ...(patch.expected ?? {}) })
+      if (!input.success || !expected.success) {
+        const issues = [...(input.success ? [] : input.error.issues), ...(expected.success ? [] : expected.error.issues)]
+        return NextResponse.json({ error: 'Invalid case', issues }, { status: 400 })
+      }
+      if (!isCoach && !scoreBandOk(expected.data as { score_min?: number; score_max?: number })) {
+        return NextResponse.json({ error: 'Invalid case', issues: [{ message: 'score_min must be <= score_max' }] }, { status: 400 })
+      }
+
+      const { data: updated, error: scenarioError } = await ctx.supabase
+        .from('ai_eval_cases')
+        .update({
+          ...(patch.name !== undefined ? { name: patch.name } : {}),
+          ...(patch.importance_note !== undefined ? { importance_note: patch.importance_note } : {}),
+          ...(patch.must_keep !== undefined ? { must_keep: patch.must_keep } : {}),
+          ...(patch.expected !== undefined ? { expected: expected.data as never } : {}),
+          ...(patch.input !== undefined ? { input: input.data as never } : {}),
+          teacher_edited: true,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', ctx.row.id)
+        .eq('tenant_id', ctx.tenantId)
+        .select(CASE_COLUMNS)
+        .single()
+      if (scenarioError) return NextResponse.json({ error: 'Could not save the case' }, { status: 500 })
+      return NextResponse.json({ case: updated })
+    }
+  }
+
+  if (ctx.targetType === 'exercise' || ctx.targetType === 'checkpoint') {
     const graded = updateGradedCaseSchema.safeParse(body)
     if (!graded.success) return NextResponse.json({ error: 'Invalid case', issues: graded.error.issues }, { status: 400 })
     const gp = graded.data
