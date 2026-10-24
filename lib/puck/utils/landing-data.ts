@@ -12,6 +12,7 @@
 // lesson_completions), selects safe display columns only, and NEVER selects
 // lesson content.
 import { createAdminClient } from '@/lib/supabase/admin'
+import { fetchLiveEntitlementKeys } from '@/lib/services/course-access'
 import { isFreePreviewEnabled } from '@/lib/settings/free-preview'
 import { collectBoundIds } from './collect-bound-ids'
 import { planCheckoutHref, productHref } from './checkout-href'
@@ -34,7 +35,7 @@ type AdminClient = any
 
 /** Column lists, exported so tests (and reviewers) can see exactly what leaves the DB. */
 export const COURSE_COLUMNS = 'course_id, title, description, thumbnail_url, status'
-export const COURSE_DETAIL_COLUMNS = `${COURSE_COLUMNS}, learning_objectives, author_id`
+export const COURSE_DETAIL_COLUMNS = `${COURSE_COLUMNS}, learning_objectives, author_id, trailer_url`
 export const LESSON_COLUMNS = 'id, course_id, title, sequence, is_preview, publish_at, image'
 export const PRODUCT_COLUMNS = 'product_id, name, description, price, currency, image'
 export const AUTHOR_COLUMNS = 'id, full_name, avatar_url, bio'
@@ -256,7 +257,11 @@ export function isLessonLive(publishAt: string | null | undefined, now: number):
   return Number.isNaN(t) || t <= now
 }
 
-type DetailCourseRow = CourseRow & { learning_objectives: string[] | null; author_id: string | null }
+type DetailCourseRow = CourseRow & {
+  learning_objectives: string[] | null
+  author_id: string | null
+  trailer_url?: string | null
+}
 type LessonRow = {
   id: number
   course_id: number
@@ -376,6 +381,7 @@ export async function getLandingCourseDetailsByIds(
       : null
     out[base.id] = {
       ...base,
+      trailer: c.trailer_url?.trim() || null,
       objectives: (c.learning_objectives ?? []).filter((o) => typeof o === 'string' && o.trim().length > 0),
       lessons,
       lessonCount: lessons.length,
@@ -543,11 +549,10 @@ export async function getLandingStats(tenantId: string): Promise<LandingStats> {
   const index = await getPublishedCourseIndex(admin, tenantId)
   const courseIds = [...index.keys()]
 
-  const { count: students } = await admin
-    .from('enrollments')
-    .select('*', { count: 'exact', head: true })
-    .eq('tenant_id', tenantId)
-    .eq('status', 'active')
+  // Students who can open a course now (entitlements), not enrollment rows.
+  const students = await fetchLiveEntitlementKeys(admin, tenantId)
+    .then((keys) => keys.size)
+    .catch(() => 0)
 
   // lesson_completions has no tenant_id/course_id — scope via the tenant's lessons.
   let completions = 0

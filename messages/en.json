@@ -284,7 +284,9 @@
       "accountSubtitle": "Update your personal information",
       "preferencesTitle": "Preferences",
       "preferencesSubtitle": "Personal settings for how the dashboard behaves",
-      "manageTokens": "Manage API tokens"
+      "manageTokens": "Manage API tokens",
+      "profileTitle": "Profile",
+      "profileSubtitle": "Update your personal details and account preferences."
     },
     "student": {
       "aiAssistant": {
@@ -1153,7 +1155,8 @@
             "feedback": "Tutor's feedback",
             "requirementsCheck": "Verifier's check",
             "notFound": "No AI tutor completion on record for this lesson."
-          }
+          },
+          "searchPlaceholder": "Search students…"
         },
         "certificates": {
           "title": "Certificates",
@@ -1334,7 +1337,8 @@
           "reset": "Clear filters",
           "noMatches": "No matching items",
           "noMatchesHint": "Try another title or clear the filters."
-        }
+        },
+        "landingPage": "Landing page"
       },
       "newCourse": {
         "title": "Create New Course",
@@ -1385,7 +1389,10 @@
           "cancel": "Cancel",
           "update": "Update Course",
           "create": "Create Course"
-        }
+        },
+        "trailerLabel": "Trailer / intro video",
+        "trailerPlaceholder": "https://www.youtube.com/watch?v=...",
+        "trailerHint": "YouTube, Vimeo, Loom… visitors can watch it on the public course page before enrolling"
       },
       "courseDelete": {
         "triggerButton": "Delete Course",
@@ -1455,7 +1462,11 @@
         "removeOption": "Remove option",
         "dragQuestion": "Drag to reorder question",
         "publishSuccess": "Exam published",
-        "draftSaved": "Draft saved"
+        "draftSaved": "Draft saved",
+        "imageLabel": "Cover image",
+        "uploadImage": "Choose image",
+        "removeImage": "Remove image",
+        "imageHint": "Shown on the public course page (16:9 recommended)"
       },
       "versionHistory": {
         "trigger": "History",
@@ -2261,7 +2272,8 @@
           "submitted": "Submitted",
           "noSubmissions": "No submissions found",
           "unknownStudent": "Unknown Student",
-          "reviewButton": "Review"
+          "reviewButton": "Review",
+          "searchPlaceholder": "Search by student..."
         }
       },
       "examSubmissions": {
@@ -2597,6 +2609,10 @@
         "deterministic": "These questions are graded against the answer key, without AI.",
         "correct": "Correct",
         "incorrect": "Incorrect"
+      },
+      "imagePicker": {
+        "title": "Choose an image",
+        "description": "Reuse an image you already uploaded or add a new one."
       }
     },
     "admin": {
@@ -2669,7 +2685,9 @@
             "platform": "Platform"
           },
           "footnote": "Amount is net of refunds. Commission uses the split in effect when each sale happened. Sales to confirm and fully refunded sales do not count toward any balance.",
-          "fxRate": "1 {currency} = {rate} USD ({source})"
+          "fxRate": "1 {currency} = {rate} USD ({source})",
+          "searchPlaceholder": "Search sales…",
+          "monthFilter": "Month"
         },
         "status": {
           "successful": "Paid",
@@ -2718,7 +2736,8 @@
             "method": "Method",
             "paidAt": "Paid at",
             "stripeRef": "Stripe ref"
-          }
+          },
+          "searchPlaceholder": "Search by ref, note or amount…"
         },
         "empty": {
           "title": "No payouts yet",
@@ -2750,7 +2769,9 @@
             "actions": "Actions"
           },
           "unknownProduct": "Unknown product",
-          "viewInvoice": "View invoice"
+          "viewInvoice": "View invoice",
+          "searchPlaceholder": "Search by invoice #, item or status…",
+          "otherStatus": "Other"
         },
         "empty": {
           "title": "No invoices found",
@@ -2787,7 +2808,8 @@
         "monetization": "Monetization",
         "appearance": "Appearance",
         "website": "Website",
-        "webhooks": "Webhooks"
+        "webhooks": "Webhooks",
+        "assets": "Assets"
       },
       "appearance": {
         "title": "Appearance",
@@ -2904,6 +2926,77 @@
             "description": "Create and manage courses from the Content Management section."
           },
           "replay": "Replay tour"
+        },
+        "header": {
+          "title": "Welcome back, {name}",
+          "titleFallback": "Welcome back",
+          "newCourse": "New course"
+        },
+        "attention": {
+          "title": "Needs attention",
+          "clear": "All clear — nothing needs you right now",
+          "error": "Some items couldn't be loaded. Reload to try again.",
+          "paymentRequests": "{count, plural, one {# payment request to review} other {# payment requests to review}}",
+          "paymentRequestsAction": "Review",
+          "examSubmissions": "{count, plural, one {# exam waiting for your review} other {# exams waiting for your review}}",
+          "examSubmissionsAction": "Grade",
+          "pastDue": "{count, plural, one {# subscription past due} other {# subscriptions past due}}",
+          "pastDueAction": "Check",
+          "failedPayments": "{count, plural, one {# failed payment in the last 30 days} other {# failed payments in the last 30 days}}",
+          "failedPaymentsAction": "Inspect",
+          "flags": "{count, plural, one {# community report to moderate} other {# community reports to moderate}}",
+          "flagsAction": "Moderate",
+          "questions": "{count, plural, one {# unanswered community question} other {# unanswered community questions}}",
+          "questionsAction": "Answer"
+        },
+        "performance": {
+          "title": "Last 30 days",
+          "revenue": "Revenue",
+          "chartLabel": "Daily revenue, last 30 days",
+          "error": "Revenue couldn't be loaded.",
+          "statsError": "Some figures couldn't be loaded.",
+          "partial": "Only the {count} most recent sales were counted, so this figure may be incomplete.",
+          "delta": {
+            "change": "{value} vs previous 30 days",
+            "new": "New vs previous 30 days"
+          },
+          "newStudents": "New students",
+          "members": "Members",
+          "courses": "Courses",
+          "coursesDetail": "{count} published",
+          "activeSubscriptions": "Active subscriptions",
+          "empty": {
+            "connect": "Connect payments to start earning",
+            "connectAction": "Connect payments",
+            "publish": "Publish a course to start selling",
+            "publishAction": "Go to courses",
+            "share": "No sales yet — share your school"
+          }
+        },
+        "activity": {
+          "title": "Recent activity",
+          "enrolled": "{name} enrolled in {course}",
+          "paid": "{name} paid {amount}",
+          "joined": "{name} joined",
+          "someone": "Someone",
+          "aCourse": "a course",
+          "empty": "Nothing yet. Share your join link to bring in your first students.",
+          "error": "Recent activity couldn't be loaded."
+        },
+        "share": {
+          "title": "Share your school",
+          "description": "Send this link so people can join your school.",
+          "copy": "Copy link",
+          "copied": "Copied",
+          "whatsapp": "WhatsApp",
+          "viewSite": "View public site"
+        },
+        "drafts": {
+          "waiting": "{count, plural, one {# draft course waiting} other {# draft courses waiting}}",
+          "action": "Finish drafts"
+        },
+        "planFooter": {
+          "unlimited": "{plan} · Unlimited"
         }
       },
       "billing": {
@@ -3115,6 +3208,13 @@
           "hintInstructionsSent": "Check your email for bank transfer instructions. Once you've transferred, upload proof below.",
           "hintPaymentReceived": "We've received your payment and are confirming it. Your plan will be activated soon.",
           "uploadProof": "Upload payment proof (optional — speeds up activation)"
+        },
+        "comped": {
+          "summaryUntil": "Complimentary plan: {plan} until {date} · fee {fee}%",
+          "summaryNoExpiry": "Complimentary plan: {plan}, no expiry · fee {fee}%",
+          "expiredHint": "The complimentary period has ended. Get a plan to keep your features.",
+          "cta": "Get a plan",
+          "internalNote": "Internal school — no billing"
         }
       },
       "users": {
@@ -3317,7 +3417,8 @@
             "date": "Date",
             "status": "Status",
             "invoice": "Invoice",
-            "actions": "Actions"
+            "actions": "Actions",
+            "method": "Method"
           },
           "noRequests": "No payment requests found",
           "review": "Review",
@@ -3325,7 +3426,21 @@
           "id": "Request ID",
           "invoice": "Invoice",
           "reported": "Payment reported",
-          "expired": "Expired unpaid"
+          "expired": "Expired unpaid",
+          "searchPlaceholder": "Search by student, email, product or invoice…",
+          "methods": {
+            "stripe": "Stripe",
+            "manual": "Manual",
+            "bank_transfer": "Bank Transfer",
+            "zelle": "Zelle",
+            "pagos_chile": "Pagos Chile",
+            "paypal": "PayPal",
+            "binance": "Binance",
+            "binance_personal": "Binance (personal)",
+            "lemonsqueezy": "Lemon Squeezy",
+            "solana": "Solana",
+            "pago_movil": "Pago Móvil"
+          }
         },
         "status": {
           "pending": "Pending",
@@ -3775,11 +3890,18 @@
             "manual": "Manual",
             "bank_transfer": "Bank Transfer",
             "zelle": "Zelle",
-            "pagos_chile": "Pagos Chile"
+            "pagos_chile": "Pagos Chile",
+            "paypal": "PayPal",
+            "binance": "Binance",
+            "binance_personal": "Binance (personal)",
+            "lemonsqueezy": "Lemon Squeezy",
+            "solana": "Solana",
+            "pago_movil": "Pago Móvil"
           },
           "unknown": "Unknown",
           "notAvailable": "N/A",
-          "empty": "No transactions found"
+          "empty": "No transactions found",
+          "searchPlaceholder": "Search by ID, user, method..."
         }
       },
       "enrollments": {
@@ -3803,7 +3925,9 @@
           "unknown": "Unknown",
           "unknownCourse": "Unknown Course",
           "viewCourse": "View Course",
-          "empty": "No enrollments found"
+          "empty": "No enrollments found",
+          "searchPlaceholder": "Search by student, email or course...",
+          "statusDisabled": "Disabled"
         }
       },
       "settings": {
@@ -4130,18 +4254,6 @@
             "faviconUrlHint": "URL of your browser tab icon (recommended: 32x32px ICO or PNG)"
           },
           "enrollment": {
-            "auto": "Auto Enrollment",
-            "autoHint": "Automatically enroll new users in designated courses",
-            "self": "Allow Self Enrollment",
-            "selfHint": "Allow students to enroll themselves in courses",
-            "approval": "Require Enrollment Approval",
-            "approvalHint": "Require admin approval before students can access courses",
-            "max": "Maximum Enrollments Per User",
-            "maxHint": "Maximum number of courses a user can enroll in (0 = unlimited)",
-            "expiration": "Enrollment Expiration (Days)",
-            "expirationHint": "Number of days until enrollment expires (0 = never expires)",
-            "capacity": "Enable Course Capacity",
-            "capacityHint": "Allow setting maximum student limits for courses",
             "freePreview": "Public Lesson Previews",
             "freePreviewHint": "Let anyone see one free lesson per course, even without an account, so prospective students can try before they buy.",
             "freePreviewCount": "{count} lessons are currently public."
@@ -5018,7 +5130,8 @@
     "community": "Community",
     "profile": "Profile",
     "flashcardReviews": "Flashcard Review",
-    "webhooks": "Webhooks"
+    "webhooks": "Webhooks",
+    "assets": "Assets"
   },
   "userNav": {
     "profile": "Profile",
@@ -5836,7 +5949,9 @@
       "duration": "{h}h {m}m",
       "published": "Published {date}",
       "language": "English",
-      "createdBy": "Created by {name}"
+      "createdBy": "Created by {name}",
+      "readMore": "Read more",
+      "tags": "Tags"
     },
     "sections": {
       "whatYoullLearn": "What you'll learn",
@@ -5847,7 +5962,24 @@
         "totalLength": "{h}h {m}m total length",
         "allLessons": "All Lessons",
         "noLessons": "No lessons available yet.",
-        "previewBadge": "Preview"
+        "previewBadge": "Preview",
+        "stats": {
+          "videos": "{count, plural, one {video} other {videos}}",
+          "readings": "{count, plural, one {reading} other {readings}}",
+          "exercises": "{count, plural, one {exercise} other {exercises}}",
+          "exams": "{count, plural, one {exam} other {exams}}",
+          "resources": "{count, plural, one {resource} other {resources}}"
+        },
+        "sequential": "Lessons are completed in order: each one unlocks the next.",
+        "kind": {
+          "video": "Video",
+          "reading": "Reading",
+          "exam": "Exam",
+          "exercise": "Exercise"
+        },
+        "lessonExercises": "{count, plural, one {# exercise} other {# exercises}}",
+        "lessonResources": "{count, plural, one {# resource} other {# resources}}",
+        "examMinutes": "{count} min"
       },
       "instructor": {
         "title": "Instructor",
@@ -5875,7 +6007,10 @@
         "duration": "{h}h {m}m of content",
         "lifetime": "Full lifetime access",
         "mobile": "Access on mobile and desktop",
-        "certificate": "Certificate of completion"
+        "certificate": "Certificate of completion",
+        "exercises": "{count, plural, one {# exercise with feedback} other {# exercises with feedback}}",
+        "resources": "{count, plural, one {# downloadable resource} other {# downloadable resources}}",
+        "exams": "{count, plural, one {# final exam} other {# exams}}"
       }
     },
     "preview": {
@@ -5889,6 +6024,10 @@
       "signUpBody": "Create an account to keep going — it takes a moment.",
       "signUpCta": "Create your account",
       "haveAccount": "Already have an account? Log in"
+    },
+    "trailer": {
+      "watch": "Watch trailer",
+      "title": "Trailer: {title}"
     }
   },
   "pricing": {
@@ -6315,7 +6454,7 @@
       "badgeTooltip": "{title} ({count})",
       "backToSchool": "Back to my school",
       "logout": "Log out",
-      "bankAccounts": "Bank accounts",
+      "bankAccounts": "Payment accounts",
       "webhooks": "Webhooks"
     },
     "fees": {
@@ -6330,9 +6469,6 @@
       },
       "overdueSince": "Overdue since",
       "blockedAt": "Blocked at",
-      "exempt": "Exempt from block",
-      "exemptYes": "Yes: {reason}",
-      "exemptNo": "No",
       "lastEvaluated": "Last evaluated",
       "never": "Never",
       "balances": "Balances",
@@ -6400,17 +6536,6 @@
         "submit": "Reverse payment",
         "success": "Payment reversed."
       },
-      "exemption": {
-        "set": "Exempt from block",
-        "clear": "End exemption",
-        "titleSet": "Exempt this school from the sales pause?",
-        "titleClear": "End this school's exemption?",
-        "bodySet": "Reminders still go out, but sales are never paused. An active pause is lifted now.",
-        "bodyClear": "The school can be paused again at the next evaluation if it is overdue.",
-        "reason": "Reason",
-        "submit": "Save",
-        "success": "Exemption updated."
-      },
       "cancel": "Cancel",
       "saving": "Saving…",
       "errors": {
@@ -6430,23 +6555,29 @@
       "viewStatement": "View",
       "backToSchool": "Back to school",
       "noBankAccount": "No platform bank account is configured. Schools paying by transfer see no bank details.",
-      "noBankAccountLink": "Add a bank account"
+      "noBankAccountLink": "Add a bank account",
+      "billingMode": "Billing mode",
+      "mode": {
+        "paid": "Paid",
+        "comped": "Comped (notify only)",
+        "internal": "Internal"
+      }
     },
     "bankAccounts": {
-      "title": "Bank accounts",
-      "description": "Where schools wire platform fee transfers. Schools see the active account in their balance currency, or the active USD account when there is none. One active account per currency. Every change is audited.",
+      "title": "Payment accounts",
+      "description": "Where schools pay platform fees: bank transfer, Zelle, Binance, PayPal, Zinli, cash or Pago Móvil. Schools see the active accounts in their balance currency, or the active USD ones when there are none. One active account per method and currency. Every change is audited.",
       "add": "Add account",
       "edit": "Edit",
       "activate": "Activate",
       "deactivate": "Deactivate",
       "active": "Active",
       "inactive": "Inactive",
-      "empty": "No bank accounts yet",
-      "emptyDesc": "Until you add one, schools paying by bank transfer are told the details will be emailed to them.",
-      "loadError": "Couldn't load the bank accounts. Refresh to try again.",
-      "noActiveWarning": "No active bank account. Schools paying by transfer see no bank details.",
-      "createTitle": "Add bank account",
-      "editTitle": "Edit bank account",
+      "empty": "No payment accounts yet",
+      "emptyDesc": "Until you add one, schools paying by transfer are told the details will be emailed to them.",
+      "loadError": "Couldn't load the payment accounts. Refresh to try again.",
+      "noActiveWarning": "No active payment account. Schools paying by transfer see no payment details.",
+      "createTitle": "Add payment account",
+      "editTitle": "Edit payment account",
       "formDescription": "Schools see every field except the internal name and sort order.",
       "optional": "optional",
       "hints": {
@@ -6466,7 +6597,10 @@
         "swiftCode": "SWIFT / BIC",
         "extraInstructions": "Additional instructions",
         "sortOrder": "Sort order",
-        "isActive": "Active"
+        "isActive": "Active",
+        "kind": "Method",
+        "email": "Email",
+        "document": "ID number (cédula / RIF)"
       },
       "headers": {
         "account": "Account",
@@ -6474,14 +6608,16 @@
         "bank": "Bank",
         "number": "Account number",
         "status": "Status",
-        "updated": "Updated"
+        "updated": "Updated",
+        "method": "Method",
+        "details": "Details"
       },
       "save": "Save",
       "saving": "Saving…",
       "cancel": "Cancel",
-      "saved": "Bank account saved.",
-      "activated": "Bank account activated.",
-      "deactivated": "Bank account deactivated.",
+      "saved": "Payment account saved.",
+      "activated": "Payment account activated.",
+      "deactivated": "Payment account deactivated.",
       "deactivateTitle": "Deactivate this account?",
       "deactivateBody": "Schools stop seeing it right away. You can activate it again later.",
       "errors": {
@@ -6489,7 +6625,7 @@
         "invalid": "Check the highlighted fields.",
         "invalid_id": "That account doesn't exist.",
         "not_found": "That account doesn't exist anymore.",
-        "duplicate_currency": "Another active account already uses this currency. Deactivate it first.",
+        "duplicate_currency": "Another active account already uses this method and currency. Deactivate it first.",
         "internal": "Something went wrong. Try again.",
         "generic": "Something went wrong. Try again."
       },
@@ -6504,7 +6640,63 @@
         "swiftCode": "Use 8 or 11 letters and digits.",
         "extraInstructions": "Up to 1000 characters.",
         "sortOrder": "Use a whole number.",
-        "isActive": "Invalid value."
+        "isActive": "Invalid value.",
+        "kind": "Choose a method.",
+        "email": "Enter a valid email address.",
+        "document": "Required, up to 40 characters."
+      },
+      "kinds": {
+        "bank": {
+          "name": "Bank transfer",
+          "description": "A bank account schools wire money to."
+        },
+        "zelle": {
+          "name": "Zelle",
+          "description": "Receive Zelle payments to an email.",
+          "fields": {
+            "email": "Zelle email",
+            "accountHolder": "Name on the account"
+          }
+        },
+        "binance": {
+          "name": "Binance",
+          "description": "Binance Pay: schools send to your Pay ID.",
+          "fields": {
+            "accountNumber": "Binance Pay ID",
+            "email": "Binance email"
+          }
+        },
+        "paypal": {
+          "name": "PayPal",
+          "description": "Receive PayPal payments to an email.",
+          "fields": {
+            "email": "PayPal email"
+          }
+        },
+        "zinli": {
+          "name": "Zinli",
+          "description": "Receive payments to a Zinli wallet.",
+          "fields": {
+            "email": "Zinli email",
+            "accountHolder": "Name on the account"
+          }
+        },
+        "cash": {
+          "name": "Cash",
+          "description": "Cash in person. Say where and when in the instructions.",
+          "fields": {
+            "extraInstructions": "Instructions"
+          }
+        },
+        "pago_movil": {
+          "name": "Pago Móvil",
+          "description": "Pago Móvil is paid in bolívares, converted from your USD amount.",
+          "fields": {
+            "bankName": "Bank",
+            "accountNumber": "Phone number",
+            "accountHolder": "Account holder"
+          }
+        }
       }
     }
   },
@@ -9526,7 +9718,6 @@
         "overdue": "Overdue",
         "blocked": "Sales paused"
       },
-      "exempt": "Exempt from the sales pause",
       "notifyOnly": "Reminders only: sales are not paused for unpaid fees yet.",
       "payNow": "Pay now",
       "openRequest": "Transfer of {amount} waiting for our confirmation (requested {date}).",
@@ -9591,7 +9782,7 @@
       "redirecting": "Opening checkout…",
       "nothingToPay": "There's nothing to pay right now.",
       "bank": {
-        "title": "Bank transfer details",
+        "title": "Payment details",
         "fallback": "We don't have bank details to show here yet. Once you register the transfer, we'll email them to your billing contact.",
         "reference": "Payment reference",
         "referenceHint": "Include it in the transfer description so we can match it.",
@@ -9606,12 +9797,26 @@
           "accountType": "Account type",
           "routingNumber": "Routing number",
           "swiftCode": "SWIFT / BIC",
-          "extraInstructions": "Additional instructions"
+          "extraInstructions": "Additional instructions",
+          "email": "Email",
+          "document": "ID number",
+          "payId": "Binance Pay ID",
+          "phone": "Phone number",
+          "vesAmount": "Amount to send"
         },
         "currencyNote": "This account receives {accountCurrency}. Transfer the equivalent of your {currency} balance.",
         "copyFailed": "Couldn't copy",
         "copyManual": "Press Ctrl/Cmd+C to copy",
-        "copyField": "Copy {field}"
+        "copyField": "Copy {field}",
+        "kinds": {
+          "zelle": "Zelle",
+          "binance": "Binance",
+          "paypal": "PayPal",
+          "zinli": "Zinli",
+          "cash": "Cash",
+          "pago_movil": "Pago Móvil"
+        },
+        "vesRate": "Rate: {rate} Bs per USD · {source} · {date}"
       },
       "instructions": {
         "title": "Transfer registered",
@@ -9860,5 +10065,97 @@
       "pause": "Pause audio",
       "play": "Play pronunciation"
     }
+  },
+  "assets": {
+    "title": "Assets",
+    "description": "Every image your school has uploaded — course covers, landing page, certificates, community and AI images — in one place.",
+    "searchPlaceholder": "Search by file name",
+    "filterBySource": "Filter by where it was used",
+    "all": "All",
+    "sources": {
+      "course": "Course covers",
+      "landing_page": "Landing page",
+      "certificate": "Certificates",
+      "community": "Community",
+      "ai_generated": "AI generated",
+      "library": "Library",
+      "other": "Other"
+    },
+    "summary": "{count, plural, one {# file} other {# files}} · {size} used",
+    "empty": "No files yet. Drop an image above to add your first one.",
+    "select": "Use {name}",
+    "delete": "Delete {name}",
+    "deleted": "File deleted",
+    "deleteTitle": "Delete {name}?",
+    "deleteInUse": "This file is used in {count, plural, one {# place} other {# places}}: {where}. Deleting it will leave a broken image there.",
+    "deleteUnused": "Nothing in your school uses this file. This cannot be undone.",
+    "deleteConfirm": "Delete",
+    "cancel": "Cancel",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {count}",
+    "unusedOnly": "Unused only",
+    "unused": "Unused",
+    "usedCount": "Used in {count}",
+    "details": "Details of {name}",
+    "urlCopied": "URL copied",
+    "copyFailed": "Could not copy the URL",
+    "uploadedBy": "Uploaded by",
+    "uploadedOn": "Uploaded on",
+    "size": "Size",
+    "type": "Type",
+    "unknownUser": "Unknown user",
+    "unknownUploader": "Not recorded (uploaded before tracking)",
+    "usedIn": "Used in",
+    "notUsed": "Nothing in your school uses this file.",
+    "copyUrl": "Copy URL",
+    "openOriginal": "Open original",
+    "usageTypes": {
+      "course": "Course cover",
+      "lesson": "Lesson",
+      "certificate": "Certificate",
+      "landing_page": "Landing page",
+      "setting": "Setting",
+      "school_logo": "School logo",
+      "community_post": "Community post"
+    }
+  },
+  "dataTable": {
+    "columnSort": "Column Sort",
+    "sortPriority": "Sort priority (order in which columns are sorted)",
+    "multiSortTip": "TIP: Hold 'shift' key to enable multi sort",
+    "clearSort": "Clear sort",
+    "sortColumn": "Sort column",
+    "sort": {
+      "asc": "Asc",
+      "desc": "Desc",
+      "lowToHigh": "Low to high",
+      "highToLow": "High to low",
+      "oldestFirst": "Oldest first",
+      "newestFirst": "Newest first",
+      "falseFirst": "False first",
+      "trueFirst": "True first"
+    },
+    "pagination": "Table pagination",
+    "itemsPerPage": "Items per page",
+    "selectPageSize": "Select page size",
+    "zeroItems": "0 items",
+    "itemRange": "{start}-{end} of {total} items",
+    "pageNumber": "Page number",
+    "pageOf": "Page {current} of {total}",
+    "ofPages": "of {total, plural, one {# page} other {# pages}}",
+    "previousPageAria": "Go to previous page, page {page}",
+    "previousPage": "Go to previous page",
+    "nextPageAria": "Go to next page, page {page}",
+    "nextPage": "Go to next page",
+    "reset": "Reset",
+    "search": "Search...",
+    "searchTable": "Search table",
+    "clearSearch": "Clear search",
+    "clearFilterTitle": "Clear {title} filter",
+    "selectedCount": "{count} selected",
+    "noResults": "No results found.",
+    "clearFilters": "Clear filters",
+    "columnActions": "Column actions"
   }
 }

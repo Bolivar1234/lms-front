@@ -36,6 +36,7 @@ export interface QuestionData {
 export interface ExamFormData {
   title: string
   description: string
+  image: string
   duration: number
   sequence: number
   status: string
@@ -63,6 +64,7 @@ export interface ExamBuilderInitialData {
   exam_id?: number
   title?: string
   description?: string | null
+  image?: string | null
   duration?: number
   sequence?: number | null
   status?: string | null
@@ -122,6 +124,7 @@ export function ExamBuilderProvider({
   const [formData, setFormData] = useState<ExamFormData>(() => ({
     title: initialData?.title || '',
     description: initialData?.description || '',
+    image: initialData?.image || '',
     duration: initialData?.duration || 60,
     sequence: initialData?.sequence || 1,
     status: initialData?.status || 'draft',
@@ -223,6 +226,7 @@ export function ExamBuilderProvider({
     const actionData: ActionExamFormData = {
       title: formData.title,
       description: formData.description,
+      image: formData.image || null,
       duration: formData.duration,
       sequence: formData.sequence,
       publish,

@@ -3,10 +3,11 @@
 import { validateUploadFile } from '@/lib/storage/validation'
 import { authorizeTenantStorage } from '@/lib/storage/authorization'
 
+import { recordAssetUploader } from '@/lib/assets/record-uploader'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient, type ActionResult } from '@/lib/supabase/admin'
 import {getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
-import { getUserRole } from '@/lib/supabase/get-user-role'
+import { getActiveMemberRole } from '@/lib/supabase/get-user-role'
 import { hasCourseAccess } from '@/lib/services/course-access'
 import { revalidatePath } from 'next/cache'
 import { nanoid } from 'nanoid'
@@ -193,7 +194,7 @@ export async function createPost(
   try {
     const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
-    const role = await getUserRole()
+    const role = await getActiveMemberRole()
 
     // Check mute status
     if (await isUserMuted(tenantId, userId)) {
@@ -401,7 +402,7 @@ export async function deletePost(postId: string): Promise<ActionResult> {
   try {
     const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
-    const role = await getUserRole()
+    const role = await getActiveMemberRole()
 
     // Fetch the post to verify ownership or admin/teacher role
     const adminClient = createAdminClient()
@@ -476,7 +477,7 @@ export async function createComment(
       return { success: false, error: 'You are currently muted and cannot comment' }
     }
 
-    const post = await resolveReachablePost(postId, tenantId, userId, await getUserRole())
+    const post = await resolveReachablePost(postId, tenantId, userId, await getActiveMemberRole())
     if (typeof post === 'string') return { success: false, error: post }
 
     if (post.is_locked) {
@@ -554,7 +555,7 @@ export async function deleteComment(commentId: string): Promise<ActionResult> {
   try {
     const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
-    const role = await getUserRole()
+    const role = await getActiveMemberRole()
 
     // Fetch the comment to verify ownership or admin/teacher role
     const adminClient = createAdminClient()
@@ -630,7 +631,7 @@ export async function toggleReaction(
       if (!comment || comment.is_hidden) return { success: false, error: 'Comment not found' }
       postId = comment.post_id
     }
-    const post = await resolveReachablePost(postId, tenantId, userId, await getUserRole())
+    const post = await resolveReachablePost(postId, tenantId, userId, await getActiveMemberRole())
     if (typeof post === 'string') return { success: false, error: post }
 
     // Check if reaction already exists
@@ -709,7 +710,7 @@ export async function createPoll(formData: FormData): Promise<ActionResult<{ id:
   try {
     const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
-    const role = await getUserRole()
+    const role = await getActiveMemberRole()
 
     // Check mute status
     if (await isUserMuted(tenantId, userId)) {
@@ -869,7 +870,7 @@ export async function castVote(postId: string, optionId: string): Promise<Action
 
     const adminClient = createAdminClient()
 
-    const post = await resolveReachablePost(postId, tenantId, userId, await getUserRole())
+    const post = await resolveReachablePost(postId, tenantId, userId, await getActiveMemberRole())
     if (typeof post === 'string') return { success: false, error: post }
 
     if (post.post_type !== 'poll') {
@@ -948,6 +949,7 @@ export async function uploadCommunityAsset(
       .upload(filePath, file.bytes, { contentType: file.mimeType, upsert: false })
 
     if (error) throw error
+    await recordAssetUploader('community-assets', filePath, actor.user.id)
 
     const { data: urlData } = adminClient.storage
       .from('community-assets')
@@ -1103,7 +1105,7 @@ export async function getComments(
     const { userId } = await getAuthenticatedUser()
     // Tenant from the request, never the client (#860).
     const tenantId = await getCurrentTenantId()
-    const post = await resolveReachablePost(postId, tenantId, userId, await getUserRole())
+    const post = await resolveReachablePost(postId, tenantId, userId, await getActiveMemberRole())
     if (typeof post === 'string') return { success: false, error: post }
 
     const adminClient = createAdminClient()
@@ -1188,7 +1190,7 @@ export async function setAcceptedAnswer(
   try {
     const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
-    const role = await getUserRole()
+    const role = await getActiveMemberRole()
 
     const post = await resolveReachablePost(postId, tenantId, userId, role)
     if (typeof post === 'string') return { success: false, error: post }
@@ -1292,7 +1294,7 @@ export async function loadMorePosts(
   try {
     const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
-    const role = await getUserRole()
+    const role = await getActiveMemberRole()
 
     if (Number.isNaN(Date.parse(cursor))) {
       return { success: false, error: 'Invalid cursor' }
@@ -1335,7 +1337,7 @@ export async function loadNewPosts(
   try {
     const { userId } = await getAuthenticatedUser()
     const tenantId = await getCurrentTenantId()
-    const role = await getUserRole()
+    const role = await getActiveMemberRole()
 
     if (typeof since !== 'string' || Number.isNaN(Date.parse(since))) {
       return { success: false, error: 'Invalid cursor' }
