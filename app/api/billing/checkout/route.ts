@@ -18,6 +18,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentTenantId } from '@/lib/supabase/tenant'
 import { resolveRequestLocale } from '@/lib/i18n/request-locale'
+import { isSolanaEnabled, solanaDisabledResponse } from '@/lib/payments/solana-flag'
 import { PROVIDER_CAPABILITIES } from '@/lib/payments/types'
 import { getTenantPlatformProviderStatuses } from '@/lib/billing/platform-checkout-runtime'
 import {
@@ -51,6 +52,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { planId, interval = 'monthly', locale: bodyLocale, provider: requestedProvider } = body
+
+    // Solana is disabled unless SOLANA_PAYMENTS_ENABLED=true: answer before price resolution.
+    if ((requestedProvider === 'solana' || requestedProvider === 'solana_subs') && !isSolanaEnabled()) {
+      return solanaDisabledResponse()!
+    }
 
     if (!planId) {
       return NextResponse.json({ error: 'Missing plan ID' }, { status: 400 })
@@ -134,6 +140,10 @@ export async function POST(req: NextRequest) {
     }
 
     const { provider, price } = resolved.value
+
+    if ((provider === 'solana' || provider === 'solana_subs') && !isSolanaEnabled()) {
+      return solanaDisabledResponse()!
+    }
 
     const capabilities = PROVIDER_CAPABILITIES[provider]
     if (!capabilities?.supportsPlatformBillingCheckout) {
@@ -292,8 +302,8 @@ export async function POST(req: NextRequest) {
     // bounces the admin through a redirect that loses the session_id.
     const origin = req.headers.get('origin') || req.headers.get('referer')?.replace(/\/[^/]*$/, '') || ''
     const locale = resolveRequestLocale(req, bodyLocale)
-    const successUrl = `${origin}/${locale}/dashboard/admin/billing?session_id={CHECKOUT_SESSION_ID}`
-    const cancelUrl = `${origin}/${locale}/dashboard/admin/billing/upgrade`
+    const successUrl = `${origin}/dashboard/admin/billing?session_id={CHECKOUT_SESSION_ID}`
+    const cancelUrl = `${origin}/dashboard/admin/billing/upgrade`
 
     const replacementExpiresAt = provider === 'solana' ? requestExpiresAt() : undefined
     let switchId: string | null

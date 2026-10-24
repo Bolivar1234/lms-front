@@ -28,6 +28,7 @@ import { safeAnalytics, track } from '@/lib/analytics/server'
 import type { CreateCheckoutParams, PaymentProvider } from '@/lib/payments/types'
 import { getSolUsdPrice, usdToLamports } from '@/lib/payments/sol-price'
 import { getSolanaSettlementOptions } from '@/app/actions/admin/settings'
+import { isSolanaEnabled, solanaDisabledResponse } from '@/lib/payments/solana-flag'
 import { paymentAuthLimiter } from '@/lib/rate-limit'
 import { DEFAULT_FEE_BEARER, type FeeBearer } from '@/lib/payments/fee-bearer'
 import {
@@ -178,6 +179,10 @@ export async function POST(req: NextRequest) {
       providerPriceId = product.provider_price_id || ''
       feeBearer = charge.feeBearer
       schoolPercentageSnapshot = charge.schoolPercentage
+    }
+
+    if ((providerSlug === 'solana' || providerSlug === 'solana_subs') && !isSolanaEnabled()) {
+      return solanaDisabledResponse()!
     }
 
     // Connected-account readiness gate (#606). A no-op for every rail this

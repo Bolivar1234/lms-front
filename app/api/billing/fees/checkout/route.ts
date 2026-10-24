@@ -51,6 +51,8 @@ import {
   type PlatformSettlement,
 } from '@/lib/billing/solana-platform-payment'
 
+import { isSolanaEnabled, solanaDisabledResponse } from '@/lib/payments/solana-flag'
+
 export const runtime = 'nodejs'
 
 const QUOTE_ERRORS: Record<PayNowError, { status: number; message: string }> = {
@@ -78,6 +80,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(errorBody('invalid_body', 'Invalid request body'), { status: 400 })
     }
     const provider = typeof body.provider === 'string' ? body.provider : ''
+    if ((provider === 'solana' || provider === 'solana_subs') && !isSolanaEnabled()) {
+      return solanaDisabledResponse()!
+    }
     const currency = typeof body.currency === 'string' ? body.currency : undefined
     const trimmed = (v: unknown, max: number) =>
       typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : null
@@ -270,7 +275,7 @@ export async function POST(req: NextRequest) {
 
     const origin = req.headers.get('origin') || req.headers.get('referer')?.replace(/\/[^/]*$/, '') || ''
     const locale = resolveRequestLocale(req, body.locale)
-    const returnPath = `${origin}/${locale}/dashboard/admin/earnings`
+    const returnPath = `${origin}/dashboard/admin/earnings`
 
     let session
     try {
