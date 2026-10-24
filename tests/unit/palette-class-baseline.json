@@ -1,4 +1,8 @@
 {
+  "app/[locale]/dashboard/admin/billing/checkout/[requestId]/solana-checkout-client.tsx": [
+    0,
+    1
+  ],
   "app/[locale]/dashboard/student/courses/[courseId]/exams/[examId]/exam-taker.tsx": [
     0,
     2
@@ -101,11 +105,15 @@
   ],
   "components/public/checkout-form.tsx": [
     0,
-    1
+    2
   ],
   "components/public/course-card.tsx": [
     0,
     6
+  ],
+  "components/public/course-trailer.tsx": [
+    0,
+    3
   ],
   "components/public/school-landing-page.tsx": [
     0,
