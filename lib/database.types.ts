@@ -81,6 +81,303 @@ export type Database = {
           },
         ]
       }
+      ai_config_versions: {
+        Row: {
+          config_hash: string
+          created_at: string
+          created_by: string | null
+          id: string
+          snapshot: Json
+          target_id: number
+          target_type: string
+          tenant_id: string
+          version_no: number
+        }
+        Insert: {
+          config_hash: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          snapshot: Json
+          target_id: number
+          target_type: string
+          tenant_id: string
+          version_no: number
+        }
+        Update: {
+          config_hash?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          snapshot?: Json
+          target_id?: number
+          target_type?: string
+          tenant_id?: string
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_config_versions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_eval_cases: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expected: Json
+          generated_for_version_id: string | null
+          golden_output: Json | null
+          id: string
+          importance_note: string | null
+          input: Json
+          kind: string
+          must_keep: string[]
+          name: string
+          source: string
+          target_id: number
+          target_type: string
+          teacher_edited: boolean
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expected?: Json
+          generated_for_version_id?: string | null
+          golden_output?: Json | null
+          id?: string
+          importance_note?: string | null
+          input: Json
+          kind: string
+          must_keep?: string[]
+          name: string
+          source: string
+          target_id: number
+          target_type: string
+          teacher_edited?: boolean
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expected?: Json
+          generated_for_version_id?: string | null
+          golden_output?: Json | null
+          id?: string
+          importance_note?: string | null
+          input?: Json
+          kind?: string
+          must_keep?: string[]
+          name?: string
+          source?: string
+          target_id?: number
+          target_type?: string
+          teacher_edited?: boolean
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_eval_cases_generated_for_version_id_fkey"
+            columns: ["generated_for_version_id"]
+            isOneToOne: false
+            referencedRelation: "ai_config_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_eval_cases_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_eval_results: {
+        Row: {
+          case_id: string | null
+          case_kind: string
+          case_name: string
+          completed: boolean | null
+          completed_turn: number | null
+          created_at: string
+          deviation: number | null
+          error: string | null
+          expected: Json
+          id: string
+          output: Json | null
+          passed: boolean | null
+          run_id: string
+          score: number | null
+          score_stddev: number | null
+          scores: number[] | null
+          tenant_id: string
+          transcript: Json
+          verdicts: Json
+        }
+        Insert: {
+          case_id?: string | null
+          case_kind: string
+          case_name: string
+          completed?: boolean | null
+          completed_turn?: number | null
+          created_at?: string
+          deviation?: number | null
+          error?: string | null
+          expected?: Json
+          id?: string
+          output?: Json | null
+          passed?: boolean | null
+          run_id: string
+          score?: number | null
+          score_stddev?: number | null
+          scores?: number[] | null
+          tenant_id: string
+          transcript?: Json
+          verdicts?: Json
+        }
+        Update: {
+          case_id?: string | null
+          case_kind?: string
+          case_name?: string
+          completed?: boolean | null
+          completed_turn?: number | null
+          created_at?: string
+          deviation?: number | null
+          error?: string | null
+          expected?: Json
+          id?: string
+          output?: Json | null
+          passed?: boolean | null
+          run_id?: string
+          score?: number | null
+          score_stddev?: number | null
+          scores?: number[] | null
+          tenant_id?: string
+          transcript?: Json
+          verdicts?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_eval_results_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ai_eval_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_eval_results_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_eval_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_eval_results_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_eval_runs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          error: string | null
+          finished_at: string | null
+          id: string
+          model_ids: Json | null
+          started_at: string | null
+          status: string
+          summary: Json | null
+          target_id: number
+          target_type: string
+          tenant_id: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          model_ids?: Json | null
+          started_at?: string | null
+          status?: string
+          summary?: Json | null
+          target_id: number
+          target_type: string
+          tenant_id: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          model_ids?: Json | null
+          started_at?: string | null
+          status?: string
+          summary?: Json | null
+          target_id?: number
+          target_type?: string
+          tenant_id?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_eval_runs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_eval_runs_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "ai_config_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_eval_suites: {
+        Row: {
+          auto_regenerate: boolean
+          created_at: string
+          id: string
+          target_id: number
+          target_type: string
+          tenant_id: string
+        }
+        Insert: {
+          auto_regenerate?: boolean
+          created_at?: string
+          id?: string
+          target_id: number
+          target_type: string
+          tenant_id: string
+        }
+        Update: {
+          auto_regenerate?: boolean
+          created_at?: string
+          id?: string
+          target_id?: number
+          target_type?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       ai_image_usage: {
         Row: {
           image_count: number
@@ -4409,6 +4706,7 @@ export type Database = {
       lessons_ai_task_messages: {
         Row: {
           attachments: Json | null
+          config_version_id: string | null
           created_at: string
           id: number
           lesson_id: number | null
@@ -4419,6 +4717,7 @@ export type Database = {
         }
         Insert: {
           attachments?: Json | null
+          config_version_id?: string | null
           created_at?: string
           id?: number
           lesson_id?: number | null
@@ -4429,6 +4728,7 @@ export type Database = {
         }
         Update: {
           attachments?: Json | null
+          config_version_id?: string | null
           created_at?: string
           id?: number
           lesson_id?: number | null
@@ -7879,6 +8179,43 @@ export type Database = {
       }
     }
     Functions: {
+      ensure_exercise_grader_version: {
+        Args: { _exercise_id: number }
+        Returns: string
+      }
+      exercise_grader_config_snapshot: {
+        Args: { _exercise_id: number }
+        Returns: Json
+      }
+      ensure_lesson_task_version: {
+        Args: {
+          _lesson_id: number
+          _requirements: Json
+          _system_prompt: string
+          _task_instructions: string
+        }
+        Returns: string
+      }
+      lesson_task_config_snapshot: {
+        Args: {
+          _requirements: Json
+          _system_prompt: string
+          _task_instructions: string
+        }
+        Returns: Json
+      }
+      lesson_task_version_metrics: {
+        Args: { _lesson_id: number }
+        Returns: {
+          abandoned: number
+          completed: number
+          created_at: string
+          median_turns_to_complete: number | null
+          students: number
+          version_id: string
+          version_no: number
+        }[]
+      }
       account_deletion_blockers: {
         Args: { _user_id: string }
         Returns: {
