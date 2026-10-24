@@ -534,7 +534,9 @@ test.describe('Manual (offline) — a request an admin confirms becomes a sale a
       // the list, so there is never a form through which this sale could be
       // touched from outside the school that made it.
       await expect(page).toHaveURL(/\/dashboard\/admin\/payment-requests\/?$/, { timeout: 60_000 })
-      await expect(page.getByText(String(requestId))).toHaveCount(0)
+      // Payment-request rows are not links (the list is a data table now, #1000) and a bare id is a
+      // substring of any count on the page, so assert the one thing that matters: no confirm form.
+      await expect(page.getByTestId('payment-request-confirm-payment')).toHaveCount(0)
 
       // And nothing moved.
       expect((await readRequest(admin, requestId)).status).toBe('completed')

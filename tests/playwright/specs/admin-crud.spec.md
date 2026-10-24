@@ -42,7 +42,7 @@ These tests go **beyond page loads** to verify that admin CRUD forms render corr
 | # | Test | Route | Assertions | Selectors / Notes |
 |---|------|-------|------------|-------------------|
 | 10 | users page shows user list with roles and stats | `/en/dashboard/admin/users` | `[data-testid="users-page"]` visible; stats cards visible (total users, teachers, students); table with at least one row | Stats cards with numbers; `table` with `tbody tr` |
-| 11 | users table supports search filtering | `/en/dashboard/admin/users` | Type a search query in search input; table updates (row count changes or stays filtered) | `input[type="search"]`; count rows before/after |
+| 11 | users table supports search filtering | `/en/dashboard/admin/users` | Type a search query in search input; table updates (row count changes or stays filtered) | the table's search box (`role=search` > textbox); count rows before/after |
 | 12 | user detail page loads with profile and sections | `/en/dashboard/admin/users` | Click first "View" link; detail page loads with profile card, roles card, enrollments section, recent activity section | `a[href*="/admin/users/"]`; cards with headings |
 | 13 | user detail page shows enrollments and activity sections | Navigate from test 12 | Enrollments card heading visible; recent activity card heading visible; transactions card heading visible | Card headings for enrollments, activity, transactions |
 

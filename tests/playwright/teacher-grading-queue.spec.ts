@@ -431,7 +431,8 @@ test.describe('Teacher grading queue (#674)', () => {
     await expect(row).toBeVisible({ timeout: 60_000 })
     await expect(row).toContainText(`${SCORE_BEFORE}%`)
 
-    await domClick(teacher, row.getByRole('link', { name: /review/i }))
+    // The Review cell is a Button rendered as a link (role=button), so match it by href.
+    await domClick(teacher, row.locator('a[href*="/submissions/"]'))
     await teacher.waitForURL(/\/submissions\/\d+$/, { timeout: 60_000 })
 
     const body = teacher.locator('body')

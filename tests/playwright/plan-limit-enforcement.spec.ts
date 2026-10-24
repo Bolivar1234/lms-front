@@ -42,6 +42,7 @@ test.describe.serial('Plan limits enforced by the database (#658)', () => {
   let authorId: string
   let archivedId: number
 
+  let priorBillingMode = 'internal'
   test.beforeAll(async () => {
     // Leftovers from an interrupted run must not skew the count.
     await admin.from('courses').delete().eq('tenant_id', DEFAULT_TENANT).like('title', `${TITLE_PREFIX}%`)
@@ -55,6 +56,12 @@ test.describe.serial('Plan limits enforced by the database (#658)', () => {
       .limit(1)
       .single()
     authorId = staff!.user_id
+
+    // #982: the Default School is billing_mode='internal' (unlimited). Make it a paid school for
+    // this run; afterAll puts the mode back.
+    const { data: tenantRow } = await admin.from('tenants').select('billing_mode').eq('id', DEFAULT_TENANT).single()
+    priorBillingMode = tenantRow?.billing_mode ?? 'internal'
+    await admin.from('tenants').update({ billing_mode: 'paid' }).eq('id', DEFAULT_TENANT)
 
     const before = await usage()
     expect(before.max_courses, 'Default School must be on a limited plan').toBe(5)
@@ -84,6 +91,7 @@ test.describe.serial('Plan limits enforced by the database (#658)', () => {
 
   test.afterAll(async () => {
     if (created.length) await admin.from('courses').delete().in('course_id', created)
+    await admin.from('tenants').update({ billing_mode: priorBillingMode }).eq('id', DEFAULT_TENANT)
   })
 
   test('a direct insert past the limit is refused with LM001', async () => {

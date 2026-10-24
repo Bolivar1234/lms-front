@@ -113,18 +113,18 @@ test.describe('Teacher Content — Course Detail Page', () => {
     const studentsTab = page.getByRole('tab', { name: /Students/ })
     await expect(studentsTab).toBeVisible({ timeout: 15_000 })
     // base-ui tabs ignore a click that lands before hydration — retry until the panel shows.
-    const filter = page.getByTestId('student-status-filter')
+    // The status filter is a faceted column filter inside the data table now (#1000), so wait for the rows.
+    const rows = page.locator('[data-testid="student-row"]')
     await expect
       .poll(
         async () => {
           await studentsTab.evaluate((t) => (t as HTMLElement).click())
           await page.waitForTimeout(500)
-          return filter.isVisible()
+          return rows.count()
         },
         { timeout: 20_000, intervals: [500, 1000] }
       )
-      .toBe(true)
-    await expect(filter.getByRole('button', { name: /All/ })).toHaveAttribute('aria-pressed', 'true')
+      .toBeGreaterThan(0)
 
     const row = page.locator('[data-testid="student-row"]').first()
     await expect(row).toBeVisible()
@@ -134,9 +134,10 @@ test.describe('Teacher Content — Course Detail Page', () => {
     await expect(row).toContainText(/No activity yet/)
 
     // Filtering to a status with no students shows the empty-filter message, not "no students".
-    await filter.locator('[data-status="completed"]').evaluate((b) => (b as HTMLElement).click())
+    const search = page.getByPlaceholder('Search students…')
+    await search.fill('zzz-no-such-student')
     await expect(page.getByText(/No students match this filter/)).toBeVisible()
-    await filter.locator('[data-status="all"]').evaluate((b) => (b as HTMLElement).click())
+    await search.fill('')
 
     // Row click opens the lesson-by-lesson sheet with what's next.
     await row.evaluate((r) => (r as HTMLElement).click())
