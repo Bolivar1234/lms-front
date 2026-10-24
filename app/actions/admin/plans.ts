@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { isSolanaEnabled } from '@/lib/payments/solana-flag'
 import { verifyAdminAccess, createAdminClient, type ActionResult } from '@/lib/supabase/admin'
 import { getPaymentProvider, PaymentProvider, PROVIDER_CAPABILITIES } from '@/lib/payments'
 import { getCurrentTenantId, getCurrentUserId } from '@/lib/supabase/tenant'
@@ -61,6 +62,9 @@ export async function createPlan(formData: PlanFormData): Promise<ActionResult<P
     // provider yet — provider constructors (e.g. Lemon Squeezy) throw on missing
     // env, and only the createsCatalog branch actually needs a live client.
     const providerType = formData.paymentProvider || 'stripe'
+    if ((providerType === 'solana' || providerType === 'solana_subs') && !isSolanaEnabled()) {
+      throw new Error('Solana payments are disabled.')
+    }
     const caps = PROVIDER_CAPABILITIES[providerType]
     const adminClient = createAdminClient()
 
