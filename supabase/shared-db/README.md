@@ -13,6 +13,24 @@ The LMS lives in the `lms` schema. Production is not on this setup yet.
   `lms.community_comments` to Realtime. The repo migration publishes the
   `public.` tables, which do not exist for the LMS on the shared DB.
 - `lms-tenant-slug-reserved.sql`: blocks platform host labels as school slugs.
+- `lms-catchup-20261024.sql`: the 21 repo migrations the staging `lms` schema was
+  missing after the upstream syncs (#33, #34): billing mode, tenant assets, read gates,
+  the AI evals tables and more. Generated, one transaction, with a preflight and a
+  ledger (`lms.lms_migration_log`). Not applied yet; see the run line in its header.
+
+## Applying new repo migrations
+
+The shared DB has no migration history for `lms`. Build a bundle of the migrations
+added between two refs, read it (the header lists every statement that touches the
+shared `storage` schema), then run it on the host:
+
+```bash
+node scripts/shared-db/build-lms-bundle.mjs <last-applied-ref> origin/main supabase/shared-db/lms-catchup-<date>.sql
+docker exec -i saythanks-staging-db-1 psql -U postgres -d postgres -v ON_ERROR_STOP=1 -1 < lms-catchup-<date>.sql
+```
+
+The bundle records each version in `lms.lms_migration_log` and refuses to run if any
+of its versions is already there.
 
 ## Staging auth settings (GoTrue)
 
