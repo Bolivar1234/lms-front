@@ -64,6 +64,7 @@ export interface ExamBuilderInitialData {
   exam_id?: number
   title?: string
   description?: string | null
+  image?: string | null
   duration?: number
   sequence?: number | null
   status?: string | null
