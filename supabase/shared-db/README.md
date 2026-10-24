@@ -22,7 +22,7 @@ The LMS lives in the `lms` schema. Production is not on this setup yet.
   ran unchanged. The generator now emits a dynamic-SQL preflight; this file is kept as
   the record of what ran.
 
-- `lms-catchup-20261024b.sql`: `20261026120000_tighten_permissive_rls` (#38). Replaces the
+- `lms-catchup-20261024b.sql`: `20261026121500_tighten_permissive_rls` (#38; renamed from 20261026120000, which upstream also uses). Replaces the
   `true` read policies on `profiles`, `messages`, `assignments`, `comment_reactions` and
   `gamification_profiles` with school-scoped ones. Not yet applied.
 
