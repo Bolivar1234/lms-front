@@ -367,6 +367,7 @@ describe('grader code path (shared with the student submission)', () => {
     const result = await gradeExamAnswersDry(ctx!, {
       answers: { '1': '11', '2': 'true', '3': 'x', '4': 'y' },
       grader: { providerId: 'mock', modelId: 'm', model: examModel([{ q3: 8, q4: 16 }], seen) } as never,
+      metadata: { tenantId: 't1' },
       locale: 'en',
       onModelCall: calls,
     })
@@ -383,7 +384,7 @@ describe('grader code path (shared with the student submission)', () => {
     state.questions = questionRows.slice(0, 2)
     const ctx = await loadExamGradingContext((await import('@/lib/supabase/admin')).createAdminClient() as never, { examId: 7, tenantId: 't1' })
     const calls = vi.fn()
-    const result = await gradeExamAnswersDry(ctx!, { answers: { '1': '11', '2': 'true' }, grader: {} as never, locale: 'en', onModelCall: calls })
+    const result = await gradeExamAnswersDry(ctx!, { answers: { '1': '11', '2': 'true' }, grader: {} as never, locale: 'en', metadata: { tenantId: 't1' }, onModelCall: calls })
     expect(calls).not.toHaveBeenCalled()
     expect(result.score).toBe(100)
   })
@@ -417,7 +418,7 @@ describe('grader code path (shared with the student submission)', () => {
     const ctx = await loadExamGradingContext((await import('@/lib/supabase/admin')).createAdminClient() as never, { examId: 7, tenantId: 't1' })
     const calls = vi.fn()
     const out = await runExamCase(
-      { grader: { providerId: 'mock', modelId: 'm', model: examModel([{ q3: 8, q4: 16 }, { q3: 9, q4: 16 }, { q3: 8, q4: 17 }]) } as never, exam: ctx!, locale: 'en', onModelCall: calls },
+      { grader: { providerId: 'mock', modelId: 'm', model: examModel([{ q3: 8, q4: 16 }, { q3: 9, q4: 16 }, { q3: 8, q4: 17 }]) } as never, exam: ctx!, locale: 'en', tenantId: 't1', onModelCall: calls },
       testCase(expected(), { '1': '11', '2': 'false', '3': 'x', '4': 'y', '77': 'deleted' })
     )
     expect(calls).toHaveBeenCalledTimes(3)
@@ -429,7 +430,7 @@ describe('grader code path (shared with the student submission)', () => {
   it('runExamCase throws when every repeat fails', async () => {
     const ctx = await loadExamGradingContext((await import('@/lib/supabase/admin')).createAdminClient() as never, { examId: 7, tenantId: 't1' })
     const bad = new MockLanguageModelV4({ doGenerate: (async () => textResult('not json')) as never })
-    await expect(runExamCase({ grader: { providerId: 'mock', modelId: 'm', model: bad } as never, exam: ctx!, locale: 'en' }, testCase(expected()))).rejects.toThrow()
+    await expect(runExamCase({ grader: { providerId: 'mock', modelId: 'm', model: bad } as never, exam: ctx!, locale: 'en', tenantId: 't1' }, testCase(expected()))).rejects.toThrow()
   })
 })
 

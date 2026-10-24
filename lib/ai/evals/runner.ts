@@ -453,7 +453,7 @@ async function executeExamRun(
       .limit(EVAL_LIMITS.maxCasesPerTarget)
     const cases = (data ?? []).map((row) => toExamCaseRow(row as Record<string, unknown>))
 
-    const ctx: ExamEngineContext = { grader, exam, locale: run.locale, onModelCall: () => { modelCalls++ } }
+    const ctx: ExamEngineContext = { grader, exam, locale: run.locale, tenantId, onModelCall: () => { modelCalls++ } }
     const outcomes: { testCase: ExamCaseRow; outcome: ExamOutcome | null; error?: string }[] = []
 
     await mapLimit(cases, EVAL_LIMITS.concurrency, async (testCase) => {

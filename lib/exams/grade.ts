@@ -361,10 +361,18 @@ Evaluate these free-text answers now:`
 export async function runExamAiGrader(args: {
   grader: ResolvedFeatureModel
   prompt: string
-  metadata: Record<string, string>
+  metadata: Record<string, string> & { tenantId: string }
 }): Promise<ExamGradingOutput> {
   const result = await propagateAttributes(
-    { metadata: args.metadata },
+    {
+      metadata: {
+        ...args.metadata,
+        tenantId: args.metadata.tenantId,
+        feature: 'exam_grader',
+        provider: args.grader.providerId,
+        modelId: args.grader.modelId,
+      },
+    },
     () => generateText({
       model: args.grader.model,
       output: Output.object({ schema: examGradingSchema }),
@@ -645,7 +653,7 @@ export async function gradeExamAnswersDry(
     answers: Record<string, string>
     grader: ResolvedFeatureModel
     locale: string
-    metadata?: Record<string, string>
+    metadata: Record<string, string> & { tenantId: string }
     onModelCall?: () => void
   }
 ): Promise<ExamDryRunResult> {
@@ -669,7 +677,7 @@ export async function gradeExamAnswersDry(
   const output = await runExamAiGrader({
     grader: args.grader,
     prompt,
-    metadata: { feature: 'exam_grader', dryRun: 'true', provider: args.grader.providerId, modelId: args.grader.modelId, ...args.metadata },
+    metadata: { ...args.metadata, dryRun: 'true' },
   })
   const aiScores = normalizeAiScores(output, freeTextQuestions, answers)
   if (!coversAllFreeText(aiScores, freeTextQuestions)) {

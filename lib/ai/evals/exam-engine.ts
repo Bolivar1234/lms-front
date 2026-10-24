@@ -32,6 +32,8 @@ export interface ExamEngineContext {
   /** The saved exam with its key merged back (stays server-side). */
   exam: ExamGradingContext
   locale: string
+  /** The school running the eval; tags the grader's Langfuse trace. */
+  tenantId: string
   /** Incremented once per model request, for the run's cost line. */
   onModelCall?: () => void
 }
@@ -256,6 +258,7 @@ export async function runExamCase(ctx: ExamEngineContext, testCase: ExamCaseRow)
           answers,
           grader: ctx.grader,
           locale: ctx.locale,
+          metadata: { tenantId: ctx.tenantId },
           onModelCall: ctx.onModelCall,
         })
       )
